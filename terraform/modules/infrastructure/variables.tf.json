@@ -1,0 +1,29 @@
+{
+    "variable": {
+      "vsphere_datacenter": {
+        "description": "The name of the vcenter datacenter",
+        "type": "string",
+        "default": "${var.datacenter}"
+      },
+      "vsphere_cluster": {
+        "description": "The name of the vcenter cluster",
+        "type": "string",
+        "default": "${var.cluster}"
+      },
+      "vsphere_dvswitch": {
+        "description": "The vcenter distributed switch to use for the portgroups. Set to a blank string if not using a distributed switch",
+        "type": "string",
+        "default": "${var.dvswitch}"
+      },
+      "vsphere_datastore": {
+        "description": "The vcenter datastore where the vms will be placed",
+        "type": "string",
+        "default": "${var.vsphere_datastore}"
+      },
+      "vsphere_folder": {
+        "description": "The vcenter folder where the vms will be placed",
+        "type": "string",
+        "default": "${var.folder}"
+      }
+    }
+  }
