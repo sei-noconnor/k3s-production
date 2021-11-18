@@ -1,0 +1,340 @@
+caster-api:
+
+  # Docker image release version
+  image:
+    # Caster API version
+    tag: "2.1.0"
+  
+  # Ingress configuration example for NGINX
+  # TLS and Host URLs need configured
+  ingress:
+    enabled: true
+    className: ""
+    annotations:
+      kubernetes.io/ingress.class: nginx
+      nginx.ingress.kubernetes.io/proxy-read-timeout: '86400'
+      nginx.ingress.kubernetes.io/proxy-send-timeout: '86400'
+      nginx.ingress.kubernetes.io/use-regex: "true"
+    hosts:
+      - host: caster.example.com
+        paths:
+          - path: /(api|swagger|hubs)
+            pathType: ImplementationSpecific
+    tls:
+      - secretName: ""
+        hosts:
+         - example.com
+
+  # Use a .terraformrc file to overwrite standard Terraform configuration
+  # https://www.terraform.io/docs/cli/config/config-file.html
+  # NOTE:  If enabled,  Terraform__PluginDirectory environment variable must be set to empty explicitly
+  terraformrc:
+      enabled: false
+      value: |
+        plugin_cache_dir = "/terraform/plugin-cache"
+        provider_installation {
+            filesystem_mirror {
+                path = "/terraform/plugins/linux_amd64"
+                include = []
+            }
+            direct {
+                include = []
+            }
+        }
+
+  # storage - either an existing pvc, the size for a new pvc, or emptyDir
+  storage:
+    existing: ""
+    size: ""
+    mode: ReadWriteOnce
+    class: default
+
+  # If this deployment needs to trust non-public certificates,
+  # create a configMap with the needed certifcates and specify
+  # the configMap name here
+  certificateMap: ""
+
+  # Gets placed in /root/.git-credentials to allow immediate Gitlab access via access token
+  # Replace TOKEN with an access token created in Gitlab, and update the Gitlab URL
+  gitcredentials: 'https://git-access-token:TOKEN@gitlab.example.com'
+
+  identity:
+    register: false
+    identityMap: ''
+    initCommand: ''
+    # SAMPLE IDENTITY CONFIGS
+    # client: |-
+    #   {
+    #     "name": "caster-api",
+    #     "displayName": "Caster API",
+    #     "description": null,
+    #     "grants": "authorization_code client_credentials",
+    #     "scopes": "caster-api",
+    #     "enabled": true,
+    #     "requirePkce": true,
+    #     "allowAccessTokensViaBrowser": false,
+    #     "requireConsent": false,
+    #     "consentLifetime": "30d",
+    #     "alwaysIncludeUserClaimsInIdToken": false,
+    #     "identityTokenLifetime": "5m",
+    #     "accessTokenLifetime": "1h",
+    #     "authorizationCodeLifetime": "5m",
+    #     "allowOfflineAccess": false,
+    #     "updateAccessTokenClaimsOnRefresh": false,
+    #     "useOneTimeRefreshTokens": false,
+    #     "slidingRefreshTokenLifetime": "15d",
+    #     "absoluteRefreshTokenLifetime": "30d",
+    #     "published": false,
+    #     "url": "https://example.com/caster",
+    #     "logoUrl": null,
+    #     "frontChannelLogoutUrl": null,
+    #     "backChannelLogoutUrl": null,
+    #     "redirectUrls": [
+    #       { "value": "https://example.com/caster/api/oauth2-redirect.html" }
+    #     ],
+    #     "postLogoutUrls": [{ "value": "https://example.com/caster/api" }],
+    #     "corsUrls": [{ "value": "https://example.com" }],
+    #     "alwaysSendClientClaims": false,
+    #     "clientClaimsPrefix": "client_",
+    #     "claims": [],
+    #     "secrets": [],
+    #     "managers": []
+    #   }
+      
+    # resource: |-
+    #   {
+    #     "type": "api",
+    #     "name": "caster-api",
+    #     "displayName": "Caster Api",
+    #     "enabled": true,
+    #     "default": true,
+    #     "required": false,
+    #     "emphasize": false,
+    #     "showInDiscoveryDocument": true
+    #   }
+
+  # Config app settings with environment vars.
+  # Those most likely needing values are listed. For others,
+  # see https://github.com/cmu-sei/crucible/blob/master/caster.api/src/Caster.Api/appsettings.json
+  env:
+    # Proxy Settings
+    # http_proxy: proxy.example.com:9000
+    # https_proxy: proxy.example.com:9000
+    # HTTP_PROXY: proxy.example.com:9000
+    # HTTPS_PROXY: proxy.example.com:9000
+    # NO_PROXY: .local
+    # no_proxy: .local
+
+    ## If hosting in virtual directory, specify path base
+    PathBase: ""
+
+    # This deployment comes built in with a script to install Terraform and the necessary
+    # plugins to run Caster properly.  Internet access is required for this script to run properly.
+    # It's recommended that this should remain false.  Please see the file "terraform-installation.tpl"
+    # for more information on the installation process.
+    SKIP_TERRAFORM_INSTALLATION: false
+
+    # VSphere settings:
+    # TODO - Document VSphere user role requirements
+    VSPHERE_SERVER: vcenter.example.com
+    VSPHERE_USER: caster-account@vsphere.local
+    VSPHERE_PASSWORD: 
+    VSPHERE_ALLOW_UNVERIFIED_SSL: true
+
+    # === Terraform Crucible Provider Section ===
+    # These variables only need filled in if you are using the following provider:
+    # https://registry.terraform.io/providers/cmu-sei/crucible/latest
+
+    # An Identity Service account with Caster Admin privileges
+    SEI_CRUCIBLE_USERNAME: ''
+    SEI_CRUCIBLE_PASSWORD: ''
+
+    # URL to the Identity Server Auth endpoint
+    SEI_CRUCIBLE_AUTH_URL: https://identity.example.com/connect/authorize
+    # URL to the Identity Server Token endpoint
+    SEI_CRUCIBLE_TOK_URL: https://identity.example.com/connect/token
+
+    # Identity Client information
+    SEI_CRUCIBLE_CLIENT_ID: player.provider
+    SEI_CRUCIBLE_CLIENT_SECRET: ''
+
+    # URLs to Player API and VM API
+    SEI_CRUCIBLE_VM_API_URL: https://vm.example.com/api/
+    SEI_CRUCIBLE_PLAYER_API_URL: https://player.example.com/
+
+    # === End Terraform Crucible Provider Section ===
+
+    # === Terraform Identity Provider Section ===
+    # These variables only need filled in if you are using the following provider:
+    # https://registry.terraform.io/providers/cmu-sei/identity/latest
+
+    # URL to the Identity Server Auth endpoint
+    SEI_IDENTITY_TOK_URL: https://identity.example.com/connect/token
+    # URL to the Identity Server API endpoint
+    SEI_IDENTITY_API_URL: https://id.example.com/api/
+    
+    # Identity Client information
+    SEI_IDENTITY_CLIENT_ID: terraform-identity-provider    
+    SEI_IDENTITY_CLIENT_SECRET: ''
+
+    # === End Terraform Identity Provider Section ===
+
+    # === Terraform Azure Provider Section ===
+    # These variables only need filled in if you are using the following provider:
+    # https://registry.terraform.io/providers/hashicorp/azurerm/latest
+
+    # Remaining documentation provided by the plugin
+    # NOTE:  Use the certificateMap key in this chart to add certificates, which will be placed in:
+    #        /usr/local/share/ca-certificates
+    ARM_CLIENT_CERTIFICATE_PATH: ''
+    ARM_CLIENT_ID: ''
+    ARM_ENVIRONMENT: ''
+    ARM_SKIP_PROVIDER_REGISTRATION: ''
+    ARM_SUBSCRIPTION_ID: ''
+    ARM_TENANT_ID: ''
+
+    # See here for more information regarding AllowedHosts
+    # https://docs.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.hostfiltering.hostfilteringoptions.allowedhosts?view=aspnetcore-3.1
+    AllowedHosts: "*"
+
+    # CORS policy settings.
+    # The first entry should be the URL to Caster
+    CorsPolicy__Origins__0: "https://caster.example.com"
+
+    # Connection String to database
+    # database requires the 'uuid-ossp' extension installed
+    ConnectionStrings__PostgreSQL: "Server=postgres;Port=5432;Database=caster_api;Username=caster_dbu;Password=;"
+
+    # OAuth2 Identity Client for Application
+    Authorization__Authority: https://identity.example.com
+    Authorization__AuthorizationUrl: https://identity.example.com/connect/authorize
+    Authorization__TokenUrl: https://identity.example.com/connect/token
+    Authorization__AuthorizationScope: "caster-api"
+    Authorization__ClientId: caster-api-dev
+
+    # OAuth2 Identity Client /w Password
+    Client__TokenUrl: https://identity.example.com/connect/token
+    Client__ClientId: caster-admin
+    Client__UserName: 
+    Client__Password: 
+    Client__Scope: "player-api vm-api"
+
+    # Crucible Player URLs
+    Player__VmApiUrl: "https://vm.example.com"
+    Player__VmConsoleUrl: "https://console.example.com/vm/{id}/console"
+
+    # Terraform Information
+    # - DefaultVersion - The default version to be used.
+    # - GitlabApiUrl - URL to the deployed Gitlab instance
+    # - TODO - Add link to Installation Documentation on how to get GItlabTaken and GitlabGroupId
+    Terraform__DefaultVersion: "0.14.0"
+    Terraform__GitlabApiUrl: "https://gitlab.example.com/api/v4/"
+    Terraform__GitlabToken: "TuyAi5abFvbSLpoDc9C2"
+    Terraform__GitlabGroupId: 6
+
+    # Configurable save lengths for Caster untagged versions
+    FileVersions__DaysToSaveAllUntaggedVersions: 7
+    FileVersions__DaysToSaveDailyUntaggedVersions: 31
+
+    # Basic seed data to jumpstart deployement
+    # TODO - Document seed data
+    SeedData__Users__0__id: 
+    SeedData__Users__0__name: 
+
+    SeedData__Users__1__id: 
+    SeedData__Users__1__name: 
+
+    SeedData__UserPermissions__0__UserId: 
+    SeedData__UserPermissions__0__PermissionId: 
+    SeedData__UserPermissions__1__UserId: 
+    SeedData__UserPermissions__1__PermissionId: 
+
+
+caster-ui:
+
+  # Docker image release version
+  image:
+    tag: "2.1.0"
+
+  # Ingress configuration example for NGINX
+  # TLS and Host URLs need configured
+  ingress:
+    enabled: true
+    className: ""
+    annotations:
+      kubernetes.io/ingress.class: nginx
+    hosts:
+      - host: caster.example.com
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
+    tls:
+      - secretName: ""
+        hosts:
+         - example.com
+
+  identity:
+    register: false
+    identityMap: ''
+    initCommand: ''
+    # SAMPLE IDENTITY CONFIGS
+    # client: |-
+    #   {
+    #     "name": "caster-ui",
+    #     "displayName": "Caster UI",
+    #     "description": null,
+    #     "grants": "authorization_code client_credentials",
+    #     "scopes": "caster-api",
+    #     "enabled": true,
+    #     "requirePkce": true,
+    #     "allowAccessTokensViaBrowser": true,
+    #     "requireConsent": false,
+    #     "consentLifetime": "30d",
+    #     "alwaysIncludeUserClaimsInIdToken": false,
+    #     "identityTokenLifetime": "5m",
+    #     "accessTokenLifetime": "1h",
+    #     "authorizationCodeLifetime": "5m",
+    #     "allowOfflineAccess": false,
+    #     "updateAccessTokenClaimsOnRefresh": false,
+    #     "useOneTimeRefreshTokens": false,
+    #     "slidingRefreshTokenLifetime": "15d",
+    #     "absoluteRefreshTokenLifetime": "30d",
+    #     "published": false,
+    #     "url": "https://example.com/caster",
+    #     "logoUrl": null,
+    #     "frontChannelLogoutUrl": null,
+    #     "backChannelLogoutUrl": null,
+    #     "redirectUrls": [
+    #       { "value": "https://example.com/caster/auth-callback" },
+    #       { "value": "https://example.com/caster/auth-callback-silent" }
+    #     ],
+    #     "postLogoutUrls": [{ "value": "https://example.com/caster/api" }],
+    #     "corsUrls": [{ "value": "https://example.com" }],
+    #     "alwaysSendClientClaims": false,
+    #     "clientClaimsPrefix": "client_",
+    #     "claims": [],
+    #     "secrets": [],
+    #     "managers": []
+    #   }
+      
+  env: 
+    ## basehref is path to the app
+    APP_BASEHREF: ""
+
+  # Config app settings with a JSON file.
+  # These values correspond to an OpenID connect client
+  settings: |-
+    {
+      "ApiUrl": "https://caster.example.com",
+      "OIDCSettings": {
+        "authority": "https://identity.example.com/",
+        "client_id": "caster-ui-dev",
+        "redirect_uri": "https://caster.example.com/auth-callback/",
+        "post_logout_redirect_uri": "https://caster.example.com/",
+        "response_type": "code",
+        "scope": "openid profile email caster-api",
+        "automaticSilentRenew": true,
+        "silent_redirect_uri": "https://caster.example.com/auth-callback-silent/"
+      },
+      "UseLocalAuthStorage": true
+    }

@@ -1,0 +1,112 @@
+#!/bin/bash
+
+# kex_q is a modified version of k-alias's 'kex' command, that allows you to add a quoted argument.
+# Many applications need quoted arguments to work. This function was inspired by gitlab-rails runner
+# single line commands but could be useful for 'jq' and others. It's designed to allow positional and 
+# flag arguments to be used in any order however the quoted argument will always be last. 
+#
+# TODO:
+# Allow multiple -q flags
+# When mixed arguments are present retain -q position. 
+function kex_q() {
+  usage() { echo "kex_q: pod [shell <sh|bash>] commands [-q <string>]" 1>&2; exit; }
+  command=""
+  declare -a ARGS=()
+  
+  if [ -z "$1" ]; then
+    kubectl get pod
+    exit
+  fi  
+  
+  while [ $OPTIND -le "$#" ]; do
+
+    if getopts ':q:' opt; then
+      case "$opt" in
+        q) command="$OPTARG" ;;
+        *) usage ;;
+      esac
+    else
+      ARGS+=("${!OPTIND}")
+      ((OPTIND++))
+    fi
+  done
+
+  echo "command: $command"
+  echo "ARGS: ${ARGS[@]}"
+
+  target=${ARGS[0]%:*}
+  container=${ARGS[0]##*:}
+  if [ "$target" == "$container" ]; then container=""; fi
+  ARGS=("${ARGS[@]:1}")
+  echo "${ARGS[@]}"
+
+  pod=`kubectl get pod | grep $target | head -n1 | awk '{print $1}'`
+
+  if [ -z "$pod" ]; then
+    echo no pod found.
+    exit
+  fi
+  
+  if [[ $ARGS[0] =~ bash|sh ]]; then
+    sh=${ARGS[0]:-"bash"}
+    ARGS=("${ARGS[@]:1}")
+  else
+    sh="bash"
+  fi
+  
+  echo "${ARGS[@]}"
+  if [ -n "$container" ]; then
+    kubectl exec --stdin --tty $pod  -c $container -- $sh ${ARGS[@]} "${command[@]}"
+  else
+    kubectl exec --stdin --tty $pod -- $sh ${ARGS[@]} "${command[@]}"
+  fi
+  #Reset so the function can be reused
+  OPTIND=1
+}
+
+# Checks if the JSON data is an array or object. Objects will be returned as a single element array
+function json_to_array() {
+  DATA=$1
+  RET=$(jq -rc '. | if type!="array" then [.] else . end' "$DATA")
+  echo $RET
+}
+
+# replace is a way to replace a string in files. We use this mostly to change domain names. 
+# you can specify a directory or file and it is suggested that you do. for a global recursive 
+# replace don't specify any files or directories the script will run from the directory in which
+# it was called. 
+#
+# TODO:
+# Allow to filter on file extentions
+function replace() {
+  if [ -z "$1" ] || [ -z "$2" ]; then
+  echo usage: replace original new [file]
+  exit
+  fi
+  
+  # Escape dots (.)
+  OLD=$(echo "$1" | sed 's/\./\\\./g')
+  NEW=$(echo "$2" | sed 's/\./\\\./g')
+  FILE=$3
+
+  DIRECTORY=$PWD
+
+  if [[ -z $FILE ]]; then
+    echo "Replacing $1 with $2 in all files at $DIRECTORY"
+    find $DIRECTORY -not -path '*/\.*' -type f -exec sed -i "s/$OLD/$NEW/g" {} \;
+    # sed -i "s/$OLD/$NEW/g" ${DEPLOY}/env;
+  elif [[ -d $FILE ]]; then
+    echo "Replacing $1 with $2 in $FILE"
+    find ${FILE} -not -path '*/\.*' -type f -exec sed -i "s/$OLD/$NEW/g" {} \;
+  else
+    echo "Replacing $1 with $2 in $FILE"
+    sed -i "s/$OLD/$NEW/g" ${FILE};
+  fi
+}
+
+# import_vars is a way to import envionrment variables from a specified file.
+function import_vars() {
+  $VARS_PATH=$1
+  export $(cat "$VARS_PATH" | grep '^[A-Z]')
+}
+

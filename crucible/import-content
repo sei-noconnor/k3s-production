@@ -1,0 +1,48 @@
+#!/bin/bash
+# 
+# Copyright 2021 Carnegie Mellon University.
+# Released under a BSD (SEI)-style license, please see LICENSE.md in the
+# project root or contact permission@sei.cmu.edu for full terms.
+#
+# Import crucible example content into the appliance
+#
+# import-content
+EXPORTS_PATH="seed/crucible"
+DOMAIN=${DOMAIN-foundry.local}
+DIRECTORY=$(dirname "$BASH_SOURCE[0]")
+cd $DIRECTORY
+source ../scripts/utils
+replace foundry.local $DOMAIN ${EXPORTS_PATH}
+replace crucible.io $DOMAIN ${EXPORTS_PATH}
+
+helm delete alloy || true 
+helm delete caster || true 
+helm delete player || true 
+helm delete steamfitter || true 
+
+echo "sleeping for 20 seconds"
+sleep 20
+echo "forwarding port" 
+kubectl port-forward service/postgresql 5432:5432 > /dev/null 2>&1 &
+pid=$!
+
+trap '{
+  echo killing $pid
+  kill $pid
+}' EXIT
+while ! nc -vz localhost 5432 > /dev/null 2>&1 ; do
+  echo "waiting for port to become available "
+  sleep 1
+done
+
+FILES=$(find ${EXPORTS_PATH} -type f -iname "*.sql" | sed "s/.*\///; s/\.sql//")
+for file in $FILES; do
+  PGPASSWORD=foundry dropdb -h localhost -U postgres ${file}
+  PGPASSWORD=foundry createdb -h localhost -U postgres -T template0 ${file}
+  PGPASSWORD=foundry psql -h localhost -U postgres < ${EXPORTS_PATH}/${file}.sql
+done
+
+helm upgrade --install -f player.values.yaml player ../charts/player 
+helm upgrade --install -f caster.values.yaml caster ../charts/caster
+helm upgrade --install -f steamfitter.values.yaml steamfitter ../charts/steamfitter
+helm upgrade --install -f alloy.values.yaml alloy ../charts/alloy

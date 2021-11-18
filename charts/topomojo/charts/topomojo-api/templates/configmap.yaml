@@ -1,0 +1,24 @@
+{{- if .Values.customStart }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "topomojo-api.fullname" . }}
+  labels:
+    {{- include "topomojo-api.labels" . | nindent 4 }}
+{{- if .Values.customStart.files }}
+data:
+{{- range $key, $val := .Values.customStart.files }}
+  {{ $key }}: |
+{{ $val  | indent 4}}
+{{- end }}
+{{- end }}
+
+{{- if .Values.customStart.binaryFiles }}
+binaryData:
+{{- range $key, $val := .Values.customStart.binaryFiles }}
+  {{ $key }}: |
+{{ $val | indent 4}}
+{{- end }}
+{{- end }}
+
+{{- end }}
