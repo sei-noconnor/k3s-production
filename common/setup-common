@@ -61,4 +61,6 @@ kubectl apply -f nfs-ingress.yaml --dry-run=client -o yaml | kubectl apply -f -
 # Install Common foundry apps
 helm repo add sei https://helm.cyberforce.site/charts
 helm upgrade --install -f identity.values.yaml identity ../charts/identity
+# replacing environment variables clobbers the seed.sh script so we need to update it
+kubectl create configmap identity-identity-api --from-file=seed.sh=../scripts/identity-seed.example.sh -o yaml --dry-run | kubectl apply -f -
 # helm upgrade --install -f staticweb.values.yaml staticweb sei/staticweb
