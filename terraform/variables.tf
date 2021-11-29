@@ -22,12 +22,14 @@ variable "blue" {
 variable "domain" {
   type = string
 }
-variable "default_network" {}
+variable "default_portgroup" {
+  default = "$VSPHERE_DEFAULT_PORTGROUP"
+}
 variable "default_netmask" {
-  default = "24"
+  default = "$DEFAULT_NETMASK"
 }
 variable "default_gateway" {
-  default = "192.168.1.1"
+  default = "$DEFAULT_GATEWAY"
 }
 variable "dns_servers" {
   type = list(string)
