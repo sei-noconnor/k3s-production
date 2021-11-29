@@ -6,7 +6,7 @@ metadata:
 data:
   config: |
     address-pools:
-    - name: 192.168.1.0/24
+    - name: $DEFAULT_NETWORK/$DEFAULT_NETMASK
       protocol: layer2
       addresses:
-      - 192.168.1.120-192.168.1.130
+      - $START_IP-$END_IP

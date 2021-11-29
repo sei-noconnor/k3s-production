@@ -9,7 +9,7 @@ image:
   tag: "v3.9.1-ls73"
 secret:
 # PASSWORD: password
-  SUDO_PASSWORD: foundry
+  SUDO_PASSWORD: $ADMIN_PASS
 # HASHED_PASSWORD
 
 env:
@@ -28,7 +28,7 @@ ingress:
     nginx.ingress.kubernetes.io/configuration-snippet: |
       rewrite ^(/vscode)$ $1/ redirect;
   hosts:
-    - host: foundry.local
+    - host: $DOMAIN
       paths:
         - path: /vscode(/|$)(.*)
           # Ignored if not kubeVersion >= 1.14-0
@@ -36,7 +36,7 @@ ingress:
   tls:
     - secretName: appliance-cert
       hosts:
-        - foundry.local
+        - $DOMAIN
 persistence:
   config:
     enabled: true
@@ -49,7 +49,7 @@ persistence:
     ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
     ##   GKE, AWS & OpenStack)
     ##
-    storageClass: microk8s-hostpath
+    storageClass: $STORAGE_CLASS
     ##
     ## If you want to reuse an existing claim, you can pass the name of the PVC using
     ## the existingClaim variable

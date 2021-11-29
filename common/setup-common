@@ -36,12 +36,12 @@ helm repo add nicholaswilde https://nicholaswilde.github.io/helm-charts/
 helm upgrade --install -f code-server.values.yaml code-server nicholaswilde/code-server
 
 # Kubernetes Dashboard
-helm repo add kubernetes-dashboard https://kubernetes.github.io/dashboard/
-helm upgrade --install -f kubernetes-dashboard.values.yaml kubernetes-dashboard kubernetes-dashboard/kubernetes-dashboard
+# helm repo add kubernetes-dashboard https://kubernetes.github.io/dashboard/
+# helm upgrade --install -f kubernetes-dashboard.values.yaml kubernetes-dashboard kubernetes-dashboard/kubernetes-dashboard
 # Add root CA to chart values
-ed -s staticweb.values.yaml <<< $'/cacert:/s/\"\"/|-/\n/cacert:/r !sed "s/^/  /" certs/root-ca.pem\nw'
+# ed -s staticweb.values.yaml <<< $'/cacert:/s/\"\"/|-/\n/cacert:/r !sed "s/^/  /" certs/root-ca.pem\nw'
 
-cp certs/root-ca.pem web/root-ca.crt
+# cp certs/root-ca.pem web/root-ca.crt
 
 # Install NFS server
 helm repo add kvaps https://kvaps.github.io/charts
@@ -53,12 +53,12 @@ kubectl patch daemonset nginx-ingress-microk8s-controller -n ingress --type 'jso
 kubectl apply -f nfs-ingress.yaml --dry-run=client -o yaml | kubectl apply -f -
 
 # Install Gitea
-helm repo add gitea https://dl.gitea.io/charts/
-helm upgrade --install -f gitea.values.yaml gitea gitea/gitea
-timeout 5m bash -c 'while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' https://foundry.local/gitea)" != "200" ]]; do sleep 5; done' || false
-./setup-gitea
+# helm repo add gitea https://dl.gitea.io/charts/
+# helm upgrade --install -f gitea.values.yaml gitea gitea/gitea
+# timeout 5m bash -c 'while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' https://$DOMAIN/gitea)" != "200" ]]; do sleep 5; done' || false
+# ./setup-gitea
 
 # Install Common foundry apps
 helm repo add sei https://helm.cyberforce.site/charts
 helm upgrade --install -f identity.values.yaml identity ../charts/identity
-helm upgrade --install -f staticweb.values.yaml staticweb sei/staticweb
+# helm upgrade --install -f staticweb.values.yaml staticweb sei/staticweb

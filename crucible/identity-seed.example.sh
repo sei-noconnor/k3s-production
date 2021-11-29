@@ -24,7 +24,7 @@ cd $DIRECTORY
 
 # http or https
 PROTO="https"
-DOMAIN="${DOMAIN:-foundry.local}"
+DOMAIN="${DOMAIN:-$DOMAIN}"
 
 # get access token
 ACCESS_TOKEN=$(curl --silent --insecure --request POST \
@@ -33,7 +33,7 @@ ACCESS_TOKEN=$(curl --silent --insecure --request POST \
   --data scope="identity-api identity-api-privileged" \
   --data client_id=bootstrap-client \
   --data client_secret=foundry \
-  --data username=administrator@foundry.local \
+  --data username=administrator@$DOMAIN \
   --data password=foundry | jq -r '.access_token')
 
 # Function exists() 

@@ -64,7 +64,7 @@ storageClass:
 
   ## Set a StorageClass name
   ## Ignored if storageClass.create is false
-  name: nfs
+  name: $STORAGE_CLASS_NFS
 
   # set to null to prevent expansion
   allowVolumeExpansion: true

@@ -46,7 +46,7 @@
         </p>
 
         <h4>Getting Started</h4>
-        <p>The appliance advertises the <em>foundry.local</em> domain via
+        <p>The appliance advertises the <em>$DOMAIN</em> domain via
           mDNS. All apps are served as directories under this domain.</p>
         <p>To get started using the virtual appliance:</p>
         <ol>
@@ -58,8 +58,8 @@
             <p>
               Unless otherwise noted, the default credentials are:<br />
               <code>
-                user: administrator@foundry.local<br/>
-                pass: foundry<br/>
+                user: administrator@$DOMAIN<br/>
+                pass: $ADMIN_PASS<br/>
                 code: 123456
               </code>
             </p>
@@ -151,7 +151,7 @@
               </li>
             </ol>
           <li>Boot the ESXi appliance and note the IP address it received (via DHCP by default).</li>
-          <li>On the Foundry Appliance, run <code>~/foundry/setup-esxi &lt;esxi IP address&gt;</code> to configure ESXi appropriately. The script configures <code>esxi.foundry.local</code> to point to the ESXi server, installs a certificate for the same hostname, and mounts an NFS datastore from the Foundry Appliance.</li>
+          <li>On the Foundry Appliance, run <code>~/foundry/setup-esxi &lt;esxi IP address&gt;</code> to configure ESXi appropriately. The script configures <code>esxi.$DOMAIN</code> to point to the ESXi server, installs a certificate for the same hostname, and mounts an NFS datastore from the Foundry Appliance.</li>
         </ol>
 
         <h4>Demo Challenge</h4>
@@ -166,8 +166,8 @@
 
         <h4>Under the Hood</h4>
         <p>For command line access to the appliance:<br />
-          <code>$ ssh foundry@foundry.local<br/>
-            &nbsp;&nbsp;(password: foundry)<br/>
+          <code>$ ssh foundry@$DOMAIN<br/>
+            &nbsp;&nbsp;(password: $ADMIN_PASS)<br/>
           $ kubectl get pods</code></pre>
         </p>
         <p>The code for building this virtual machine is <a

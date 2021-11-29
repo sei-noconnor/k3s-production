@@ -52,7 +52,7 @@ EOF
   fi
 done
 
-kex_q gitlab-task-runner gitlab-rails runner -q"u = User.create_or_find_by(username: 'root', email: 'administrator@foundry.local', name: 'Administrator' , password: 'foundry123', password_confirmation: 'foundry123', admin: true); u.skip_confirmation=true; u.save"
+kex_q gitlab-task-runner gitlab-rails runner -q"u = User.create_or_find_by(username: 'root', email: 'administrator@$DOMAIN', name: 'Administrator' , password: 'foundry123', password_confirmation: 'foundry123', admin: true); u.skip_confirmation=true; u.save"
 kex_q gitlab-task-runner gitlab-rails runner -q"token = User.find_by_username('root').personal_access_tokens.create(scopes: [:api], name: 'root seed token'); token.set_token('$GITLAB_TOKEN'); token.save!"
 
 echo "Personal Access Token is: ${GITLAB_TOKEN}"
@@ -131,8 +131,8 @@ EOF
   PROJECT_ID=$(echo $REQ | jq '.id')
   if [[ -n "$PROJECT_ID" ]]; then 
     git -C $file remote add origin "$gitlab_host/$MODULES_GROUP/$file.git"
-    git -C $file push -u https://root:foundry123@gitlab.foundry.local/$MODULES_GROUP/$file.git --all
-    git -C $file push -u https://root:foundry123@gitlab.foundry.local/$MODULES_GROUP/$file.git --tags
+    git -C $file push -u https://root:foundry123@gitlab.$DOMAIN/$MODULES_GROUP/$file.git --all
+    git -C $file push -u https://root:foundry123@gitlab.$DOMAIN/$MODULES_GROUP/$file.git --tags
   fi
   # cleanup
   rm -rf $file

@@ -12,5 +12,5 @@ _______  _____   _____         _____ _______ __   _ _______ _______
 
 Welcome to Foundry Appliance $(cat /etc/appliance_version)
 
-Visit https://foundry.local to get started.
+Visit https://$DOMAIN to get started.
 EOF

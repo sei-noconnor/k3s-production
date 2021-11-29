@@ -10,12 +10,12 @@ identity-api:
     enabled: true
     annotations: {}
     hosts:
-      - host: foundry.local
+      - host: $DOMAIN
         paths: [ "/identity" ]
     tls:
       - secretName: appliance-cert
         hosts:
-          - foundry.local
+          - $DOMAIN
 
   resources: {}
   #  limits:
@@ -30,7 +30,7 @@ identity-api:
     existing: ""
     size: "1Gi"
     mode: ReadWriteOnce
-    class: microk8s-hostpath
+    class: $STORAGE_CLASS
 
   # Config app settings with environment vars.
   # Those most likely needing values are listed. For others,
@@ -38,23 +38,23 @@ identity-api:
   env:
     # Supported providers: InMemory, PostgreSQL, SqlServer
     Database__Provider: PostgreSQL
-    Database__ConnectionString: Server=postgresql;Port=5432;Database=identity;Username=postgres;Password=foundry;SSL Mode=Prefer;Trust Server Certificate=true;
+    Database__ConnectionString: Server=$POSTGRES_SERVER;Port=5432;Database=identity;Username=$POSTGRES_USER;Password=$POSTGRES_PASS;SSL Mode=Prefer;Trust Server Certificate=true;
     Database__SeedFile: conf/seed.json
     Branding__ApplicationName: Foundry Identity
     Branding__UiHost: /identity/ui
     Branding__PathBase: /identity
     Account__Registration__AllowManual: true
-    Account__Registration__AllowedDomains: foundry.local
+    Account__Registration__AllowedDomains: $DOMAIN
     Cache__Key: idsrv
     Cache__RedisUrl: ""
     Cache__SharedFolder: ""
     Logging__Console__DisableColors: true
-    Account__AdminEmail: "administrator@foundry.local"
-    Account__AdminPassword: "foundry"
+    Account__AdminEmail: "administrator@$DOMAIN"
+    Account__AdminPassword: "$ADMIN_PASS"
     Account__AdminGuid: "dee684c5-2eaf-401a-915b-d3d4320fe5d5"
     Account__OverrideCode: "123456"
     Account__Authentication__SigningCertificate: conf/signer.pfx
-    Account__Authentication__SigningCertificatePassword: foundry
+    Account__Authentication__SigningCertificatePassword: $ADMIN_PASS
     Account__Authentication__NoticeFile: "conf/notice.html"
     AppMail__Url:
     AppMail__Key:
@@ -62,7 +62,7 @@ identity-api:
     Headers__Cors__AllowAnyOrigin: true
     Headers__Cors__AllowAnyMethod: true
     Headers__Cors__AllowAnyHeader: true
-    # Headers__Cors__Origins__0: "https://foundry.local"
+    # Headers__Cors__Origins__0: "https://$DOMAIN"
     # Headers__Cors__Origins__1: "http://localhost:4302"
     # Headers__Cors__Origins__2: "http://localhost"
 #    Headers__Cors__Methods__0: "*"
@@ -107,10 +107,10 @@ identity-api:
             "SeedGrant": "authorization_code",
             "SeedScopes": "openid profile gameboard-api",
             "Urls": [
-              { "Type": "ClientUri", "Value": "https://foundry.local/gameboard" },
-              { "Type": "RedirectUri", "Value": "https://foundry.local/gameboard/oidc" },
-              { "Type": "RedirectUri", "Value": "https://foundry.local/gameboard/oidc-silent.html" },
-              { "Type": "PostLogoutRedirectUri", "Value": "https://foundry.local/gameboard" }
+              { "Type": "ClientUri", "Value": "https://$DOMAIN/gameboard" },
+              { "Type": "RedirectUri", "Value": "https://$DOMAIN/gameboard/oidc" },
+              { "Type": "RedirectUri", "Value": "https://$DOMAIN/gameboard/oidc-silent.html" },
+              { "Type": "PostLogoutRedirectUri", "Value": "https://$DOMAIN/gameboard" }
             ]
           },
           {
@@ -121,10 +121,10 @@ identity-api:
             "SeedGrant": "authorization_code",
             "SeedScopes": "openid profile topomojo-api",
             "Urls": [
-              { "Type": "ClientUri", "Value": "https://foundry.local/topomojo" },
-              { "Type": "RedirectUri", "Value": "https://foundry.local/topomojo/oidc" },
-              { "Type": "RedirectUri", "Value": "https://foundry.local/topomojo/oidc-silent.html" },
-              { "Type": "PostLogoutRedirectUri", "Value": "https://foundry.local/topomojo" }
+              { "Type": "ClientUri", "Value": "https://$DOMAIN/topomojo" },
+              { "Type": "RedirectUri", "Value": "https://$DOMAIN/topomojo/oidc" },
+              { "Type": "RedirectUri", "Value": "https://$DOMAIN/topomojo/oidc-silent.html" },
+              { "Type": "PostLogoutRedirectUri", "Value": "https://$DOMAIN/topomojo" }
             ]
           }
         ]
@@ -157,7 +157,7 @@ identity-api:
 
       # http or https
       PROTO="https"
-      DOMAIN="${DOMAIN:-foundry.local}"
+      DOMAIN="${DOMAIN:-$DOMAIN}"
 
       # get access token
       ACCESS_TOKEN=$(curl --silent --insecure --request POST \
@@ -166,7 +166,7 @@ identity-api:
         --data scope="identity-api identity-api-privileged" \
         --data client_id=bootstrap-client \
         --data client_secret=foundry \
-        --data username=administrator@foundry.local \
+        --data username=administrator@$DOMAIN \
         --data password=foundry | jq -r '.access_token')
 
       # Function exists() 
@@ -359,12 +359,12 @@ identity-ui:
     enabled: true
     annotations: {}
     hosts:
-      - host: foundry.local
+      - host: $DOMAIN
         paths: [ "/identity/ui" ]
     tls:
       - secretName: appliance-cert
         hosts:
-          - foundry.local
+          - $DOMAIN
 
   resources: {}
   #  limits:

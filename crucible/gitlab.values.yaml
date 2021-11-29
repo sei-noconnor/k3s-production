@@ -47,13 +47,13 @@ global:
     allowClusterRoles: true
   ## doc/charts/globals.md#configure-host-settings
   hosts:
-    domain: gitlab.foundry.local
+    domain: gitlab.$DOMAIN
     hostSuffix:
     https: true
     externalIP:
     ssh: ~
     gitlab: 
-      name: gitlab.foundry.local
+      name: gitlab.$DOMAIN
       https: true
     minio: {}
     registry: {}
@@ -65,10 +65,10 @@ global:
   ingress:
     enabled: true
     path: /
-    class: public
+    class: $INGRESS_CLASS
     configureCertmanager: false
     annotations: 
-      kubernetes.io/ingress.class: public
+      kubernetes.io/ingress.class: $INGRESS_CLASS
       
     tls:
       enabled: true

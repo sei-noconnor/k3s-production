@@ -5,7 +5,7 @@
 replicaCount: 1
 
 ## giturl is the url of the git repository to serve as a static site
-giturl: "https://foundry.local/gitea/foundry/web.git"
+giturl: "https://$DOMAIN/gitea/foundry/web.git"
 
 ## gitbranch sets which repo branch to publish
 gitbranch: ""
@@ -54,14 +54,14 @@ service:
 ingress:
   enabled: true
   annotations:
-    kubernetes.io/ingress.class: public
+    kubernetes.io/ingress.class: $INGRESS_CLASS
   hosts:
-    - host: foundry.local
+    - host: $DOMAIN
       paths: [ "/" ]
   tls:
     - secretName: appliance-cert
       hosts:
-        - foundry.local
+        - $DOMAIN
 
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious

@@ -4,15 +4,15 @@ image:
 ingress:
   enabled: true
   annotations:
-    kubernetes.io/ingress.class: public
+    kubernetes.io/ingress.class: $INGRESS_CLASS
   tls:
     - secretName: appliance-cert
       hosts:
-        - foundry.local
+        - $DOMAIN
 
 st2web:
   service:
-    hostname: foundry.local/stackstorm
+    hostname: $DOMAIN/stackstorm
 
 enterprise:
   enabled: false

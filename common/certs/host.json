@@ -9,8 +9,5 @@
     "size": 2048
   },
   "CN": "Foundry Appliance Host",
-  "hosts": [
-    "foundry.local",
-    "*.foundry.local"
-  ]
+  "hosts": ["$DOMAIN", "*.$DOMAIN"]
 }

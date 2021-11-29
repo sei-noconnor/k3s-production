@@ -10,13 +10,13 @@ player-api:
   ingress:
     enabled: true
     annotations:
-      kubernetes.io/ingress.class: public
+      kubernetes.io/ingress.class: $INGRESS_CLASS
       nginx.ingress.kubernetes.io/proxy-read-timeout: '86400'
       nginx.ingress.kubernetes.io/proxy-send-timeout: '86400'
       nginx.ingress.kubernetes.io/use-regex: "true"
     
     hosts:
-      - host: foundry.local
+      - host: $DOMAIN
         paths: 
           - path: /player/(hubs|swagger|api)
             pathType: Prefix
@@ -24,7 +24,7 @@ player-api:
     tls:
       - secretName: appliance-cert
         hosts:
-         - foundry.local
+         - $DOMAIN
 
   # If this deployment needs to trust non-public certificates,
   # create a configMap with the needed certifcates and specify
@@ -69,15 +69,15 @@ player-api:
           "slidingRefreshTokenLifetime": "15d",
           "absoluteRefreshTokenLifetime": "30d",
           "published": false,
-          "url": "https://foundry.local/player",
+          "url": "https://$DOMAIN/player",
           "logoUrl": null,
           "frontChannelLogoutUrl": null,
           "backChannelLogoutUrl": null,
           "redirectUrls": [
-            { "value": "https://foundry.local/player/api/oauth2-redirect.html" }
+            { "value": "https://$DOMAIN/player/api/oauth2-redirect.html" }
           ],
-          "postLogoutUrls": [{ "value": "https://foundry.local/player/api" }],
-          "corsUrls": [{ "value": "https://foundry.local" }],
+          "postLogoutUrls": [{ "value": "https://$DOMAIN/player/api" }],
+          "corsUrls": [{ "value": "https://$DOMAIN" }],
           "alwaysSendClientClaims": false,
           "clientClaimsPrefix": "client_",
           "claims": [],
@@ -105,11 +105,11 @@ player-api:
           "slidingRefreshTokenLifetime": "15d",
           "absoluteRefreshTokenLifetime": "30d",
           "published": false,
-          "url": "https://foundry.local/player",
+          "url": "https://$DOMAIN/player",
           "logoUrl": null,
           "frontChannelLogoutUrl": null,
           "backChannelLogoutUrl": null,
-          "corsUrls": [{ "value": "https://foundry.local" }],
+          "corsUrls": [{ "value": "https://$DOMAIN" }],
           "alwaysSendClientClaims": false,
           "clientClaimsPrefix": "client_",
           "claims": [],
@@ -132,7 +132,7 @@ player-api:
     
     account: |-
       {
-        "usernames": ["player-admin@foundry.local"],
+        "usernames": ["player-admin@$DOMAIN"],
         "password": "foundry",
         "manager": true
       }
@@ -157,18 +157,18 @@ player-api:
     # The first entry should be the URL to player
     # The second entry should be the URL to VM App
     # Subsequent entries can be other integrated apps, such as OSTicket
-    CorsPolicy__Origins__0: "https://foundry.local"
+    CorsPolicy__Origins__0: "https://$DOMAIN"
     CorsPolicy__AllowAnyMethod: true
     CorsPolicy__AllowAnyHeader: true
     # CorsPolicy__SupportsCredentials: false
     # Connection String to database
     # database requires the 'uuid-ossp' extension installed
-    ConnectionStrings__PostgreSQL: "Server=postgresql;Port=5432;Database=player_db;Username=postgres;Password=foundry;"
+    ConnectionStrings__PostgreSQL: "Server=$POSTGRES_SERVER;Port=5432;Database=player_db;Username=$POSTGRES_USER;Password=$POSTGRES_PASS;"
 
     # OAuth2 Identity Client for Application
-    Authorization__Authority: https://foundry.local/identity
-    Authorization__AuthorizationUrl: https://foundry.local/identity/connect/authorize
-    Authorization__TokenUrl: https://foundry.local/identity/connect/token
+    Authorization__Authority: https://$DOMAIN/identity
+    Authorization__AuthorizationUrl: https://$DOMAIN/identity/connect/authorize
+    Authorization__TokenUrl: https://$DOMAIN/identity/connect/token
     Authorization__AuthorizationScope: "player-api"
     Authorization__ClientId: player-api
     Authorization__ClientName: "Player API"
@@ -191,19 +191,19 @@ player-ui:
   ingress:
     enabled: true    
     annotations:
-      kubernetes.io/ingress.class: public
+      kubernetes.io/ingress.class: $INGRESS_CLASS
       nginx.ingress.kubernetes.io/proxy-read-timeout: '86400'
       nginx.ingress.kubernetes.io/proxy-send-timeout: '86400'
       nginx.ingress.kubernetes.io/use-regex: "true"
     hosts:
-      - host: foundry.local
+      - host: $DOMAIN
         paths:
           - path: "/player(/|$)(.*)"
             pathType: Prefix
     tls:
       - secretName: appliance-cert
         hosts:
-         - foundry.local
+         - $DOMAIN
 
   identity:
     register: false
@@ -231,16 +231,16 @@ player-ui:
         "slidingRefreshTokenLifetime": "15d",
         "absoluteRefreshTokenLifetime": "30d",
         "published": true,
-        "url": "https://foundry.local/player",
+        "url": "https://$DOMAIN/player",
         "logoUrl": null,
         "frontChannelLogoutUrl": null,
         "backChannelLogoutUrl": null,
         "redirectUrls": [
-          { "value": "https://foundry.local/player/auth-callback" },
-          { "value": "https://foundry.local/player/auth-callback-silent" }
+          { "value": "https://$DOMAIN/player/auth-callback" },
+          { "value": "https://$DOMAIN/player/auth-callback-silent" }
         ],
-        "postLogoutUrls": [{ "value": "https://foundry.local/player" }],
-        "corsUrls": [{ "value": "https://foundry.local" }],
+        "postLogoutUrls": [{ "value": "https://$DOMAIN/player" }],
+        "corsUrls": [{ "value": "https://$DOMAIN" }],
         "alwaysSendClientClaims": false,
         "clientClaimsPrefix": "client_",
         "claims": [],
@@ -258,19 +258,19 @@ player-ui:
   # some basic configuration
   settings: |-
     {
-      "ApiUrl": "https://foundry.local/player",
+      "ApiUrl": "https://$DOMAIN/player",
       "OIDCSettings": {
-        "authority": "https://foundry.local/identity",
+        "authority": "https://$DOMAIN/identity",
         "client_id": "player-ui",
-        "redirect_uri": "https://foundry.local/player/auth-callback",
-        "post_logout_redirect_uri": "https://foundry.local/player",
+        "redirect_uri": "https://$DOMAIN/player/auth-callback",
+        "post_logout_redirect_uri": "https://$DOMAIN/player",
         "response_type": "code",
         "scope": "openid profile player-api",
         "automaticSilentRenew": true,
-        "silent_redirect_uri": "https://foundry.local/player/auth-callback-silent"
+        "silent_redirect_uri": "https://$DOMAIN/player/auth-callback-silent"
       },
       "NotificationsSettings": {
-        "url": "https://foundry.local/player/hubs",
+        "url": "https://$DOMAIN/player/hubs",
         "number_to_display": 4
       },
       "AppTitle": "Crucible",
@@ -294,20 +294,20 @@ vm-api:
   ingress:
     enabled: true  
     annotations:
-      kubernetes.io/ingress.class: public
+      kubernetes.io/ingress.class: $INGRESS_CLASS
       nginx.ingress.kubernetes.io/proxy-read-timeout: '86400'
       nginx.ingress.kubernetes.io/proxy-send-timeout: '86400'
       nginx.ingress.kubernetes.io/use-regex: "true"
       
     hosts:
-      - host: foundry.local
+      - host: $DOMAIN
         paths:
           - path: /vm/(notifications|hubs|api|swagger)
             pathType: Prefix
     tls:
       - secretName: appliance-cert
         hosts:
-         - foundry.local
+         - $DOMAIN
 
   # VM-API deployment adds a second ingress
   # - This ingress is used as a proxy for getting a websocket
@@ -322,7 +322,7 @@ vm-api:
     className: ""
     name: player-connect
     annotations: 
-      kubernetes.io/ingress.class: public
+      kubernetes.io/ingress.class: $INGRESS_CLASS
       nginx.ingress.kubernetes.io/proxy-read-timeout: "86400"
       nginx.ingress.kubernetes.io/proxy-send-timeout: "86400"
       nginx.ingress.kubernetes.io/use-regex: "true"
@@ -336,7 +336,7 @@ vm-api:
             proxy_ssl_session_reuse on;
         }
     hosts:
-      - host: foundry.local
+      - host: $DOMAIN
         paths: 
           - path: "/vm/connect(/|$)(.*)"
             pathType: Prefix
@@ -344,7 +344,7 @@ vm-api:
     tls:
       - secretName: appliance-cert
         hosts:
-         - foundry.local
+         - $DOMAIN
 
   # If this deployment needs to trust non-public certificates,
   # create a configMap with the needed certifcates and specify
@@ -378,15 +378,15 @@ vm-api:
         "slidingRefreshTokenLifetime": "15d",
         "absoluteRefreshTokenLifetime": "30d",
         "published": false,
-        "url": "https://foundry.local/vm",
+        "url": "https://$DOMAIN/vm",
         "logoUrl": null,
         "frontChannelLogoutUrl": null,
         "backChannelLogoutUrl": null,
         "redirectUrls": [
-          { "value": "https://foundry.local/vm/api/oauth2-redirect.html" }
+          { "value": "https://$DOMAIN/vm/api/oauth2-redirect.html" }
         ],
-        "postLogoutUrls": [{ "value": "https://foundry.local/vm/api" }],
-        "corsUrls": [{ "value": "https://foundry.local" }],
+        "postLogoutUrls": [{ "value": "https://$DOMAIN/vm/api" }],
+        "corsUrls": [{ "value": "https://$DOMAIN" }],
         "alwaysSendClientClaims": false,
         "clientClaimsPrefix": "client_",
         "claims": [],
@@ -407,7 +407,7 @@ vm-api:
       }
     account: |-
       {
-        "usernames": ["player-vm-admin@foundry.local"],
+        "usernames": ["player-vm-admin@$DOMAIN"],
         "password": "foundry",
         "manager": true
       }
@@ -430,12 +430,12 @@ vm-api:
 
     # Connection String to database
     # database requires the 'uuid-ossp' extension installed
-    ConnectionStrings__PostgreSQL: "Server=postgresql;Port=5432;Database=vm_db;Username=postgres;Password=foundry;"
+    ConnectionStrings__PostgreSQL: "Server=$POSTGRES_SERVER;Port=5432;Database=vm_db;Username=$POSTGRES_USER;Password=$POSTGRES_PASS;"
 
    # CORS policy settings.
     # The first entry should be the URL to VM App
     # The second entry should be the URL to Console App
-    CorsPolicy__Origins__0: "https://foundry.local"
+    CorsPolicy__Origins__0: "https://$DOMAIN"
     CorsPolicy__Origins__1: "http://localhost:4303"
     # CorsPolicy__AllowAnyOrigin: true
     CorsPolicy__AllowAnyMethod: true
@@ -443,22 +443,22 @@ vm-api:
     # CorsPolicy__SupportsCredentials: false
 
     # OAuth2 Identity Client for Application
-    Authorization__Authority: https://foundry.local/identity
-    Authorization__AuthorizationUrl: https://foundry.local/identity/connect/authorize
-    Authorization__TokenUrl: https://foundry.local/identity/connect/token
+    Authorization__Authority: https://$DOMAIN/identity
+    Authorization__AuthorizationUrl: https://$DOMAIN/identity/connect/authorize
+    Authorization__TokenUrl: https://$DOMAIN/identity/connect/token
     Authorization__AuthorizationScope: "vm-api player-api"
     Authorization__ClientId: vm-api
     Authorization__ClientName: "VM API"
 
     # OAuth2 Identity Client /w Password
-    IdentityClient__TokenUrl: https://foundry.local/identity/connect/token
+    IdentityClient__TokenUrl: https://$DOMAIN/identity/connect/token
     IdentityClient__ClientId: "player-admin"
     IdentityClient__Scope: "player-api vm-api"
-    IdentityClient__Username: "administrator@foundry.local"
+    IdentityClient__Username: "administrator@$DOMAIN"
     IdentityClient__Password: "foundry"
 
     # Crucible Player URL
-    ClientSettings__urls__playerApi: "https://foundry.local/player/api"
+    ClientSettings__urls__playerApi: "https://$DOMAIN/player/api"
 
     
     # VCenter settings
@@ -479,7 +479,7 @@ vm-api:
     # Rewrite Host settings
     # See "consoleIngress" section above for usage
     RewriteHost__RewriteHost: false
-    RewriteHost__RewriteHostUrl: "foundry.local/vm/connect"
+    RewriteHost__RewriteHostUrl: "$DOMAIN/vm/connect"
     RewriteHost__RewriteHostQueryParam: "vmhost"
 
 vm-ui:
@@ -496,19 +496,19 @@ vm-ui:
     enabled: true  
     className: ""
     annotations:
-      kubernetes.io/ingress.class: public
+      kubernetes.io/ingress.class: $INGRESS_CLASS
       nginx.ingress.kubernetes.io/proxy-read-timeout: '86400'
       nginx.ingress.kubernetes.io/proxy-send-timeout: '86400'
       nginx.ingress.kubernetes.io/use-regex: "true"
     hosts:
-      - host: foundry.local
+      - host: $DOMAIN
         paths:
           - path: "/vm(/|$)(.*)"
             pathType: Prefix
     tls:
       - secretName: appliance-cert
         hosts:
-         - foundry.local
+         - $DOMAIN
 
   identity:
     register: false
@@ -536,16 +536,16 @@ vm-ui:
         "slidingRefreshTokenLifetime": "15d",
         "absoluteRefreshTokenLifetime": "30d",
         "published": false,
-        "url": "https://foundry.local/vm",
+        "url": "https://$DOMAIN/vm",
         "logoUrl": null,
         "frontChannelLogoutUrl": null,
         "backChannelLogoutUrl": null,
         "redirectUrls": [
-          { "value": "https://foundry.local/vm/auth-callback" },
-          { "value": "https://foundry.local/vm/auth-callback-silent" }
+          { "value": "https://$DOMAIN/vm/auth-callback" },
+          { "value": "https://$DOMAIN/vm/auth-callback-silent" }
         ],
-        "postLogoutUrls": [{ "value": "https://foundry.local/vm" }],
-        "corsUrls": [{ "value": "https://foundry.local" }],
+        "postLogoutUrls": [{ "value": "https://$DOMAIN/vm" }],
+        "corsUrls": [{ "value": "https://$DOMAIN" }],
         "alwaysSendClientClaims": false,
         "clientClaimsPrefix": "client_",
         "claims": [],
@@ -561,20 +561,20 @@ vm-ui:
   # These values correspond to an OpenID connect client
   settings: |-
    {
-      "ApiUrl": "https://foundry.local/vm/api",
+      "ApiUrl": "https://$DOMAIN/vm/api",
       "DeployApiUrl": "",
-      "ApiPlayerUrl": "https://foundry.local/player/api",
+      "ApiPlayerUrl": "https://$DOMAIN/player/api",
       "WelderUrl": "",
-      "UserFollowUrl": "https://foundry.local/vm/console/user/{userId}/view/{viewId}/console",
+      "UserFollowUrl": "https://$DOMAIN/vm/console/user/{userId}/view/{viewId}/console",
       "OIDCSettings": {
-          "authority": "https://foundry.local/identity",
+          "authority": "https://$DOMAIN/identity",
           "client_id": "vm-ui",
-          "redirect_uri": "https://foundry.local/vm/auth-callback",
-          "post_logout_redirect_uri": "https://foundry.local/vm",
+          "redirect_uri": "https://$DOMAIN/vm/auth-callback",
+          "post_logout_redirect_uri": "https://$DOMAIN/vm",
           "response_type": "code",
           "scope": "openid profile player-api vm-api",
           "automaticSilentRenew": true,
-          "silent_redirect_uri": "https://foundry.local/vm/auth-callback-silent"
+          "silent_redirect_uri": "https://$DOMAIN/vm/auth-callback-silent"
       },
       "UseLocalAuthStorage": true
     }
@@ -594,19 +594,19 @@ console-ui:
     enabled: true  
     className: ""
     annotations:
-      kubernetes.io/ingress.class: public
+      kubernetes.io/ingress.class: $INGRESS_CLASS
       nginx.ingress.kubernetes.io/proxy-read-timeout: '86400'
       nginx.ingress.kubernetes.io/proxy-send-timeout: '86400'
       nginx.ingress.kubernetes.io/use-regex: "true"
     hosts:
-      - host: foundry.local
+      - host: $DOMAIN
         paths:
           - path: "/console(/|$)(.*)"
             pathType: Prefix
     tls:
       - secretName: appliance-cert
         hosts:
-         - foundry.local
+         - $DOMAIN
   
   identity:
     register: true
@@ -633,16 +633,16 @@ console-ui:
         "slidingRefreshTokenLifetime": "15d",
         "absoluteRefreshTokenLifetime": "30d",
         "published": false,
-        "url": "https://foundry.local/vm",
+        "url": "https://$DOMAIN/vm",
         "logoUrl": null,
         "frontChannelLogoutUrl": null,
         "backChannelLogoutUrl": null,
         "redirectUrls": [
-          { "value": "https://foundry.local/console/auth-callback" },
-          { "value": "https://foundry.local/console/auth-callback-silent" }
+          { "value": "https://$DOMAIN/console/auth-callback" },
+          { "value": "https://$DOMAIN/console/auth-callback-silent" }
         ],
-        "postLogoutUrls": [{ "value": "https://foundry.local/console" }],
-        "corsUrls": [{ "value": "https://foundry.local" }],
+        "postLogoutUrls": [{ "value": "https://$DOMAIN/console" }],
+        "corsUrls": [{ "value": "https://$DOMAIN" }],
         "alwaysSendClientClaims": false,
         "clientClaimsPrefix": "client_",
         "claims": [],
@@ -657,16 +657,16 @@ console-ui:
   # These values correspond to an OpenID connect client and some basic settings
   settings: |- 
     {
-      "ConsoleApiUrl": "https://foundry.local/vm/api",
+      "ConsoleApiUrl": "https://$DOMAIN/vm/api",
       "OIDCSettings": {
-        "authority": "https://foundry.local/identity",
+        "authority": "https://$DOMAIN/identity",
         "client_id": "vm-console-ui",
-        "redirect_uri": "https://foundry.local/console/auth-callback",
-        "post_logout_redirect_uri": "https://foundry.local/console",
+        "redirect_uri": "https://$DOMAIN/console/auth-callback",
+        "post_logout_redirect_uri": "https://$DOMAIN/console",
         "response_type": "code",
         "scope": "openid profile player-api vm-api",
         "automaticSilentRenew": true,
-        "silent_redirect_uri": "https://foundry.local/console/auth-callback-silent"
+        "silent_redirect_uri": "https://$DOMAIN/console/auth-callback-silent"
       },
       "UseLocalAuthStorage": true,
       "VmResolutionOptions": [

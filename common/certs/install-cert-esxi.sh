@@ -9,7 +9,7 @@
 # Installs Foundry Appliance certificate and key onto an ESXi server
 
 ESXI_USER=root
-ESXI_HOSTNAME=esxi.foundry.local
+ESXI_HOSTNAME=esxi.$DOMAIN
 
 if [[ ! $1 =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
   echo -e "\nUsage: $0 [esxi ip address]\n"

@@ -6,13 +6,13 @@
 #
 # setup-esxi <esxi ip address>
 #
-# Adds 'esxi.foundry.local' hostname for VMware ESXi server and
+# Adds 'esxi.$DOMAIN' hostname for VMware ESXi server and
 # installs Foundry Appliance TLS certificate and key into the same server
 #
 
 HOSTS_FILE=/etc/hosts
 ESXI_USER=root
-ESXI_HOSTNAME=esxi.foundry.local
+ESXI_HOSTNAME=esxi.$DOMAIN
 ESXI_CERTDIR=/etc/vmware/ssl
 RUI_CRT=$(cat certs/host.pem certs/int-ca.pem)
 RUI_KEY=$(<certs/host-key.pem)
@@ -20,11 +20,11 @@ APPLIANCE_IP=$(ip route get 1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p')
 TOPOMOJO_NFS_PV=$(kubectl get pvc topomojo-nfs --output=jsonpath='{.spec.volumeName}')
 TOPOMOJO_STOCK_PATH=/vmfs/volumes/datastore1/topomojo/00000000-0000-0000-0000-000000000000
 TOPOMOJO_ACCESS_TOKEN=$(curl --silent --request POST \
-                             --url 'https://foundry.local/identity/connect/token' \
+                             --url 'https://$DOMAIN/identity/connect/token' \
                              --data grant_type=password \
                              --data client_id=bootstrap-client \
                              --data client_secret=foundry \
-                             --data username=administrator@foundry.local \
+                             --data username=administrator@$DOMAIN \
                              --data password=foundry | jq -r '.access_token')
                             
 
@@ -72,12 +72,12 @@ ssh $ESXI_USER@$ESXI_HOSTNAME << EOF
 EOF
 
 # Test if blank templates do not exist
-if ! grep -q "blank-" <<< $(curl -s -X GET "https://foundry.local/topomojo/api/templates" -H "Authorization: Bearer $TOPOMOJO_ACCESS_TOKEN"); then
+if ! grep -q "blank-" <<< $(curl -s -X GET "https://$DOMAIN/topomojo/api/templates" -H "Authorization: Bearer $TOPOMOJO_ACCESS_TOKEN"); then
 
   # Add blank templates to TopoMojo
   for x in 10g 20g 40g; do
     curl -X POST --silent --output /dev/null \
-         --url "https://foundry.local/topomojo/api/template-detail" \
+         --url "https://$DOMAIN/topomojo/api/template-detail" \
          -H "Authorization: Bearer $TOPOMOJO_ACCESS_TOKEN" \
          -H "Content-Type: application/json" \
          --data-binary @- <<EOF
