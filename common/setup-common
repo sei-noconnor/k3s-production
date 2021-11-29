@@ -46,9 +46,9 @@ helm upgrade --install -f code-server.values.yaml code-server nicholaswilde/code
 # Install NFS server
 helm repo add kvaps https://kvaps.github.io/charts
 helm upgrade --install -f nfs-server-provisioner.values.yaml nfs-server-provisioner kvaps/nfs-server-provisioner
-kubectl patch daemonset $INGRESS_CONTROLLER_NAME -n $INGRESS_NAMESPACE --type 'json' --patch \
+kubectl patch deployment $INGRESS_CONTROLLER_NAME -n $INGRESS_NAMESPACE --type 'json' --patch \
   '[{"op": "add", "path": "/spec/template/spec/containers/0/ports/-", "value": {"name":"nfs-tcp","hostPort":2049,"containerPort":2049,"protocol":"TCP"}}]' || true
-kubectl patch daemonset $INGRESS_CONTROLLER_NAME -n $INGRESS_NAMESPACE --type 'json' --patch \
+kubectl patch deployment $INGRESS_CONTROLLER_NAME -n $INGRESS_NAMESPACE --type 'json' --patch \
   '[{"op": "add", "path": "/spec/template/spec/containers/0/ports/-", "value": {"name":"nfs-udp","hostPort":2049,"containerPort":2049,"protocol":"UDP"}}]' || true
 kubectl apply -f nfs-ingress.yaml --dry-run=client -o yaml | kubectl apply -f -
 
