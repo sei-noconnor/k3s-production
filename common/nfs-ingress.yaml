@@ -2,15 +2,15 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: nginx-ingress-tcp-microk8s-conf
-  namespace: ingress
+  name: nginx-ingress-tcp-conf
+  namespace: $INGRESS_NAMESPACE
 data:
   2049: "default/nfs-server-provisioner:2049"
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: nginx-ingress-udp-microk8s-conf
-  namespace: ingress
+  name: nginx-ingress-udp-conf
+  namespace: $INGRESS_NAMESPACE
 data:
   2049: "default/nfs-server-provisioner:2049"
