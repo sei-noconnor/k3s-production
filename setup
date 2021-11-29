@@ -13,8 +13,9 @@ apps="common,$1"
 IFS=',' read -a stacks <<< $apps
 echo "The following apps will be installed ${stacks[@]}"
 # Always run common apps. 
-# for stack in ${stacks[@]}; do
-#   echo "Installing $stack with script located at $DIRECTORY/$stack/setup-$stack"
-#   $DIRECTORY/$stack/setup-$stack
-# done
+for stack in ${stacks[@]}; do
+  replace_vars $DIRECTORY/$stack/setup-$stack '*'
+  echo "Installing $stack with script located at $DIRECTORY/$stack/setup-$stack"
+  #$DIRECTORY/$stack/setup-$stack
+done
 
