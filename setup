@@ -2,12 +2,19 @@
 # Change to the current directory
 DIRECTORY="$(dirname "${BASH_SOURCE[0]}")"
 cd $DIRECTORY
+source $DIRECTORY/scripts/utils
+import_vars $DIRECTORY/env
+replace_vars $DIRECTORY/common '.*\.(json|conf|yaml|yml)'
+replace_vars $DIRECTORY/crucible '.*\.(json|conf|yaml|yml)'
+replace_vars $DIRECTORY/k3s-ansible '.*\.(json|conf|yaml|yml)'
+replace_vars $DIRECTORY/terraform '.*\.(json|conf|yaml|yml)'
+replace_vars $DIRECTORY/values '.*\.(json|conf|yaml|yml)'
 apps="common,$1"
 IFS=',' read -a stacks <<< $apps
 echo "The following apps will be installed ${stacks[@]}"
 # Always run common apps. 
-for stack in ${stacks[@]}; do
-  echo "Installing $stack with script located at $DIRECTORY/$stack/setup-$stack"
-  $DIRECTORY/$stack/setup-$stack
-done
+# for stack in ${stacks[@]}; do
+#   echo "Installing $stack with script located at $DIRECTORY/$stack/setup-$stack"
+#   $DIRECTORY/$stack/setup-$stack
+# done
 
