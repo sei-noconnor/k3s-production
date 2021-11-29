@@ -138,12 +138,12 @@ replication:
 ## PostgreSQL user (has superuser privileges if username is `postgres`)
 ## ref: https://github.com/bitnami/bitnami-docker-postgresql/blob/master/README.md#setting-the-root-password-on-first-run
 ##
-postgresqlUsername: postgres
+postgresqlUsername: $POSTGRES_USER
 
 ## PostgreSQL password
 ## ref: https://github.com/bitnami/bitnami-docker-postgresql/blob/master/README.md#setting-the-root-password-on-first-run
 ##
-postgresqlPassword: $ADMIN_PASS
+postgresqlPassword: $POSTGRES_PASS
 
 ## PostgreSQL password using existing secret
 ## existingSecret: secret
@@ -404,7 +404,7 @@ persistence:
   ##
   subPath: ''
 
-  # storageClass: "-"
+  storageClass: "$STORAGE_CLASS"
   accessModes:
     - ReadWriteOnce
   size: 1Gi
