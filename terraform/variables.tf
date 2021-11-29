@@ -23,13 +23,13 @@ variable "domain" {
   type = string
 }
 variable "default_portgroup" {
-  default = "$VSPHERE_DEFAULT_PORTGROUP"
+  default = "portgroup"
 }
 variable "default_netmask" {
-  default = "$DEFAULT_NETMASK"
+  default = "24"
 }
 variable "default_gateway" {
-  default = "$DEFAULT_GATEWAY"
+  default = "192.168.1.1"
 }
 variable "dns_servers" {
   type = list(string)
