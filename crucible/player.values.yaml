@@ -473,8 +473,8 @@ vm-api:
     Vsphere__Host: "$VSPHERE_SERVER"
     Vsphere__Username: "$VSPHERE_USER"
     Vsphere__Password: "$VSPHERE_PASS"
-    Vsphere__DsName: ""
-    Vsphere__BaseFolder: ""
+    Vsphere__DsName: "$VSPHERE_DATASTORE"
+    Vsphere__BaseFolder: "/player"
     
     # Rewrite Host settings
     # See "consoleIngress" section above for usage
