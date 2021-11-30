@@ -138,3 +138,19 @@ function replace_vars() {
   fi
 } 
 
+function import_root_ca() {
+  cert_path=$1
+  file=$(basename $cert_path)
+  base=$(echo "${file%.*}")
+  if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+    # Linux
+    echo $LOCAL_SUDO_PASS | sudo -S cp $cert_path /usr/local/share/ca-certificates/$base.crt
+    echo $LOCAL_SUDO_PASS | sudo -S update-ca-certificates
+  elif [[ "$OSTYPE" == "darwin"* ]]; then
+    # Mac OSX
+    echo $LOCAL_SUDO_PASS | sudo -S security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain $cert_path
+  else
+          # Unknown.
+  fi
+}
+
