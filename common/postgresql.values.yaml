@@ -7,7 +7,7 @@ global:
 #   imageRegistry: myRegistryName
 #   imagePullSecrets:
 #     - myRegistryKeySecretName
-  storageClass: $STORAGE_CLASS
+    storageClass: "$STORAGE_CLASS"
 
 ## Bitnami PostgreSQL image version
 ## ref: https://hub.docker.com/r/bitnami/postgresql/tags/
@@ -404,7 +404,7 @@ persistence:
   ##
   subPath: ''
 
-  storageClass: $STORAGE_CLASS
+  storageClass: "$STORAGE_CLASS"
   accessModes:
     - ReadWriteOnce
   size: 1Gi
