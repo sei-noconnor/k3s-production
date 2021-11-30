@@ -28,7 +28,7 @@ helm repo add gitlab https://charts.gitlab.io
 helm repo update
 kubectl exec postgresql-postgresql-0 -- psql 'postgresql://$POSTGRES_USER:$POSTGRES_PASS@localhost' -c "CREATE DATABASE gitlab_db;" || true
 kubectl apply -f gitlab.secrets.yaml 
-helm upgrade --install -f gitlab.values.yaml --version 4.4.1 gitlab gitlab/gitlab
+helm upgrade --install -f gitlab-min.values.yaml --version 4.4.1 gitlab gitlab/gitlab
 
 # Wait for gitllab to come up 
 cat << EOF 

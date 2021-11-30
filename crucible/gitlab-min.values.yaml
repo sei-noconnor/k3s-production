@@ -76,5 +76,7 @@ gitlab:
     service:
       type: NodePort
       nodePort: 32022
+  toolbox:
+    enabled: false
 registry:
   enabled: false
