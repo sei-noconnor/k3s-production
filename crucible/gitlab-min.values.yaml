@@ -38,11 +38,11 @@ global:
     database: gitlab_db
     preparedStatements: false
   
-  appConfig:
-    certificates:
+  certificates:
     customCAs: 
       - secret: appliance-root-ca
-  
+      
+  appConfig:
     omniauth:
       enabled: true
       autoSignInWithProvider: identity
