@@ -24,9 +24,12 @@ fi
 
 if [[ $RUN_TERRAFOM = true ]]; then
   # TODO
+  echo "Future Automation"
 fi
+
 if [[ $RUN_ANSIBLE = true ]]; then 
   # TODO
+  echo "Future Automation"
 fi
 
 # Always run common apps. 
