@@ -35,10 +35,8 @@ controller:
 
   # Will add custom configuration options to Nginx https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/configmap/
   config:
-    name: $INGRESS_CONFIGMAP
-    entries:
-      proxy-body-size: 512m
-      hsts: false
+    proxy-body-size: 512m
+    hsts: false
 
   ## Annotations to be added to the controller config configuration configmap
   ##

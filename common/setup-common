@@ -16,9 +16,9 @@ kubectl get configmap/coredns -n kube-system -o yaml | sed "s/8.8.8.8 8.8.4.4/10
 kubectl rollout restart deployment/coredns -n kube-system
 
 # Disable HSTS
-kubectl patch configmap $INGRESS_CONFIGMAP \
-                        --patch "$(cat ingress-hsts-disable.yaml)" \
-                        --namespace $INGRESS_NAMESPACE
+# kubectl patch configmap $INGRESS_CONFIGMAP \
+#                         --patch "$(cat ingress-hsts-disable.yaml)" \
+#                         --namespace $INGRESS_NAMESPACE
 
 # Add host certificate
 kubectl create secret tls appliance-cert --key certs/host-key.pem --cert <( cat certs/host.pem certs/int-ca.pem ) --dry-run=client -o yaml | kubectl apply -f -
