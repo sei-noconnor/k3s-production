@@ -153,6 +153,9 @@ global:
   ## doc/charts/globals.md#configure-grafana-integration
   grafana:
     enabled: false
+  
+  registry:
+    enabled: false
 
   ## doc/charts/globals.md#configure-appconfig-settings
   ## Rails based portions of this chart share many settings
