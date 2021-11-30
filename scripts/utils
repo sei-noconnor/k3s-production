@@ -150,7 +150,7 @@ function import_root_ca() {
     # Mac OSX
     echo $LOCAL_SUDO_PASS | sudo -S security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain $cert_path
   else
-          # Unknown.
+    echo "OS NOT SUPPORTED"
   fi
 }
 
