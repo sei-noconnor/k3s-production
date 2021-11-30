@@ -107,7 +107,7 @@ cd ${exports_path}
 for file in ${files}; do
   # Gitlab has terrible support for repos exported with different versions of gitlab
   # We need to extract the repo 
-  mkdir -p "${file}" && tar -xzf ${file}.tar.gz -C $_
+  mkdir -p "${file}" && tar -xzf ${file}.tar.gz -C $file
   
   git clone --mirror "${file}/project.bundle" "${file}/.git"
   git -C ${file} init
