@@ -43,7 +43,7 @@ player-api:
     class: ""
   # identity - seed data for the identity server
   identity:
-    register: false
+    register: true
     identityMap: identity-identity-api
     initCommand: ''
     client: |-
@@ -206,7 +206,7 @@ player-ui:
          - $DOMAIN
 
   identity:
-    register: false
+    register: true
     identityMap: identity-identity-api
     initCommand: ''
     client: |-
@@ -353,7 +353,7 @@ vm-api:
   certificateMap: "appliance-root-ca"
 
   identity:
-    register: false
+    register: true
     identityMap: identity-identity-api
     initCommand: ''
     client: |-
@@ -511,7 +511,7 @@ vm-ui:
          - $DOMAIN
 
   identity:
-    register: false
+    register: true
     identityMap: identity-identity-api
     initCommand: ''
     client: |-
