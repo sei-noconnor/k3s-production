@@ -26,7 +26,7 @@ echo "foundry" | sudo -S grep -qxF '127.0.0.1 localhost $DOMAIN gitlab.$DOMAIN' 
 # add repo and update
 helm repo add gitlab https://charts.gitlab.io
 helm repo update
-kubectl exec postgresql-postgresql-0 -- psql 'postgresql://$POSTGRES_SERVER:$POSTGRES_USER@localhost' -c "CREATE DATABASE gitlab_db;" || true
+kubectl exec postgresql-postgresql-0 -- psql 'postgresql://$POSTGRES_USER:$POSTGRES_PASS@localhost' -c "CREATE DATABASE gitlab_db;" || true
 kubectl apply -f gitlab.secrets.yaml 
 helm upgrade --install -f gitlab.values.yaml --version 4.4.1 gitlab gitlab/gitlab
 
