@@ -1,28 +1,28 @@
 #!/bin/bash
 # Must be run as sudo
 #[ `whoami` = root ] || { sudo "$0" "$@"; exit $?; }
-DIRECTORY=$(dirname "${BASH_SOURCE[0]}")
-cd ${DIRECTORY}
+directory=$(dirname "${BASH_SOURCE[0]}")
+cd ${directory}
 source ../scripts/utils
-EXPORTS_PATH="./seed/gitlab"
-TIMEOUT=0
-MAX_TIMEOUT=360
-DOMAIN="${DOMAIN:-$DOMAIN}"
+exports_path="./seed/gitlab"
+timeout=0
+max_timeout=360
+domain="${domain:-$DOMAIN}"
 # set gitlab variables.
-GITLAB_TOKEN=$(awk '/Terraform__GitlabToken/ {print $2}' caster.values.yaml | tr -d '"')
-MODULES_GROUP="caster-modules"
-ADMIN_UID=$(awk '/Account__AdminGuid/ {print $2}' ../common/identity.values.yaml | tr -d '"')
-GITLAB_GROUP_ID=$(awk '/Terraform__GitlabGroupId/ {print $2}' caster.values.yaml | tr -d '"')
-echo "GitlabToken: ${GITLAB_TOKEN}"
-echo "GitlabGroupId: ${GITLAB_GROUP_ID}"
-echo "AdminUid: ${ADMIN_UID}" 
-gitlab_host="https://gitlab.${DOMAIN}"
-gitlab_user="administrator@${DOMAIN}"
+gitlab_token=$(awk '/Terraform__GitlabToken/ {print $2}' caster.values.yaml | tr -d '"')
+modules_group="caster-modules"
+admin_uid=$(awk '/Account__AdminGuid/ {print $2}' ../common/identity.values.yaml | tr -d '"')
+gitlab_group_id=$(awk '/Terraform__GitlabGroupId/ {print $2}' caster.values.yaml | tr -d '"')
+echo "GitlabToken: ${gitlab_token}"
+echo "GitlabGroupId: ${gitlab_group_id}"
+echo "AdminUid: ${admin_uid}" 
+gitlab_host="https://gitlab.${domain}"
+gitlab_user="administrator@${domain}"
 gitlab_password="foundry"
 api_url="${gitlab_host}/api/v4"
 
 # add gitlab to hosts file
-# echo "foundry" | sudo -S grep -qxF '127.0.0.1 localhost $DOMAIN gitlab.$DOMAIN' /etc/hosts || sudo echo '127.0.0.1 localhost $DOMAIN gitlab.$DOMAIN' | sudo tee -a /etc/hosts > /dev/null
+# echo "foundry" | sudo -S grep -qxF '127.0.0.1 localhost $domain gitlab.$domain' /etc/hosts || sudo echo '127.0.0.1 localhost $domain gitlab.$domain' | sudo tee -a /etc/hosts > /dev/null
 # add repo and update
 helm repo add gitlab https://charts.gitlab.io
 helm repo update
@@ -35,14 +35,14 @@ cat << EOF
 
   Waiting for gitlab to become available, this may take a while...
   
-  Timeout set to ${MAX_TIMEOUT} seconds
+  Timeout set to ${max_timeout} seconds
 EOF
 
 until $(curl --output /dev/null --silent --head --insecure --fail ${gitlab_host}/users/sign_in); do
   printf '.'
   sleep 5
-  TIMEOUT=$((TIMEOUT+5))
-  if [ ${TIMEOUT} -gt ${MAX_TIMEOUT} ]; then
+  timeout=$((timeout+5))
+  if [ ${timeout} -gt ${max_timeout} ]; then
     cat << EOF
     Gitlab connection timed out
 
@@ -52,59 +52,59 @@ EOF
   fi
 done
 
-kex_q gitlab-task-runner gitlab-rails runner -q"u = User.create_or_find_by(username: 'root', email: 'administrator@${DOMAIN}', name: 'Administrator' , password: 'foundry123', password_confirmation: 'foundry123', admin: true); u.skip_confirmation=true; u.save"
-kex_q gitlab-task-runner gitlab-rails runner -q"token = User.find_by_username('root').personal_access_tokens.create(scopes: [:api], name: 'root seed token'); token.set_token('${GITLAB_TOKEN}'); token.save!"
+kex_q gitlab-task-runner gitlab-rails runner -q"u = User.create_or_find_by(username: 'root', email: 'administrator@${domain}', name: 'Administrator' , password: '$ADMIN_PASS', password_confirmation: '$ADMIN_PASS', admin: true); u.skip_confirmation=true; u.save"
+kex_q gitlab-task-runner gitlab-rails runner -q"token = User.find_by_username('root').personal_access_tokens.create(scopes: [:api], name: 'root seed token'); token.set_token('${gitlab_token}'); token.save!"
 
-echo "Personal Access Token is: ${GITLAB_TOKEN}"
-H_AUTH="Private-Token: ${GITLAB_TOKEN}"
-H_JSON="Content-Type: application/json"
+echo "Personal Access Token is: ${gitlab_token}"
+h_auth="Private-Token: ${gitlab_token}"
+h_json="Content-Type: application/json"
 
-# Set root to admin@${DOMAIN}
-REQ=$(curl -ks --location --request GET "${api_url}/users?username=root")
-USER_ID=$(echo ${REQ} | jq -j '.[0] | .id')
-DATA_JSON=$(echo ${REQ} | jq --arg ADMIN_UID "${ADMIN_UID}" '.[0] | .provider = "identity" | .extern_uid = $ADMIN_UID')
-REQ=$(curl -k --location --request PUT "${api_url}/users/${USER_ID}" \
---header "${H_JSON}" \
---header "${H_AUTH}" \
---data-raw "${DATA_JSON}")
-echo "UserId: ${USER_ID}"
-echo $REQ | jq .
+# Set root to admin@${domain}
+req=$(curl -ks --location --request GET "${api_url}/users?username=root")
+user_id=$(echo ${req} | jq -j '.[0] | .id')
+data_json=$(echo ${req} | jq --arg admin_uid "${admin_uid}" '.[0] | .provider = "identity" | .extern_uid = $admin_uid')
+req=$(curl -k --location --request PUT "${api_url}/users/${user_id}" \
+--header "${h_json}" \
+--header "${h_auth}" \
+--data-raw "${data_json}")
+echo "UserId: ${user_id}"
+echo $req | jq .
 
 
 # Check if the group exists by name
-  REQ=$(curl -ks --location --request GET "${api_url}/groups?search=${MODULES_GROUP}" \
-  --header "${H_JSON}" \
-  --header "${H_AUTH}")
-  echo $REQ | jq .
+  req=$(curl -ks --location --request GET "${api_url}/groups?search=${modules_group}" \
+  --header "${h_json}" \
+  --header "${h_auth}")
+  echo $req | jq .
   
-  GROUP=$(echo ${REQ} | jq --arg name "${MODULES_GROUP}" '.[] | select(.name=$name)')
-  GITLAB_GROUP_ID=$(echo ${GROUP} | jq -j '.id')
+  group=$(echo ${req} | jq --arg name "${modules_group}" '.[] | select(.name=$name)')
+  gitlab_group_id=$(echo ${group} | jq -j '.id')
 
-  if [[ -z ${GROUP} ]]; then
+  if [[ -z ${group} ]]; then
 
     # Create caster modules group
-    DATA_JSON=$(cat <<EOF
+    data_json=$(cat <<EOF
       {
-        "name": "${MODULES_GROUP}",
-        "path": "${MODULES_GROUP}",
+        "name": "${modules_group}",
+        "path": "${modules_group}",
         "visibility": "public"
       }
 EOF
     )
 
-    REQ=$(curl -ks --location --request POST "${api_url}/groups" \
-    --header "${H_JSON}" \
-    --header "${H_AUTH}" \
-    --data-raw "${DATA_JSON}")
-    echo ${REQ} | jq .
-    GITLAB_GROUP_ID=$(echo ${REQ} | jq -j '.id')
+    req=$(curl -ks --location --request POST "${api_url}/groups" \
+    --header "${h_json}" \
+    --header "${h_auth}" \
+    --data-raw "${data_json}")
+    echo ${req} | jq .
+    gitlab_group_id=$(echo ${req} | jq -j '.id')
    
   fi
 
 # Import all projects into group, file name without the extension will be the repo name.
-FILES=$(find ${EXPORTS_PATH} -type f -iname "*.tar.gz" | sed "s/.*\///; s/\.tar.gz//")
-cd ${EXPORTS_PATH}
-for file in ${FILES}; do
+files=$(find ${exports_path} -type f -iname "*.tar.gz" | sed "s/.*\///; s/\.tar.gz//")
+cd ${exports_path}
+for file in ${files}; do
   # Gitlab has terrible support for repos exported with different versions of gitlab
   # We need to extract the repo 
   mkdir -p "${file}" && tar -xzf ${file}.tar.gz -C $_
@@ -115,24 +115,24 @@ for file in ${FILES}; do
   git -C ${file} status
   git -C ${file} remote remove origin
   #Create project
-  DATA_JSON=$(cat <<EOF
+  data_json=$(cat <<EOF
       {
         "name": "${file}",
-        "namespace_id": ${GITLAB_GROUP_ID},
+        "namespace_id": ${gitlab_group_id},
         "visibility": "public"
       }
 EOF
     )
 
-  REQ=$(curl -k --location --request POST "${api_url}/projects" \
-    --header "${H_JSON}" \
-    --header "${H_AUTH}" \
-    --data-raw "${DATA_JSON}")
-  PROJECT_ID=$(echo ${REQ} | jq '.id')
-  if [[ -n "$PROJECT_ID" ]]; then 
-    git -C ${file} remote add origin "$gitlab_host/${MODULES_GROUP}/${file}.git"
-    git -C ${file} push -u "https://root:$ADMIN_PASS@gitlab.${DOMAIN}/${MODULES_GROUP}/${file}.git" --all
-    git -C ${file} push -u "https://root:$ADMIN_PASS@gitlab.${DOMAIN}/${MODULES_GROUP}/${file}.git" --tags
+  req=$(curl -k --location --request POST "${api_url}/projects" \
+    --header "${h_json}" \
+    --header "${h_auth}" \
+    --data-raw "${data_json}")
+  project_id=$(echo ${req} | jq '.id')
+  if [[ -n "$project_id" ]]; then 
+    git -C ${file} remote add origin "$gitlab_host/${modules_group}/${file}.git"
+    git -C ${file} push -u "https://root:$ADMIN_PASS@gitlab.${domain}/${modules_group}/${file}.git" --all
+    git -C ${file} push -u "https://root:$ADMIN_PASS@gitlab.${domain}/${modules_group}/${file}.git" --tags
   fi
   # cleanup
   rm -rf ${file}
