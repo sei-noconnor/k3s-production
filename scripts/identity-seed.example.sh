@@ -16,119 +16,127 @@
 #                                                                                         #
 # WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING #    
 
-APP_NAME=${1}
-# If JSON files are not in the same directory as the script 
+app_name=${1}
+# If json files are not in the same directory as the script 
 # Specify the directory as the second argument.
-DIRECTORY=${2-$(dirname "$BASH_SOURCE[0]")}
-cd $DIRECTORY
+directory=${2-$(dirname "$BASH_SOURCE[0]")}
+cd $directory
 
 # http or https
-PROTO="https"
-DOMAIN="${DOMAIN:-$DOMAIN}"
+proto="https"
+domain="${domain:-$DOMAIN}"
 
 # get access token
-ACCESS_TOKEN=$(curl --silent --insecure --request POST \
-  --url "$PROTO://$DOMAIN/identity/connect/token" \
+req=$(curl --silent --insecure --request POST \
+  --url "$proto://$domain/identity/connect/token" \
   --data grant_type=password \
   --data scope="identity-api identity-api-privileged" \
   --data client_id=bootstrap-client \
   --data client_secret=foundry \
-  --data username=administrator@$DOMAIN \
-  --data password=foundry | jq -r '.access_token')
+  --data username=administrator@$domain \
+  --data password=$ADMIN_PASS)
+  
+  access_token=$req | jq -r '.access_token'
+  if [[ -z access_token ]]; then 
+    echo "$req | jq -r '.message"
+    exit 1;
+  fi
+
+
 
 # Function exists() 
-# Returns ID if the item exists
+# Returns id if the item exists
 # returns empty string if it doesn't. 
 function exists() {
-  TYPE=$1
-  NAME=$2
+  type=$1
+  name=$2
 
-  URL="$PROTO://$DOMAIN/identity/api/${TYPE}s?term=$NAME"
-  EXISTS=$(curl --silent --insecure --request GET \
-    --url "$URL" \
-    -H "Authorization: Bearer $ACCESS_TOKEN" \
-    -H "Content-Type: application/json")
+  url="$proto://$domain/identity/api/${type}s?term=$name"
+  exists=$(curl --silent --insecure --request GET \
+    --url "$url" \
+    -H "Authorization: Bearer $access_token" \
+    -H "Content-type: application/json")
   # RETURN
-   echo $(printf '%s' "$EXISTS" | jq '.[0].id // empty')
+   echo $(printf '%s' "$exists" | jq '.[0].id // empty')
 }
 
 function update() {
-  # TYPE can also be used like a path "resource/enlist" without the quotes
-  TYPE=$1
-  NAME=$2
-  ID=$3
-  DATA=$4
+  # type can also be used like a path "resource/enlist" without the quotes
+  type=$1
+  name=$2
+  id=$3
+  data=$4
   
-  URL="$PROTO://$DOMAIN/identity/api/${TYPE}"
+  url="$proto://$domain/identity/api/${type}"
   
 
-  API_JSON=$(curl --silent --insecure --request GET \
-    --url "$URL/$ID" \
-    -H "Authorization: Bearer $ACCESS_TOKEN" \
-    -H "Content-Type: application/json" | jq '.')
+  api_json=$(curl --silent --insecure --request GET \
+    --url "$url/$id" \
+    -H "Authorization: Bearer $access_token" \
+    -H "Content-type: application/json" | jq '.')
   
   #Combine file and API json
-  JSON=$(printf '%s' "$API_JSON $DATA" | jq -sr add)
-  UPDATED=$(curl --silent --insecure --request PUT \
-  --url "$URL" \
-  -H "Authorization: Bearer $ACCESS_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d "$JSON")
-  if [[ -n "$UPDATED" ]]; then 
-    echo "$NAME Updated" 
+  json=$(printf '%s' "$api_json $data" | jq -sr add)
+  updated=$(curl --silent --insecure --request PUT \
+  --url "$url" \
+  -H "Authorization: Bearer $access_token" \
+  -H "Content-type: application/json" \
+  -d "$json")
+  if [[ -n "$updated" ]]; then 
+    echo "$name Updated" 
   fi
 }
 
 function add() {
-  TYPE=$1
-  NAME=$2
-  DATA=$3
-  # PROPS is a jq filter string
+  type=$1
+  name=$2
+  data=$3
+  # props is a jq filter string
   # In some cases when creating we need a subset of the json data
   # e.g. '. | {usernames: .usernames, password: .password}'
-  PROPS=${4-'.'}
-  URL="$PROTO://$DOMAIN/identity/api/${TYPE}"
+  props=${4-'.'}
+  url="$proto://$domain/identity/api/${type}"
   
-  # Parse JSON for initial POST
-    INIT_JSON=$(printf '%s' "$DATA" | jq "$PROPS")
-    echo "CREATING NEW $TYPE"
-    #Create the resource, get the resource ID and full resource.
-    INIT_API=$(curl --silent --insecure --request POST \
-    --url "$URL" \
-    -H "Authorization: Bearer $ACCESS_TOKEN" \
-    -H "Content-Type: application/json" \
-    -d "$INIT_JSON")
+  # Parse json for initial POST
+    init_json=$(printf '%s' "$data" | jq "$props")
+    echo "CREATING NEW $type"
+    #Create the resource, get the resource id and full resource.
+    init_api=$(curl --silent --insecure --request POST \
+    --url "$url" \
+    -H "Authorization: Bearer $access_token" \
+    -H "Content-type: application/json" \
+    -d "$init_json")
     
-    ID=$(printf '%s' "$INIT_API" |jq -r '. | if type=="array" then .[0].id else .id end // empty')
+    id=$(printf '%s' "$init_api" |jq -r '. | if type=="array" then .[0].id else .id end // empty')
     
-    if [[ -n "$ID" ]]; then
-      API_JSON=$(curl --silent --insecure --request GET \
-      --url "$URL/$ID" \
-      -H "Authorization: Bearer $ACCESS_TOKEN" \
-      -H "Content-Type: application/json")
+    if [[ -n "$id" ]]; then
+      api_json=$(curl --silent --insecure --request GET \
+      --url "$url/$id" \
+      -H "Authorization: Bearer $access_token" \
+      -H "Content-type: application/json")
 
-      # Merge JSON
-      JSON=$(printf '%s\n%s\n' "$API_JSON" "$DATA" | jq -n '[inputs] | add')
+      # Merge json
+      json=$(printf '%s\n%s\n' "$api_json" "$data" | jq -n '[inputs] | add')
       
       # PUT Update
-      ADDED=$(curl --silent --insecure --request PUT \
-      --url "$PROTO://$DOMAIN/identity/api/$TYPE" \
-      -H "Authorization: Bearer $ACCESS_TOKEN" \
-      -H "Content-Type: application/json" \
-      -d "$JSON" | jq -r '.')
-      if [[ -n "$ADDED" ]]; then 
-        echo $ADDED
+      added=$(curl --silent --insecure --request PUT \
+      --url "$proto://$domain/identity/api/$type" \
+      -H "Authorization: Bearer $access_token" \
+      -H "Content-type: application/json" \
+      -d "$json" | jq -r '.')
+      if [[ -n "$added" ]]; then 
+        echo $added
         # Check client scope
         # In some cases the Identity API will create a client successfully but omit scope resources
         # if they don't exists. This can cause authorization to fail, due to invalid scopes. In this 
-        # case we assume that if a scope is specified it is required. We fail the script if DATA 
-        # scope and ADDED scope do not match so that the init container will restart and try again.
-        if [[ "$TYPE" == "client" ]]; then
-          DATA_SCOPES=$(printf '%s' "$DATA" | jq -r '.scopes')
-          ADD_SCOPES=$(printf '%s' "$ADDED" | jq -r '.scopes')
-          if [[ "$DATA_SCOPES" != "$ADD_SCOPES" ]]; then 
-            echo "Intended Scopes: $DATA_SCOPES"
-            echo "Created Scopes: $ADD_SCOPES\n\n"
+        # case we assume that if a scope is specified it is required. We fail the script if data 
+        # scope and added scope do not match so that the init container will restart and try again.
+        if [[ "$type" == "client" ]]; then
+          data_scopes=$(printf '%s' "$data" | jq -r '.scopes')
+          add_scopes=$(printf '%s' "$added" | jq -r '.scopes')
+          if [[ "$data_scopes" != "$add_scopes" ]]; then 
+            echo "Intended Scopes: $data_scopes"
+            echo "Created Scopes: $add_scopes\n\n"
             echo "Compare the scopes and make sure the missing scopes application initialized correctly."
             echo "In most cases this is a race condition and a retry is all that is needed.\n"
             echo "Sleeping for 10 seconds before exiting..."
@@ -141,73 +149,73 @@ function add() {
 }
 
 function delete() {
-  TYPE=$1
-  NAME=$2
-  ID=$3
-  URL="$PROTO://$DOMAIN/identity/api/${TYPE}"
-  EXISTS=$(curl --silent --insecure --request DELETE \
-    --url "$URL/$ID" \
-    -H "Authorization: Bearer $ACCESS_TOKEN" \
-    -H "Content-Type: application/json")
+  type=$1
+  name=$2
+  id=$3
+  url="$proto://$domain/identity/api/${type}"
+  exists=$(curl --silent --insecure --request DELETE \
+    --url "$url/$id" \
+    -H "Authorization: Bearer $access_token" \
+    -H "Content-type: application/json")
   # RETURN
-   echo $(printf '%s' "$EXISTS" | jq '.[0].id // empty')
+   echo $(printf '%s' "$exists" | jq '.[0].id // empty')
 }
 
 # Checks if the file is an array or object 
 # Objects will be returned as an array
 function isArray() {
-  FILE=$1
-  RET=$(jq -rc '. | if type!="array" then [.] else . end' "$FILE")
-  echo $RET
+  file=$1
+  ret=$(jq -rc '. | if type!="array" then [.] else . end' "$file")
+  echo $ret
 }
 
-#If Resource JSON exists. Configure Resource
-if [[ -e "${DIRECTORY}/$APP_NAME-resource.json" ]]; then
-  FILE="${DIRECTORY}/$APP_NAME-resource.json"
-  isArray $FILE | jq -c '.[]' | while read object; do
-    NAME=$(printf '%s' "$object" | jq -r '.name')
-    RESOURCE_ID=$(exists resource $NAME)
+#If Resource json exists. Configure Resource
+if [[ -e "${directory}/$app_name-resource.json" ]]; then
+  file="${directory}/$app_name-resource.json"
+  isArray $file | jq -c '.[]' | while read object; do
+    name=$(printf '%s' "$object" | jq -r '.name')
+    resource_id=$(exists resource $name)
     
-    if [[ -n "$RESOURCE_ID" ]]; then  
+    if [[ -n "$resource_id" ]]; then  
       # Because of some API limitations, delete the resource and add it again
-      delete resource $NAME $RESOURCE_ID
-      add resource $NAME "$object"
+      delete resource $name $resource_id
+      add resource $name "$object"
     else
-      add resource $NAME "$object"
+      add resource $name "$object"
     fi
   done
 fi
 
 
-#If a client JSON file exists. Configure Client. 
-if [[ -e "${DIRECTORY}/$APP_NAME-client.json" ]]; then
-  FILE="${DIRECTORY}/$APP_NAME-client.json"
-  isArray $FILE | jq -c '.[]' | while read object; do
-    NAME=$(printf '%s' "$object" | jq -r '.name')
-    CLIENT_ID=$(exists client $NAME)
+#If a client json file exists. Configure Client. 
+if [[ -e "${directory}/$app_name-client.json" ]]; then
+  file="${directory}/$app_name-client.json"
+  isArray $file | jq -c '.[]' | while read object; do
+    name=$(printf '%s' "$object" | jq -r '.name')
+    client_id=$(exists client $name)
     
-    if [[ -n "$CLIENT_ID" ]]; then  
+    if [[ -n "$client_id" ]]; then  
       # Because of some API limitations, delete the client and add it again
-      delete client $NAME $CLIENT_ID
-      add client $NAME "$object" '. | {name: .name, displayName: .displayName, description: .description}'
+      delete client $name $client_id
+      add client $name "$object" '. | {name: .name, displayName: .displayName, description: .description}'
     else
-      add client $NAME "$object" '. | {name: .name, displayName: .displayName, description: .description}'
+      add client $name "$object" '. | {name: .name, displayName: .displayName, description: .description}'
     fi
   done
 fi
 
-#If a account JSON file exists. Create Account as long as it doesn't exist. 
-if [[ -e "${DIRECTORY}/$APP_NAME-account.json" ]]; then
-  FILE="${DIRECTORY}/$APP_NAME-account.json"
-  isArray $FILE | jq -c '.[]' | while read object; do
-    USERNAME=$(printf '%s' "$object" | jq -r '.usernames[0]')
-    ACCOUNT_ID=$(exists account $USERNAME)
+#If a account json file exists. Create Account as long as it doesn't exist. 
+if [[ -e "${directory}/$app_name-account.json" ]]; then
+  file="${directory}/$app_name-account.json"
+  isArray $file | jq -c '.[]' | while read object; do
+    username=$(printf '%s' "$object" | jq -r '.usernames[0]')
+    account_id=$(exists account $username)
     
-    if [[ -n "$ACCOUNT_ID" ]]; then  
+    if [[ -n "$account_id" ]]; then  
       # Because of some API limitations, delete the resource and add it again
       echo "Account Exists. Accounts cannot be updated with this script."
     else
-      add account $USERNAME "$object" '. | {usernames: .usernames, password: .password}'
+      add account $username "$object" '. | {usernames: .usernames, password: .password}'
     fi
   done
 fi
