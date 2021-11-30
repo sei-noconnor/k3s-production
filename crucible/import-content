@@ -7,13 +7,13 @@
 # Import crucible example content into the appliance
 #
 # import-content
-EXPORTS_PATH="seed/crucible"
-DOMAIN=${DOMAIN-foundry.local}
-DIRECTORY=$(dirname "$BASH_SOURCE[0]")
-cd $DIRECTORY
+exports_path="seed/crucible"
+domain=${domain-$DOMAIN}
+directory=$(dirname "$BASH_SOURCE[0]")
+cd $directory
 source ../scripts/utils
-replace foundry.local $DOMAIN ${EXPORTS_PATH}
-replace crucible.io $DOMAIN ${EXPORTS_PATH}
+replace foundry.local $domain $exports_path
+replace crucible.io $domain $exports_path
 
 helm delete alloy || true 
 helm delete caster || true 
@@ -35,11 +35,11 @@ while ! nc -vz localhost 5432 > /dev/null 2>&1 ; do
   sleep 1
 done
 
-FILES=$(find ${EXPORTS_PATH} -type f -iname "*.sql" | sed "s/.*\///; s/\.sql//")
-for file in $FILES; do
-  PGPASSWORD=foundry dropdb -h localhost -U postgres ${file}
-  PGPASSWORD=foundry createdb -h localhost -U postgres -T template0 ${file}
-  PGPASSWORD=foundry psql -h localhost -U postgres < ${EXPORTS_PATH}/${file}.sql
+files=$(find $exports_path -type f -iname "*.sql" | sed "s/.*\///; s/\.sql//")
+for file in $files; do
+  PGPASSWORD=$POSTGRES_PASS dropdb -h localhost -U $POSTGRES_USER ${file}
+  PGPASSWORD=$POSTGRES_PASS createdb -h localhost -U $POSTGRES_USER -T template0 ${file}
+  PGPASSWORD=$POSTGRES_PASS psql -h localhost -U $POSTGRES_USER < $exports_path/${file}.sql
 done
 
 helm upgrade --install -f player.values.yaml player ../charts/player 
