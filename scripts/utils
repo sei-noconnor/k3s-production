@@ -148,7 +148,8 @@ function import_root_ca() {
     echo $LOCAL_SUDO_PASS | sudo -S update-ca-certificates
   elif [[ "$OSTYPE" == "darwin"* ]]; then
     # Mac OSX
-    echo $LOCAL_SUDO_PASS | sudo -S security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain $cert_path
+    echo "$LOCAL_SUDO_PASS" | sudo -S security unlock-keychain -u -p "$LOCAL_SUDO_PASS" /Library/Keychains/System.keychain
+    echo "$LOCAL_SUDO_PASS" | sudo -S security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain $cert_path
   else
     echo "OS NOT SUPPORTED"
   fi
