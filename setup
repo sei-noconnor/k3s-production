@@ -9,7 +9,7 @@ replace_vars $DIRECTORY/crucible '.*\.(json|conf|yaml|yml)'
 replace_vars $DIRECTORY/k3s-ansible '.*\.(json|conf|yaml|yml)'
 replace_vars $DIRECTORY/terraform '.*\.(json|conf|yaml|yml|auto.tfvars)'
 replace_vars $DIRECTORY/values '.*\.(json|conf|yaml|yml)'
-replace_vars $DIRECTORY/common/setup-gitlab
+replace_vars $DIRECTORY/crucible/setup-gitlab
 apps="common,$1"
 IFS=',' read -a stacks <<< $apps
 echo "The following apps will be installed ${stacks[@]}"
