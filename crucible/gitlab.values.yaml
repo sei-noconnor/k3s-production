@@ -154,9 +154,6 @@ global:
   grafana:
     enabled: false
   
-  registry:
-    enabled: false
-
   ## doc/charts/globals.md#configure-appconfig-settings
   ## Rails based portions of this chart share many settings
   appConfig:
@@ -829,6 +826,7 @@ redis:
 ## Instllation & configuration of stable/prostgresql
 ## See requirements.yaml for current version
 postgresql:
+  
   postgresqlUsername: gitlab
   # This just needs to be set. It will use a second entry in existingSecret for postgresql-postgres-password
   postgresqlPostgresPassword: bogus

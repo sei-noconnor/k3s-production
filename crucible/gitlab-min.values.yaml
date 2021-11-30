@@ -10,10 +10,36 @@ global:
   ingress:
     configureCertmanager: false
     class: "$INGRESS_CLASS"
+    tls:
+      enabled: true
+      secretName: appliance-cert
+  
   hosts:
     domain: gitlab.$DOMAIN
     externalIP: $INGRESS_IP
+
+  initialRootPassword: 
+    secret: gitlab-secrets
+    key: initialRootPassword
+  
+  psql:
+    connectTimeout: 60
+    password:
+      useSecret: true
+      secret: gitlab-secrets
+      key: databasePassword
+    host: $POSTGRES_SERVER
+    port: 5432
+    username: postgres
+    database: gitlab_db
+    preparedStatements: false
+  
+  minio:
+    enabled: false
   # Disable Rails bootsnap cache (temporary)
+  grafana:
+    enabled: false
+
   rails:
     bootsnap:
       enabled: false
@@ -31,6 +57,8 @@ nginx-ingress:
 prometheus:
   install: false
 gitlab-runner:
+  install: false
+postgresql:
   install: false
 # Reduce replica counts, reducing CPU & memory requirements
 gitlab:
