@@ -182,7 +182,7 @@ controller:
 
   ## DaemonSet or Deployment
   ##
-  kind: deployment
+  kind: $INGRESS_KIND
 
   ## Annotations to be added to the controller Deployment or DaemonSet
   ##
