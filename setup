@@ -1,26 +1,42 @@
 #!/bin/bash -xe
 # Change to the current directory
-DIRECTORY="$(dirname "${BASH_SOURCE[0]}")"
-cd $DIRECTORY
-source $DIRECTORY/scripts/utils
-import_vars $DIRECTORY/env
-replace_vars $DIRECTORY/common '.*\.(json|conf|yaml|yml)'
-replace_vars $DIRECTORY/crucible '.*\.(json|conf|yaml|yml)'
-replace_vars $DIRECTORY/k3s-ansible '.*\.(json|conf|yaml|yml)'
-replace_vars $DIRECTORY/terraform '.*\.(json|conf|yaml|yml|auto.tfvars)'
-replace_vars $DIRECTORY/values '.*\.(json|conf|yaml|yml)'
-replace_vars $DIRECTORY/crucible/setup-gitlab
-chmod +x $DIRECTORY/crucible/setup-gitlab
-replace_vars $DIRECTORY/scripts/identity-seed.example.sh
-chmod +x $DIRECTORY/scripts/identity-seed.example.sh
+directory="$(dirname "${BASH_SOURCE[0]}")"
+cd $directory
+source $directory/scripts/utils
+import_vars $directory/env
+replace_vars $directory/common '.*\.(json|conf|yaml|yml)'
+replace_vars $directory/crucible '.*\.(json|conf|yaml|yml)'
+replace_vars $directory/k3s-ansible '.*\.(json|conf|yaml|yml)'
+replace_vars $directory/terraform '.*\.(json|conf|yaml|yml|auto.tfvars)'
+replace_vars $directory/values '.*\.(json|conf|yaml|yml)'
+replace_vars $directory/crucible/setup-gitlab
+chmod +x $directory/crucible/setup-gitlab
+replace_vars $directory/scripts/identity-seed.example.sh
+chmod +x $directory/scripts/identity-seed.example.sh
+
+if [[ $GENERATE_CERTS = true ]]; then 
+  $directory/common/certs/generate-certs.sh
+fi
+
+if [[ $IMPORT_CERTS = true ]]; then 
+  import_root_ca $directory/common/certs/root-ca.pem
+fi
+
+if [[ $RUN_TERRAFOM = true ]]; then
+  # TODO
+fi
+if [[ $RUN_ANSIBLE = true ]]; then 
+  # TODO
+fi
+
+# Always run common apps. 
 apps="common,$1"
 IFS=',' read -a stacks <<< $apps
 echo "The following apps will be installed ${stacks[@]}"
-# Always run common apps. 
 for stack in ${stacks[@]}; do
-  replace_vars $DIRECTORY/$stack/setup-$stack
-  chmod +x $DIRECTORY/$stack/setup-$stack
-  echo "Installing $stack with script located at $DIRECTORY/$stack/setup-$stack"
-  #$DIRECTORY/$stack/setup-$stack
+  replace_vars $directory/$stack/setup-$stack
+  chmod +x $directory/$stack/setup-$stack
+  echo "Installing $stack with script located at $directory/$stack/setup-$stack"
+  #$directory/$stack/setup-$stack
 done
 
