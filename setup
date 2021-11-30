@@ -42,6 +42,11 @@ for stack in ${stacks[@]}; do
   replace_vars $directory/$stack/setup-$stack
   chmod +x $directory/$stack/setup-$stack
   echo "Installing $stack with script located at $directory/$stack/setup-$stack"
-  #$directory/$stack/setup-$stack
+  $directory/$stack/setup-$stack
 done
+
+if [[ $IMPORT_CONTENT = true ]]; then 
+  # TODO
+  $directory/crucible/import-content
+fi
 
