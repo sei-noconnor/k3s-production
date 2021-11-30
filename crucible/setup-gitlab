@@ -22,7 +22,7 @@ gitlab_password="foundry"
 api_url="${gitlab_host}/api/v4"
 
 # add gitlab to hosts file
-echo "foundry" | sudo -S grep -qxF '127.0.0.1 localhost $DOMAIN gitlab.$DOMAIN' /etc/hosts || sudo echo '127.0.0.1 localhost $DOMAIN gitlab.$DOMAIN' | sudo tee -a /etc/hosts > /dev/null
+# echo "foundry" | sudo -S grep -qxF '127.0.0.1 localhost $DOMAIN gitlab.$DOMAIN' /etc/hosts || sudo echo '127.0.0.1 localhost $DOMAIN gitlab.$DOMAIN' | sudo tee -a /etc/hosts > /dev/null
 # add repo and update
 helm repo add gitlab https://charts.gitlab.io
 helm repo update
