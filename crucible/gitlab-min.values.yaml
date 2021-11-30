@@ -15,8 +15,12 @@ global:
       secretName: appliance-cert
   
   hosts:
-    domain: gitlab.$DOMAIN
+    domain: $DOMAIN
     externalIP: $INGRESS_IP
+    gitlab:
+      name: gitlab.$DOMAIN
+      https: true
+    
 
   initialRootPassword: 
     secret: gitlab-secrets
