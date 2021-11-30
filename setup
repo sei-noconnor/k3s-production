@@ -11,6 +11,8 @@ replace_vars $DIRECTORY/terraform '.*\.(json|conf|yaml|yml|auto.tfvars)'
 replace_vars $DIRECTORY/values '.*\.(json|conf|yaml|yml)'
 replace_vars $DIRECTORY/crucible/setup-gitlab
 chmod +x $DIRECTORY/crucible/setup-gitlab
+replace_vars $DIRECTORY/scripts/identity-seed.example.sh
+chmod +x $DIRECTORY/scripts/identity-seed.example.sh
 apps="common,$1"
 IFS=',' read -a stacks <<< $apps
 echo "The following apps will be installed ${stacks[@]}"
