@@ -32,7 +32,7 @@ caster-api:
     existing: ""
     size: "1G"
     mode: ReadWriteOnce
-    class: $STORAGE_CLASS_NFS
+    class: $STORAGE_CLASS
   
   identity:
     register: true
