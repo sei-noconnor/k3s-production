@@ -36,8 +36,8 @@ req=$(curl --silent --insecure --request POST \
   --data username=administrator@$domain \
   --data password=$ADMIN_PASS)
   
-  access_token=$req | jq -r '.access_token'
-  if [[ -z access_token ]]; then 
+  access_token=$(echo $req | jq -r '.access_token')
+  if [[ -z $access_token ]]; then 
     echo "$req | jq -r '.message"
     exit 1;
   fi
