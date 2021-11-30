@@ -470,9 +470,9 @@ vm-api:
     #
     # - DsName denotes the DataStore name
     # - BaseFolder is the folder inside the DataStore to use
-    Vsphere__Host: ""
-    Vsphere__Username: ""
-    Vsphere__Password: ""
+    Vsphere__Host: "$VSPHERE_SERVER"
+    Vsphere__Username: "$VSPHERE_USER"
+    Vsphere__Password: "$VSPHERE_PASS"
     Vsphere__DsName: ""
     Vsphere__BaseFolder: ""
     

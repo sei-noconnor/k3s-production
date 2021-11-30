@@ -177,9 +177,9 @@ caster-api:
     
     SKIP_TERRAFORM_INSTALLATION: false
 
-    VSPHERE_SERVER: ""
-    VSPHERE_USER: ""
-    VSPHERE_PASSWORD: ""
+    VSPHERE_SERVER: "$VSPHRE_SERVER"
+    VSPHERE_USER: "$VSPHERE_USER"
+    VSPHERE_PASSWORD: "$VSPHERE_PASS"
     VSPHERE_ALLOW_UNVERIFIED_SSL: true
 
     # See here for more information regarding AllowedHosts
