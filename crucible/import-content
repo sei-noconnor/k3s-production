@@ -12,13 +12,13 @@ domain=${domain-$DOMAIN}
 directory=$(dirname "$BASH_SOURCE[0]")
 cd $directory
 source ../scripts/utils
-replace foundry.local $domain $exports_path
-replace crucible.io $domain $exports_path
+replace foundry.local $domain $directory/$exports_path
+replace crucible.io $domain $directory/$exports_path
 
-helm delete alloy || true 
-helm delete caster || true 
-helm delete player || true 
-helm delete steamfitter || true 
+helm delete alloy || true && sleep 5
+helm delete caster || true && sleep 5
+helm delete player || true && sleep 5
+helm delete steamfitter || true && sleep 5
 
 echo "sleeping for 20 seconds"
 sleep 20
@@ -42,7 +42,7 @@ for file in $files; do
   PGPASSWORD=$POSTGRES_PASS psql -h localhost -U $POSTGRES_USER < $exports_path/${file}.sql
 done
 
-helm upgrade --install -f player.values.yaml player ../charts/player 
-helm upgrade --install -f caster.values.yaml caster ../charts/caster
-helm upgrade --install -f steamfitter.values.yaml steamfitter ../charts/steamfitter
-helm upgrade --install -f alloy.values.yaml alloy ../charts/alloy
+helm upgrade --install -f player.values.yaml player ../charts/player && sleep 5
+helm upgrade --install -f caster.values.yaml caster ../charts/caster && sleep 5
+helm upgrade --install -f steamfitter.values.yaml steamfitter ../charts/steamfitter && sleep 5
+helm upgrade --install -f alloy.values.yaml alloy ../charts/alloy && sleep 5
