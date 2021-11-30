@@ -131,8 +131,8 @@ EOF
   project_id=$(echo ${req} | jq '.id')
   if [[ -n "$project_id" ]]; then 
     git -C ${file} remote add origin "$gitlab_host/${modules_group}/${file}.git"
-    git -C ${file} push -u "https://root:$ADMIN_PASS@gitlab.${domain}/${modules_group}/${file}.git" --all
-    git -C ${file} push -u "https://root:$ADMIN_PASS@gitlab.${domain}/${modules_group}/${file}.git" --tags
+    git -C ${file} push -u https://root:$ADMIN_PASS@gitlab.${domain}/${modules_group}/${file}.git --all
+    git -C ${file} push -u https://root:$ADMIN_PASS@gitlab.${domain}/${modules_group}/${file}.git --tags
   fi
   # cleanup
   rm -rf ${file}
