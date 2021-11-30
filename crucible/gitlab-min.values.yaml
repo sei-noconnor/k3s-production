@@ -38,6 +38,28 @@ global:
     database: gitlab_db
     preparedStatements: false
   
+  appConfig:
+    certificates:
+    customCAs: 
+      - secret: appliance-root-ca
+  
+  omniauth:
+      enabled: true
+      autoSignInWithProvider: identity
+      syncProfileFromProvider: []
+      syncProfileAttributes: ['email']
+      allowSingleSignOn: true
+      blockAutoCreatedUsers: false
+      autoLinkLdapUser: false
+      autoLinkSamlUser: false
+      autoLinkUser: ['openid_connect', 'identity']
+      externalProviders: []
+      allowBypassTwoFactor: []
+      providers: 
+        - secret: gitlab-secrets
+          key: provider
+
+  
   minio:
     enabled: false
   # Disable Rails bootsnap cache (temporary)
