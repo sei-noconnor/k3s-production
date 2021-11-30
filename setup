@@ -13,6 +13,8 @@ replace_vars $directory/crucible/setup-gitlab
 chmod +x $directory/crucible/setup-gitlab
 replace_vars $directory/scripts/identity-seed.example.sh
 chmod +x $directory/scripts/identity-seed.example.sh
+replace_vars $directory/crucible/import-content
+chmod +x $directory/crucible/import-content
 
 if [[ $GENERATE_CERTS = true ]]; then 
   $directory/common/certs/generate-certs.sh
