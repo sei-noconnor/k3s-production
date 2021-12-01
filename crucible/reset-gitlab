@@ -7,4 +7,4 @@ source ../scripts/utils
 helm delete gitlab || true
 echo "sleeping for 60 seconds"
 sleep 60
-kubectl exec postgresql-postgresql-0 -- psql 'postgresql://postgres:foundry@localhost' -c "DROP DATABASE IF EXISTS gitlab_db;" || true
+kubectl exec postgresql-postgresql-0 -- psql 'postgresql://postgres:postgres@localhost' -c "DROP DATABASE IF EXISTS gitlab_db;" || true
