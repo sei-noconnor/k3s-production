@@ -39,7 +39,8 @@ files=$(find $exports_path -type f -iname "*.sql" | sed "s/.*\///; s/\.sql//")
 for file in $files; do
   PGPASSWORD=$POSTGRES_PASS dropdb -h localhost -U $POSTGRES_USER ${file}
   PGPASSWORD=$POSTGRES_PASS createdb -h localhost -U $POSTGRES_USER -T template0 ${file}
-  PGPASSWORD=$POSTGRES_PASS psql -h localhost -U $POSTGRES_USER < $exports_path/${file}.sql
+  # PGPASSWORD=$POSTGRES_PASS psql -h localhost -U $POSTGRES_USER < $exports_path/${file}.sql
+  cat ${file}.sql | sed 's/LOCALE/LC_COLLATE/' | PGPASSWORD=$POSTGRES_PASS psql -h localhost -p 5432 -U postgres ${file}
 done
 
 helm upgrade --install -f player.values.yaml player ../charts/player && sleep 5
