@@ -6,7 +6,7 @@ cd ${directory}
 source ../scripts/utils
 exports_path="./seed/gitlab"
 timeout=0
-max_timeout=360
+max_timeout=600
 domain="${domain:-$DOMAIN}"
 # set gitlab variables.
 gitlab_token=$(awk '/Terraform__GitlabToken/ {print $2}' caster.values.yaml | tr -d '"')
