@@ -114,19 +114,17 @@ alloy-api:
         "showInDiscoveryDocument": true
       }
 
-    account: |-
-      {
-        "usernames": ["alloy-admin@$DOMAIN"],
-        "password": "foundry",
-        "manager": true
-      }
-  
   env:
     PathBase: "/alloy"
     CorsPolicy__Origins__0: https://$DOMAIN
     CorsPolicy__AllowAnyMethod: true
     CorsPolicy__AllowAnyHeader: true
-    Logging__LogLevel__Default: "debug"
+    Logging__LogLevel__Default: "$CRUCIBLE_LOG_LEVEL"
+    Logging__LogLevel__System: "$CRUCIBLE_LOG_LEVEL"
+    Logging__LogLevel__Microsoft: "$CRUCIBLE_LOG_LEVEL"
+    Logging__Console__LogLevel__Default: "$CRUCIBLE_LOG_LEVEL"
+    Logging__Console__LogLevel__System: "$CRUCIBLE_LOG_LEVEL"
+    Logging__Console__LogLevel__Microsoft: "$CRUCIBLE_LOG_LEVEL"
     # Connection String to database
     ConnectionStrings__PostgreSQL: "Server=$POSTGRES_SERVER;Port=5432;Database=alloy_db;Username=$POSTGRES_USER;Password='$POSTGRES_PASS';SSL Mode=Prefer;Trust Server Certificate=true;"
 
@@ -141,8 +139,8 @@ alloy-api:
     # OAuth2 Identity Client /w Password
     ResourceOwnerAuthorization__Authority: https://$DOMAIN/identity
     ResourceOwnerAuthorization__ClientId: alloy-admin
-    ResourceOwnerAuthorization__UserName: player-admin@$DOMAIN # TODO
-    ResourceOwnerAuthorization__Password: $ADMIN_PASS # TODO
+    ResourceOwnerAuthorization__UserName: crucible-admin@$DOMAIN # TODO
+    ResourceOwnerAuthorization__Password: $CRUCIBLE_ADMIN_PASS # TODO
     ResourceOwnerAuthorization__Scope: 'alloy-api player-api caster-api steamfitter-api vm-api'
 
     # Crucible Application URLs

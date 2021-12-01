@@ -161,13 +161,6 @@ caster-api:
         "emphasize": false,
         "showInDiscoveryDocument": true
       }
-    
-    account: |-
-      {
-        "usernames": ["caster-admin@$DOMAIN"],
-        "password": "foundry",
-        "manager": true
-      }
   env:
     PathBase: "/caster"
     # This deployment comes built in with a script to install Terraform and the necessary
@@ -185,7 +178,12 @@ caster-api:
     # See here for more information regarding AllowedHosts
     # https://docs.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.hostfiltering.hostfilteringoptions.allowedhosts?view=aspnetcore-3.1
     AllowedHosts: "*"
-    Logging__LogLevel__Default: "debug"
+    Logging__LogLevel__Default: "$CRUCIBLE_LOG_LEVEL"
+    Logging__LogLevel__System: "$CRUCIBLE_LOG_LEVEL"
+    Logging__LogLevel__Microsoft: "$CRUCIBLE_LOG_LEVEL"
+    Logging__Console__LogLevel__Default: "$CRUCIBLE_LOG_LEVEL"
+    Logging__Console__LogLevel__System: "$CRUCIBLE_LOG_LEVEL"
+    Logging__Console__LogLevel__Microsoft: "$CRUCIBLE_LOG_LEVEL"
     CorsPolicy__Origins__0: "https://$DOMAIN"
     # CorsPolicy__AllowAnyOrigin: true
     CorsPolicy__AllowAnyMethod: true
@@ -204,7 +202,7 @@ caster-api:
     Client__TokenUrl: https://$DOMAIN/identity/connect/token
     Client__ClientId: caster-admin
     Client__UserName: "caster-admin@$DOMAIN"
-    Client__Password: "foundry"
+    Client__Password: "$CRUCIBLE_ADMIN_PASS"
     Client__Scope: "player-api vm-api"
 
     # Crucible Player URLs
@@ -230,10 +228,10 @@ caster-api:
     SeedData__Users__0__name:  "administrator@$DOMAIN"
 
     SeedData__Users__1__id:  "3b680d97-6d0b-44c9-8cc7-fd10ea79c2a6"
-    SeedData__Users__1__name:  "caster-admin@$DOMAIN"
+    SeedData__Users__1__name:  "crucible-admin@$DOMAIN"
     SeedData__UserPermissions__0__UserId:  "dee684c5-2eaf-401a-915b-d3d4320fe5d5"
     SeedData__UserPermissions__0__PermissionId:  "00000000-0000-0000-0000-000000000001"
-    SeedData__UserPermissions__1__UserId:  "3b680d97-6d0b-44c9-8cc7-fd10ea79c2a6"
+    SeedData__UserPermissions__1__UserId:  "32c11441-7eec-47eb-a915-607c4f2529f4"
     SeedData__UserPermissions__1__PermissionId:  "00000000-0000-0000-0000-000000000001"
 
 

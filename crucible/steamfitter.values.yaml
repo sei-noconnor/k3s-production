@@ -124,7 +124,12 @@ steamfitter-api:
     CorsPolicy__Origins__0: https://$DOMAIN
     CorsPolicy__AllowAnyMethod: true
     CorsPolicy__AllowAnyHeader: true
-
+    Logging__LogLevel__Default: "$CRUCIBLE_LOG_LEVEL"
+    Logging__LogLevel__System: "$CRUCIBLE_LOG_LEVEL"
+    Logging__LogLevel__Microsoft: "$CRUCIBLE_LOG_LEVEL"
+    Logging__Console__LogLevel__Default: "$CRUCIBLE_LOG_LEVEL"
+    Logging__Console__LogLevel__System: "$CRUCIBLE_LOG_LEVEL"
+    Logging__Console__LogLevel__Microsoft: "$CRUCIBLE_LOG_LEVEL"
     # OAuth2 Identity Client for Application
     Authorization__Authority: https://$DOMAIN/identity
     Authorization__AuthorizationUrl: https://$DOMAIN/identity/connect/authorize
@@ -136,8 +141,8 @@ steamfitter-api:
     # OAuth2 Identity Client /w Password
     ResourceOwnerAuthorization__Authority: https://$DOMAIN/identity
     ResourceOwnerAuthorization__ClientId: steamfitter-admin
-    ResourceOwnerAuthorization__UserName: steamfitter-admin@$DOMAIN #TODO
-    ResourceOwnerAuthorization__Password: $ADMIN_PASS #TODO
+    ResourceOwnerAuthorization__UserName: crucible-admin@$DOMAIN #TODO
+    ResourceOwnerAuthorization__Password: $CRUCIBLE_ADMIN_PASS #TODO
     ResourceOwnerAuthorization__Scope: "vm-api"
 
     ClientSettings__urls__steamfitterApi: https://$DOMAIN/steamfitter
@@ -155,14 +160,14 @@ steamfitter-api:
     # TODO - Document Seed data
     SeedData__Users__0__id: "dee684c5-2eaf-401a-915b-d3d4320fe5d5"
     SeedData__Users__0__name:  "administrator@$DOMAIN"
-
-    # SeedData__Users__1__id:  "3b680d97-6d0b-44c9-8cc7-fd10ea79c2a6"
-    # SeedData__Users__1__name:  "caster-admin@$DOMAIN"
+    SeedData__Users__1__id: "32c11441-7eec-47eb-a915-607c4f2529f4"
+    SeedData__Users__1__name:  "crucible-admin@$DOMAIN"
+    
 
     SeedData__UserPermissions__0__UserId: "dee684c5-2eaf-401a-915b-d3d4320fe5d5"
     SeedData__UserPermissions__0__PermissionId: "00000000-0000-0000-0000-000000000001"
-    # SeedData__UserPermissions__1__UserId: ""
-    # SeedData__UserPermissions__1__PermissionId: ""
+    SeedData__UserPermissions__1__UserId: "32c11441-7eec-47eb-a915-607c4f2529f4"
+    SeedData__UserPermissions__1__PermissionId: "00000000-0000-0000-0000-000000000001"
 
 steamfitter-ui:
   image:

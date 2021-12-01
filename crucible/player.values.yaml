@@ -130,13 +130,6 @@ player-api:
         "showInDiscoveryDocument": true
       }
     
-    account: |-
-      {
-        "usernames": ["player-admin@$DOMAIN"],
-        "password": "foundry",
-        "manager": true
-      }
-    
   # Config app settings with environment vars.
   # Those most likely needing values are listed. For others,
   # see https://github.com/cmu-sei/crucible/blob/master/player.api/S3.Player.Api/appsettings.json
@@ -151,8 +144,12 @@ player-api:
 
     ## If hosting in virtual directory, specify path base
     PathBase: "/player"
-    Logging__LogLevel__Default: "debug"
-    Logging__Console__LogLevel__Default: "debug"
+    Logging__LogLevel__Default: "$CRUCIBLE_LOG_LEVEL"
+    Logging__LogLevel__System: "$CRUCIBLE_LOG_LEVEL"
+    Logging__LogLevel__Microsoft: "$CRUCIBLE_LOG_LEVEL"
+    Logging__Console__LogLevel__Default: "$CRUCIBLE_LOG_LEVEL"
+    Logging__Console__LogLevel__System: "$CRUCIBLE_LOG_LEVEL"
+    Logging__Console__LogLevel__Microsoft: "$CRUCIBLE_LOG_LEVEL"
     # CORS policy settings.
     # The first entry should be the URL to player
     # The second entry should be the URL to VM App
@@ -176,8 +173,8 @@ player-api:
     # Basic seed data to jumpstart deployement
     # TODO - Document Seed Data
     SeedData__SystemAdminIds__0: dee684c5-2eaf-401a-915b-d3d4320fe5d5
-    SeedData__SystemAdminIds__1: 5a047e5f-5546-4485-a123-f8c9c37c45b2
-    SeedData__SystemAdminIds__2: 9ee73c37-5b22-474f-ab5c-66ec69cd5786
+    SeedData__SystemAdminIds__1: 32c11441-7eec-47eb-a915-607c4f2529f4
+    
 
 player-ui:
   # Docker image release version
