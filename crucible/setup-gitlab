@@ -26,19 +26,21 @@ api_url="${gitlab_host}/api/v4"
 # add repo and update
 helm repo add gitlab https://charts.gitlab.io
 helm repo update
+echo "Waiting for Postgres to be ready."
+while [ "$(kubectl get pods -l=app.kubernetes.io/name='postgresql' -o jsonpath='{.items[*].status.containerStatuses[0].ready}')" != "true" ]; do
+  printf '.'
+  sleep 5
+  timeout=$((timeout+5))
+  if [ ${timeout} -gt ${max_timeout} ]; then
+    cat << EOF
+    Postgres timed out
 
-echo "forwarding port" 
-kubectl port-forward service/postgresql 5432:5432 > /dev/null 2>&1 &
-pid=$!
-
-trap '{
-  echo killing $pid
-  kill $pid
-}' EXIT
-while ! nc -vz localhost 5432 > /dev/null 2>&1 ; do
-  echo "waiting for port to become available "
-  sleep 1
+    please rerun setup-gitlab
+EOF
+    exit;
+  fi
 done
+timeout=0
 kubectl exec postgresql-postgresql-0 -- psql 'postgresql://$POSTGRES_USER:$POSTGRES_PASS@localhost' -c "CREATE DATABASE gitlab_db;" || true
 kubectl apply -f gitlab.secrets.yaml 
 helm upgrade --install -f gitlab-min.values.yaml --version 4.4.1 gitlab gitlab/gitlab
