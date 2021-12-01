@@ -12,7 +12,7 @@
 cd "$(dirname "${BASH_SOURCE[0]}")"
 
 # Forward coredns to host dnsmasq
-kubectl get configmap/coredns -n kube-system -o yaml | sed "s/8.8.8.8 8.8.4.4/10.0.1.1/" | kubectl replace -f -
+kubectl get configmap/coredns -n kube-system -o yaml | sed "s/\/etc\/resolv.conf/$DNS_01/" | kubectl replace -f -
 kubectl rollout restart deployment/coredns -n kube-system
 
 # Disable HSTS
