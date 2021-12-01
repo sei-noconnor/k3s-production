@@ -226,8 +226,7 @@ caster-api:
     # Basic seed data to jumpstart deployement
     SeedData__Users__0__id: "dee684c5-2eaf-401a-915b-d3d4320fe5d5"
     SeedData__Users__0__name:  "administrator@$DOMAIN"
-
-    SeedData__Users__1__id:  "3b680d97-6d0b-44c9-8cc7-fd10ea79c2a6"
+    SeedData__Users__1__id:  "32c11441-7eec-47eb-a915-607c4f2529f4"
     SeedData__Users__1__name:  "crucible-admin@$DOMAIN"
     SeedData__UserPermissions__0__UserId:  "dee684c5-2eaf-401a-915b-d3d4320fe5d5"
     SeedData__UserPermissions__0__PermissionId:  "00000000-0000-0000-0000-000000000001"
