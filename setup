@@ -5,7 +5,7 @@ cd $directory
 source $directory/scripts/utils
 import_vars $directory/env
 replace_vars $directory/common '.*\.(json|conf|yaml|yml)'
-replace_vars $directory/crucible '.*\.(json|conf|yaml|yml)'
+replace_vars $directory/crucible '.*\.(json|conf|yaml|yml|sql)'
 replace_vars $directory/k3s-ansible '.*\.(json|conf|yaml|yml)'
 replace_vars $directory/terraform '.*\.(json|conf|yaml|yml|auto.tfvars)'
 replace_vars $directory/values '.*\.(json|conf|yaml|yml)'
