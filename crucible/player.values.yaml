@@ -402,14 +402,7 @@ vm-api:
         "emphasize": false,
         "showInDiscoveryDocument": true
       }
-    account: |-
-      {
-        "usernames": ["player-vm-admin@$DOMAIN"],
-        "password": "foundry",
-        "manager": true
-      }
-
-  
+    
   # Config app settings with environment vars.
   # Those most likely needing values are listed. For others,
   # see https://github.com/cmu-sei/crucible/blob/master/vm.api/S3.VM.Api/appsettings.json
@@ -438,6 +431,12 @@ vm-api:
     CorsPolicy__AllowAnyMethod: true
     CorsPolicy__AllowAnyHeader: true
     # CorsPolicy__SupportsCredentials: false
+    Logging__LogLevel__Default: "$CRUCIBLE_LOG_LEVEL"
+    Logging__LogLevel__System: "$CRUCIBLE_LOG_LEVEL"
+    Logging__LogLevel__Microsoft: "$CRUCIBLE_LOG_LEVEL"
+    Logging__Console__LogLevel__Default: "$CRUCIBLE_LOG_LEVEL"
+    Logging__Console__LogLevel__System: "$CRUCIBLE_LOG_LEVEL"
+    Logging__Console__LogLevel__Microsoft: "$CRUCIBLE_LOG_LEVEL"
 
     # OAuth2 Identity Client for Application
     Authorization__Authority: https://$DOMAIN/identity
@@ -451,8 +450,8 @@ vm-api:
     IdentityClient__TokenUrl: https://$DOMAIN/identity/connect/token
     IdentityClient__ClientId: "player-admin"
     IdentityClient__Scope: "player-api vm-api"
-    IdentityClient__Username: "administrator@$DOMAIN"
-    IdentityClient__Password: "foundry"
+    IdentityClient__Username: "crucible-admin@$DOMAIN"
+    IdentityClient__Password: "$CRUCIBLE_ADMIN_PASS"
 
     # Crucible Player URL
     ClientSettings__urls__playerApi: "https://$DOMAIN/player/api"

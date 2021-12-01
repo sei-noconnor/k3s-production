@@ -109,13 +109,6 @@ steamfitter-api:
         "showInDiscoveryDocument": true
       }
     
-    account: |-
-      {
-        "usernames": ["steamfitter-admin@$DOMAIN"],
-        "password": "foundry",
-        "manager": true
-      }
-
   env:
     PathBase: "/steamfitter"
     # Connection String to database
