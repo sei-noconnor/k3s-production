@@ -43,6 +43,7 @@ for stack in ${stacks[@]}; do
   chmod +x $directory/$stack/setup-$stack
   echo "Installing $stack with script located at $directory/$stack/setup-$stack"
   $directory/$stack/setup-$stack
+  sleep 15
 done
 
 if [[ $IMPORT_CONTENT = true ]]; then 
