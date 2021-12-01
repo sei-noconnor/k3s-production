@@ -78,6 +78,13 @@ identity-api:
     trouble: ""
     seed: |
       {
+        "Users": [
+          {
+            "Username": "crucible-admin@$DOMAIN",
+            "Password": "$CRUCIBLE_ADMIN_PASS",
+            "GlobalId": "32c11441-7eec-47eb-a915-607c4f2529f4"
+          }
+        ],
         "ApiResources": [
           {
             "Name": "gameboard-api",
