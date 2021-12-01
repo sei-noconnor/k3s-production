@@ -154,7 +154,5 @@ EOF
   sleep 3
 done
 cd ../../
-helm delete caster || true
-sleep 20
-helm upgrade --install -f caster.values.yaml caster ../charts/caster
+
 
