@@ -9,10 +9,12 @@ helm delete caster || true
 helm delete code-server || true 
 helm delete gitea || true 
 helm delete gitlab || true 
+helm delete mongodb || true 
 helm delete identity || true 
 helm delete kubernetes-dashboard || true 
 helm delete player || true 
 helm delete steamfitter || true 
+helm delete stackstorm || true
 helm delete staticweb || true
 echo "Sleeping for 60 seconds"
 sleep 60
@@ -20,6 +22,7 @@ helm delete postgresql || true
 helm delete nfs-server-provisioner || true 
 echo "Sleeping for 30 seconds"
 sleep 30
+kubectl delete jobs --all
 kubectl delete pvc --all
 kubectl delete configmap --all
 kubectl delete secret --all
