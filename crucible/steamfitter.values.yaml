@@ -144,8 +144,8 @@ steamfitter-api:
     # Stackstorm Configuration
     # TODO - Document Stackstorm dependencies
     VmTaskProcessing__ApiType: st2
-    VmTaskProcessing__ApiUsername: "st2admin"
-    VmTaskProcessing__ApiPassword: "eYr#AxMS9@n6BsWWxPgj"
+    VmTaskProcessing__ApiUsername: "administrator"
+    VmTaskProcessing__ApiPassword: "$ADMIN_PASS"
     VmTaskProcessing__ApiBaseUrl: "https://$DOMAIN/stackstorm"
     VmTaskProcessing__ApiParameters__clusters: ""
 
