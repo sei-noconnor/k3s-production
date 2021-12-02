@@ -57,8 +57,10 @@ auth:
   ## @param auth.passwords List of passwords for the custom users set at `auth.usernames`
   ## @param auth.databases List of custom databases to be created during the initialization
   ##
-  usernames: []
-  passwords: []
+  usernames:
+    - st2
+  passwords:
+    - $ADMIN_PASS
   databases:
     - st2
   
