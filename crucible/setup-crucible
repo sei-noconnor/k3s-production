@@ -15,8 +15,9 @@ cd "$(dirname "${BASH_SOURCE[0]}")"
 if [[ $IMPORT_CONTENT = false ]]; then 
   helm upgrade --install -f player.values.yaml player ../charts/player 
   helm upgrade --install -f caster.values.yaml caster ../charts/caster
-  helm upgrade --install -f stackstorm.values.yaml stackstorm stackstorm/stackstorm-ha
   helm upgrade --install -f steamfitter.values.yaml steamfitter ../charts/steamfitter
   helm upgrade --install -f alloy.values.yaml alloy ../charts/alloy
+  helm upgrade --install --wait -f mongodb.values.yaml mongodb bitnami/mongodb
+  helm upgrade --install -f stackstorm.values.yaml stackstorm stackstorm/stackstorm-ha
 fi
 
