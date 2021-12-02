@@ -65,12 +65,12 @@ st2:
     # StackStorm HA mounts non-core packs via a sidecar installation
     # This image is custom-built to contain the vSphere and Azure Pack
     # NOTE:  The tag version represents the Azure Pack version number
-    image:
-      repository: cmusei
-      name: st2packs
-      tag: azure-0.4.3-python3
-      pullPolicy: IfNotPresent
-
+    images: 
+      - repository: cmusei
+        name: st2packs
+        tag: azure-0.4.3-python3
+        pullPolicy: IfNotPresent
+        
     # Provide a default name for the sensor
     sensors:
       - name: stackstorm-sensor
