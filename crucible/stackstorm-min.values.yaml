@@ -85,9 +85,24 @@ st2:
     # https://docs.stackstorm.com/reference/pack_configs.html#configuration-file
     # NOTE: This takes precedence over the contents of st2.packs.volumes.configs (if defined) on helm upgrade.
     configs:
-      core.yaml: |
+      # TODO -- Fill this out to make the Azure Pack work
+      # https://github.com/StackStorm-Exchange/stackstorm-azure
+      azure.yaml: |
         ---
-        # example core pack config yaml
+        compute:
+          subscription_id: "$AZURE_COMPUTE_SUBSCRIPTION_ID"
+          cert_file: "$AZURE_COMPUTE_CERT_FILE"
+        storage:
+          name: "$AZURE_STORAGE_NAME"
+          access_key: "$AZURE_STORAGE_ACCESS_KEY"
+        resource_manager:
+          client_id: '$AZURE_RESOURCE_CLIENT_ID'
+          secret: '$AZURE_RESOURCE_SECRET'
+          tenant: '$AZURE_RESOURCE_TENANT'
+          default_resource_group: '$AZURE_RESOURCE_DEFAULT_GROUP'
+        user:
+          username: '$AZURE_USER'
+          password: '$AZURE_PASS'
 
     # Custom packs images settings.
     #
@@ -139,25 +154,7 @@ st2:
         # virtualenvs volume definition is required if st2.packs.volumes is enabled
         # see the examples under st2.packs.volumes.packs
 
-      configs:
-        # TODO -- Fill this out to make the Azure Pack work
-        # https://github.com/StackStorm-Exchange/stackstorm-azure
-        azure.yaml: |
-          ---
-          compute:
-            subscription_id: "$AZURE_COMPUTE_SUBSCRIPTION_ID"
-            cert_file: "$AZURE_COMPUTE_CERT_FILE"
-          storage:
-            name: "$AZURE_STORAGE_NAME"
-            access_key: "$AZURE_STORAGE_ACCESS_KEY"
-          resource_manager:
-            client_id: '$AZURE_RESOURCE_CLIENT_ID'
-            secret: '$AZURE_RESOURCE_SECRET'
-            tenant: '$AZURE_RESOURCE_TENANT'
-            default_resource_group: '$AZURE_RESOURCE_DEFAULT_GROUP'
-          user:
-            username: '$AZURE_USER'
-            password: '$AZURE_PASS'
+      configs: {}
         # mounted to /opt/stackstorm/configs
         # configs volume definition is optional, but only used if st2.packs.volumes is enabled
         # Anything in `st2.packs.configs` will be added to this volume automatically on helm install/upgrade.
@@ -292,7 +289,7 @@ st2web:
     # type can be one of "ClusterIP", "NodePort", "LoadBalancer" or "ExternalName"
     type: "NodePort"
     # The hostname associated with st2web service (externalName, added to external DNS, etc.)
-    hostname: $DOMAIN/stackstorm
+    hostname: stackstorm.$DOMAIN
     # For more information regarding annotations, see
     # https://kubernetes.io/docs/concepts/services-networking/service/#ssl-support-on-aws
     annotations: {}
@@ -810,7 +807,7 @@ mongodb:
     # StackStorm currently supports maximum MongoDB v4.0
     tag: "4.0"
   # MongoDB architecture. Allowed values: standalone or replicaset
-  architecture: standalone
+  architecture: replicaset
   # Name of the replica set
   # Ignored when mongodb.architecture=standalone
   replicaSetName: rs0
@@ -822,15 +819,15 @@ mongodb:
     # NB! It's highly recommended to change ALL insecure auth defaults!
     #
     # Stackstorm user that services will make connections using
-    username: "st2-admin"
+    username: "administrator"
     # Stackstorm user that services will make connections using
-    password: "XeL5Rxwj7F0Wt43tFZVTN7H8Sg5XDHmK"
+    password: "$ADMIN_PASS"
     # Root password for the database
-    rootPassword: "8fAzdnksdzPFUWm4a68EfY7nMhBPaa"
+    rootPassword: "$ADMIN_PASS"
     # Initial database for stackstorm
     database: "st2"
     # Minimal key length is 6 symbols
-    replicaSetKey: "82PItDpqroti5RngOA7UqbHH7c6bFUwy"
+    replicaSetKey: "$STACKSTORM_MONGO_KEY"
     # Whether to enable the arbiter
   arbiter:
     enabled: false
@@ -852,12 +849,12 @@ rabbitmq:
     forceBoot: true
   # Authentication Details
   auth:
-    username: admin
+    username: administrator
     # TODO: Use default random 10 character password, but need to fetch this string for use by downstream services
-    password: 9jS+w1u07NbHtZke1m+jW4Cj
+    password: $ADMIN_PASS
     # Up to 255 character string, should be fixed so that re-deploying the chart does not fail (see: https://github.com/helm/charts/issues/12371)
     # NB! It's highly recommended to change the default insecure rabbitmqErlangCookie value!
-    erlangCookie: 8MrqQdCQ6AQ8U3MacSubHE5RqkSfvNaRHzvxuFcG
+    erlangCookie: $STACKSTORM_RABBITMQ_COOKIE
   # RabbitMQ Memory high watermark. See: http://www.rabbitmq.com/memory.html
   # Default values might not be enough for StackStorm deployment to work properly. We recommend to adjust these settings for you needs as well as enable Pod memory limits via "resources".
   #rabbitmqMemoryHighWatermark: 512MB
