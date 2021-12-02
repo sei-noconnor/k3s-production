@@ -24,19 +24,23 @@ mongodb-ha:
   auth:
     enabled: true
     adminUser: 'mongo'
-    adminPassword: 'mR4c6Z@7W#F2@@CAt@Ek'
-    key: '8ctjeZnTy99V52N5MyvpfNCKPxbHVu'
+    adminPassword: '$ADMIN_PASS'
+    key: '$STACKSTORM_MONGO_KEY'
   persistentVolume:
     enabled: false
 
 rabbitmq-ha:
   enabled: true
-  rabbitmqUsername: admin
-  rabbitmqPassword: '5kmmUSK3XS3AWqQzE22DDpZd'
+  rabbitmqUsername: administrator
+  rabbitmqPassword: '$ADMIN_PASS'
   persistentVolume:
     enabled: false
 
 st2:
+  # Username, used to login to StackStorm system
+  username: administrator
+  # Password, used to login to StackStorm system
+  password: '$ADMIN_PASS'
   packs:
     configs:
       # TODO -- Fill this out to make the Azure Pack work
@@ -44,19 +48,19 @@ st2:
       azure.yaml: |
         ---
         compute:
-          subscription_id: ""
-          cert_file: ""
+          subscription_id: "$AZURE_COMPUTE_SUBSCRIPTION_ID"
+          cert_file: "$AZURE_COMPUTE_CERT_FILE"
         storage:
-          name: ""
-          access_key: ""
+          name: "$AZURE_STORAGE_NAME"
+          access_key: "$AZURE_STORAGE_ACCESS_KEY"
         resource_manager:
-          client_id: 'ABCDEFGH-1234-ABCD-1234-ABCDEFGHIJKL'
-          secret: 'XXXXXXXXXXXXXXXXXXXXXXXX'
-          tenant: 'ABCDEFGH-1234-ABCD-1234-ABCDEFGHIJKL'
-          default_resource_group: 'stage'
+          client_id: '$AZURE_RESOURCE_CLIENT_ID'
+          secret: '$AZURE_RESOURCE_SECRET'
+          tenant: '$AZURE_RESOURCE_TENANT'
+          default_resource_group: '$AZURE_RESOURCE_DEFAULT_GROUP'
         user:
-          username: 'user@domain.tld'
-          password: 'userPassword'
+          username: '$AZURE_USER'
+          password: '$AZURE_PASS'
 
     # StackStorm HA mounts non-core packs via a sidecar installation
     # This image is custom-built to contain the vSphere and Azure Pack
@@ -65,17 +69,10 @@ st2:
       repository: cmusei
       name: st2packs
       tag: azure-0.4.3-python3
-      pullPolicy: Always
+      pullPolicy: IfNotPresent
 
     # Provide a default name for the sensor
     sensors:
       - name: stackstorm-sensor
         serviceAccount:
           attach: false
-
-secrets:
-  st2:
-    # Username, used to login to StackStorm system
-    username: admin
-    # Password, used to login to StackStorm system
-    password: 'foundry'
