@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 11.9
--- Dumped by pg_dump version 13.4
+-- Dumped from database version 11.9 (Debian 11.9-1.pgdg90+1)
+-- Dumped by pg_dump version 13.0
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -16,17 +16,16 @@ SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
 
-DROP DATABASE steamfitter_db;
 --
--- Name: steamfitter_db; Type: DATABASE; Schema: -; Owner: postgres
+-- Name: steamfitter_api; Type: DATABASE; Schema: -; Owner: postgres
 --
 
-CREATE DATABASE steamfitter_db WITH TEMPLATE = template0 ENCODING = 'UTF8' LOCALE = 'en_US.UTF-8';
+CREATE DATABASE steamfitter_api WITH TEMPLATE = template0 ENCODING = 'UTF8' LOCALE = 'en_US.utf8';
 
 
-ALTER DATABASE steamfitter_db OWNER TO postgres;
+ALTER DATABASE steamfitter_api OWNER TO postgres;
 
-\connect steamfitter_db
+\connect steamfitter_api
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -256,9 +255,7 @@ CREATE TABLE public.scenario_templates (
     name text,
     description text,
     duration_hours integer,
-    default_vm_credential_id uuid,
-    score integer DEFAULT 0 NOT NULL,
-    update_scores boolean DEFAULT false NOT NULL
+    default_vm_credential_id uuid
 );
 
 
@@ -283,10 +280,7 @@ CREATE TABLE public.scenarios (
     scenario_template_id uuid,
     view_id uuid,
     view text,
-    default_vm_credential_id uuid,
-    score integer DEFAULT 0 NOT NULL,
-    score_earned integer DEFAULT 0 NOT NULL,
-    update_scores boolean DEFAULT false NOT NULL
+    default_vm_credential_id uuid
 );
 
 
@@ -349,14 +343,7 @@ CREATE TABLE public.tasks (
     trigger_task_id uuid,
     trigger_condition integer NOT NULL,
     current_iteration integer DEFAULT 0 NOT NULL,
-    iteration_termination integer DEFAULT 0 NOT NULL,
-    repeatable boolean DEFAULT false NOT NULL,
-    score integer DEFAULT 0 NOT NULL,
-    status integer DEFAULT 0 NOT NULL,
-    total_score integer DEFAULT 0 NOT NULL,
-    total_score_earned integer DEFAULT 0 NOT NULL,
-    total_status integer DEFAULT 0 NOT NULL,
-    user_executable boolean DEFAULT false NOT NULL
+    iteration_termination integer DEFAULT 0 NOT NULL
 );
 
 
@@ -374,19 +361,6 @@ CREATE TABLE public.user_permissions (
 
 
 ALTER TABLE public.user_permissions OWNER TO postgres;
-
---
--- Name: user_scenario_entity; Type: TABLE; Schema: public; Owner: postgres
---
-
-CREATE TABLE public.user_scenario_entity (
-    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
-    user_id uuid NOT NULL,
-    scenario_id uuid NOT NULL
-);
-
-
-ALTER TABLE public.user_scenario_entity OWNER TO postgres;
 
 --
 -- Name: users; Type: TABLE; Schema: public; Owner: postgres
@@ -444,7 +418,6 @@ COPY public."__EFMigrationsHistory" ("MigrationId", "ProductVersion") FROM stdin
 20200721205434_nullScenarioTemplateId	3.1.4
 20200817193341_vmcreds	3.1.4
 20200817202203_vmcreds2	3.1.4
-20210504155928_scoring	3.1.4
 \.
 
 
@@ -493,8 +466,8 @@ COPY public.os (id, platform, service_pack, version, version_string) FROM stdin;
 --
 
 COPY public.permissions (id, key, value, description, read_only, created_by, date_created, date_modified, modified_by) FROM stdin;
-00000000-0000-0000-0000-000000000001	SystemAdmin	true	Has Full Rights.  Can do everything.	t	00000000-0000-0000-0000-000000000000	2021-12-01 17:56:05.737566	\N	\N
-00000000-0000-0000-0000-000000000002	ContentDeveloper	true	Can create/edit/delete an ScenarioTemplates/Scenarios/Tasks	t	00000000-0000-0000-0000-000000000000	2021-12-01 17:56:05.739926	\N	\N
+00000000-0000-0000-0000-000000000001	SystemAdmin	true	Has Full Rights.  Can do everything.	t	00000000-0000-0000-0000-000000000000	2020-10-09 14:06:41.035426	\N	\N
+00000000-0000-0000-0000-000000000002	ContentDeveloper	true	Can create/edit/delete an Exercise/Directory/Workspace/File/Module	t	00000000-0000-0000-0000-000000000000	2020-10-09 14:06:41.037246	\N	\N
 \.
 
 
@@ -503,6 +476,7 @@ COPY public.permissions (id, key, value, description, read_only, created_by, dat
 --
 
 COPY public.results (id, date_created, date_modified, created_by, modified_by, task_id, vm_id, vm_name, api_url, input_string, expiration_seconds, iterations, interval_seconds, status, expected_output, actual_output, sent_date, status_date, current_iteration, action) FROM stdin;
+4b430eb4-6cc4-4b49-9bcd-52f8cf905b90	2020-10-21 19:23:19.899108	\N	9fd3c38e-58b0-4af1-80d1-1895af91f1f9	\N	6c35342a-d528-4913-baa3-1dc7ab810782	42041a90-c9dd-3078-0bd4-ba55a5b9c350	ubuntu-7dd89c5d-e7e0-41ac-988f-226315ff8512	stackstorm	{"Moid":"42041a90-c9dd-3078-0bd4-ba55a5b9c350"}	120	1	0	70		On	2020-10-21 19:23:19.899003	2020-10-21 19:23:26.112587	1	104
 \.
 
 
@@ -510,7 +484,8 @@ COPY public.results (id, date_created, date_modified, created_by, modified_by, t
 -- Data for Name: scenario_templates; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.scenario_templates (id, date_created, date_modified, created_by, modified_by, name, description, duration_hours, default_vm_credential_id, score, update_scores) FROM stdin;
+COPY public.scenario_templates (id, date_created, date_modified, created_by, modified_by, name, description, duration_hours, default_vm_credential_id) FROM stdin;
+9188d171-d6c1-4308-969c-5df7926f96ac	2020-10-09 14:24:38.468409	\N	9fd3c38e-58b0-4af1-80d1-1895af91f1f9	\N	Example Scenario	A Example Scenario	4	\N
 \.
 
 
@@ -518,7 +493,9 @@ COPY public.scenario_templates (id, date_created, date_modified, created_by, mod
 -- Data for Name: scenarios; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.scenarios (id, date_created, date_modified, created_by, modified_by, name, description, start_date, end_date, status, on_demand, scenario_template_id, view_id, view, default_vm_credential_id, score, score_earned, update_scores) FROM stdin;
+COPY public.scenarios (id, date_created, date_modified, created_by, modified_by, name, description, start_date, end_date, status, on_demand, scenario_template_id, view_id, view, default_vm_credential_id) FROM stdin;
+9fd3c38e-58b0-4af1-80d1-1895af91f1f9	2020-10-09 14:24:16.629513	2020-10-21 19:23:04.064945	9fd3c38e-58b0-4af1-80d1-1895af91f1f9	9fd3c38e-58b0-4af1-80d1-1895af91f1f9	Admin User Scenario	Personal Task Builder Scenario	2020-10-09 18:24:16.629	2120-10-09 18:24:16.629	2	f	\N	7dd89c5d-e7e0-41ac-988f-226315ff8512	\N	\N
+3d3bd6cb-fa40-462a-8411-c9666ba9ef37	2020-10-21 19:20:18.857684	2020-10-21 19:24:51.113411	9fd3c38e-58b0-4af1-80d1-1895af91f1f9	9fd3c38e-58b0-4af1-80d1-1895af91f1f9	Example Scenario - Admin - Admin	A Example Scenario	2020-10-21 19:21:20.431174	2020-10-21 19:24:51.113411	4	t	9188d171-d6c1-4308-969c-5df7926f96ac	7dd89c5d-e7e0-41ac-988f-226315ff8512	\N	\N
 \.
 
 
@@ -534,7 +511,12 @@ COPY public.ssh_port (id, server, server_port, guest, guest_port, bond_agent_id)
 -- Data for Name: tasks; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.tasks (id, date_created, date_modified, created_by, modified_by, name, description, scenario_template_id, scenario_id, user_id, action, vm_mask, api_url, input_string, expected_output, expiration_seconds, delay_seconds, interval_seconds, iterations, trigger_task_id, trigger_condition, current_iteration, iteration_termination, repeatable, score, status, total_score, total_score_earned, total_status, user_executable) FROM stdin;
+COPY public.tasks (id, date_created, date_modified, created_by, modified_by, name, description, scenario_template_id, scenario_id, user_id, action, vm_mask, api_url, input_string, expected_output, expiration_seconds, delay_seconds, interval_seconds, iterations, trigger_task_id, trigger_condition, current_iteration, iteration_termination) FROM stdin;
+fa1415e3-907e-4be0-abff-5c35221ae981	2020-10-09 14:25:31.249958	\N	9fd3c38e-58b0-4af1-80d1-1895af91f1f9	\N	Power On Ubuntu	A example tasks to power on vms with the vm mask of ubuntu	9188d171-d6c1-4308-969c-5df7926f96ac	\N	9fd3c38e-58b0-4af1-80d1-1895af91f1f9	104	ubuntu	stackstorm	{"Moid":"{moid}"}		0	0	0	1	\N	6	0	0
+6c35342a-d528-4913-baa3-1dc7ab810782	2020-10-21 19:20:19.358529	2020-10-21 19:20:19.358529	9fd3c38e-58b0-4af1-80d1-1895af91f1f9	9fd3c38e-58b0-4af1-80d1-1895af91f1f9	Power On Ubuntu	A example tasks to power on vms with the vm mask of ubuntu	\N	3d3bd6cb-fa40-462a-8411-c9666ba9ef37	9fd3c38e-58b0-4af1-80d1-1895af91f1f9	104	ubuntu	stackstorm	{"Moid":"{moid}"}		0	0	0	1	\N	6	1	0
+6203aa4b-c187-4d49-8139-dc3f6aa8667e	2020-10-21 19:26:50.51603	\N	9fd3c38e-58b0-4af1-80d1-1895af91f1f9	\N	Power Off Ubuntu		9188d171-d6c1-4308-969c-5df7926f96ac	\N	9fd3c38e-58b0-4af1-80d1-1895af91f1f9	103	ubuntu	stackstorm	{"Moid":"{moid}"}		0	0	0	1	\N	6	0	0
+dea6f874-5afb-445b-b2e6-fd91e9baed9e	2020-10-21 19:29:07.16477	\N	9fd3c38e-58b0-4af1-80d1-1895af91f1f9	\N	File Upload	Uploads a test file to the home directory of user 'user'	9188d171-d6c1-4308-969c-5df7926f96ac	\N	9fd3c38e-58b0-4af1-80d1-1895af91f1f9	108	ubuntu	stackstorm	{"Moid":"{moid}","Username":"user","Password":"tartans@1","GuestFilePath":"~/test.txt","GuestFileContent":"This is a test file"}		0	0	0	1	\N	6	0	0
+1ed42698-c893-4081-a3dd-2b8983af1ead	2020-10-21 19:30:29.377003	\N	9fd3c38e-58b0-4af1-80d1-1895af91f1f9	\N	Get IP addresses	Runs 'ip addr` on Ubuntu hosts	9188d171-d6c1-4308-969c-5df7926f96ac	\N	9fd3c38e-58b0-4af1-80d1-1895af91f1f9	107	ubuntu	stackstorm	{"Moid":"{moid}","Username":"user","Password":"tartans@1","CommandText":"ip addr","CommandArgs":""}		0	0	0	1	\N	6	0	0
 \.
 
 
@@ -543,16 +525,7 @@ COPY public.tasks (id, date_created, date_modified, created_by, modified_by, nam
 --
 
 COPY public.user_permissions (id, user_id, permission_id) FROM stdin;
-6ae38222-3b8d-40dc-8bda-dc5ce2588a56	32c11441-7eec-47eb-a915-607c4f2529f4	00000000-0000-0000-0000-000000000001
-2cdbc6f1-7723-4a7f-a9cd-c48e347490b9	dee684c5-2eaf-401a-915b-d3d4320fe5d5	00000000-0000-0000-0000-000000000001
-\.
-
-
---
--- Data for Name: user_scenario_entity; Type: TABLE DATA; Schema: public; Owner: postgres
---
-
-COPY public.user_scenario_entity (id, user_id, scenario_id) FROM stdin;
+ed4734cd-8172-4fa8-97a7-56b70566afe2	9fd3c38e-58b0-4af1-80d1-1895af91f1f9	00000000-0000-0000-0000-000000000001
 \.
 
 
@@ -561,8 +534,7 @@ COPY public.user_scenario_entity (id, user_id, scenario_id) FROM stdin;
 --
 
 COPY public.users (date_created, date_modified, created_by, modified_by, id, name) FROM stdin;
-2021-12-01 17:56:05.741168	\N	00000000-0000-0000-0000-000000000000	\N	32c11441-7eec-47eb-a915-607c4f2529f4	crucible-admin@crucible.ramrod.io
-2021-12-01 17:56:05.740623	\N	00000000-0000-0000-0000-000000000000	\N	dee684c5-2eaf-401a-915b-d3d4320fe5d5	administrator@crucible.ramrod.io
+2020-10-09 14:06:41.03766	\N	00000000-0000-0000-0000-000000000000	\N	9fd3c38e-58b0-4af1-80d1-1895af91f1f9	Admin
 \.
 
 
@@ -707,14 +679,6 @@ ALTER TABLE ONLY public.user_permissions
 
 
 --
--- Name: user_scenario_entity PK_user_scenario_entity; Type: CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.user_scenario_entity
-    ADD CONSTRAINT "PK_user_scenario_entity" PRIMARY KEY (id);
-
-
---
 -- Name: users PK_users; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -819,20 +783,6 @@ CREATE INDEX "IX_user_permissions_permission_id" ON public.user_permissions USIN
 --
 
 CREATE UNIQUE INDEX "IX_user_permissions_user_id_permission_id" ON public.user_permissions USING btree (user_id, permission_id);
-
-
---
--- Name: IX_user_scenario_entity_scenario_id; Type: INDEX; Schema: public; Owner: postgres
---
-
-CREATE INDEX "IX_user_scenario_entity_scenario_id" ON public.user_scenario_entity USING btree (scenario_id);
-
-
---
--- Name: IX_user_scenario_entity_user_id_scenario_id; Type: INDEX; Schema: public; Owner: postgres
---
-
-CREATE UNIQUE INDEX "IX_user_scenario_entity_user_id_scenario_id" ON public.user_scenario_entity USING btree (user_id, scenario_id);
 
 
 --
@@ -942,22 +892,6 @@ ALTER TABLE ONLY public.user_permissions
 
 ALTER TABLE ONLY public.user_permissions
     ADD CONSTRAINT "FK_user_permissions_users_user_id" FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
-
-
---
--- Name: user_scenario_entity FK_user_scenario_entity_scenarios_scenario_id; Type: FK CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.user_scenario_entity
-    ADD CONSTRAINT "FK_user_scenario_entity_scenarios_scenario_id" FOREIGN KEY (scenario_id) REFERENCES public.scenarios(id) ON DELETE CASCADE;
-
-
---
--- Name: user_scenario_entity FK_user_scenario_entity_users_user_id; Type: FK CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.user_scenario_entity
-    ADD CONSTRAINT "FK_user_scenario_entity_users_user_id" FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
 
 
 --
