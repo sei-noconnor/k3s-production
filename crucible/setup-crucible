@@ -12,7 +12,7 @@
 cd "$(dirname "${BASH_SOURCE[0]}")"
 ./setup-gitlab
 # # Crucible Stack install
-if [[ $IMPORT_CONTENT = false ]]; then 
+if [[ ${IMPORT_CONTENT-$IMPORT_CONTENT} = false ]]; then 
   helm upgrade --install -f player.values.yaml player ../charts/player 
   helm upgrade --install -f caster.values.yaml caster ../charts/caster
   helm upgrade --install -f steamfitter.values.yaml steamfitter ../charts/steamfitter

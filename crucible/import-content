@@ -8,7 +8,7 @@
 #
 # import-content
 exports_path="seed/crucible"
-domain=${domain-$DOMAIN}
+domain=${domain-crucible.ramrod.io}
 directory=$(dirname "$BASH_SOURCE[0]")
 cd $directory
 source ../scripts/utils
@@ -37,13 +37,20 @@ done
 
 files=$(find $exports_path -type f -iname "*.sql" | sed "s/.*\///; s/\.sql//")
 for file in $files; do
-  PGPASSWORD=$POSTGRES_PASS dropdb -h localhost -U $POSTGRES_USER ${file}
-  PGPASSWORD=$POSTGRES_PASS createdb -h localhost -U $POSTGRES_USER -T template0 ${file}
-  # PGPASSWORD=$POSTGRES_PASS psql -h localhost -U $POSTGRES_USER < $exports_path/${file}.sql
-  cat $exports_path/${file}.sql | sed 's/LOCALE/LC_COLLATE/' | PGPASSWORD=$POSTGRES_PASS psql -h localhost -p 5432 -U postgres ${file}
+  PGPASSWORD=postgres dropdb -h localhost -U postgres ${file}
+  PGPASSWORD=postgres createdb -h localhost -U postgres -T template0 ${file}
+  # PGPASSWORD=postgres psql -h localhost -U postgres < $exports_path/${file}.sql
+  cat $exports_path/${file}.sql | sed 's/LOCALE/LC_COLLATE/' | PGPASSWORD=postgres psql -h localhost -p 5432 -U postgres ${file}
 done
 
-helm upgrade --install -f player.values.yaml player ../charts/player && sleep 5
-helm upgrade --install -f caster.values.yaml caster ../charts/caster && sleep 5
-helm upgrade --install -f steamfitter.values.yaml steamfitter ../charts/steamfitter && sleep 5
-helm upgrade --install -f alloy.values.yaml alloy ../charts/alloy && sleep 5
+helm upgrade --install -f player.values.yaml player ../charts/player
+sleep 5
+helm upgrade --install -f caster.values.yaml caster ../charts/caster
+sleep 5
+helm upgrade --install -f steamfitter.values.yaml steamfitter ../charts/steamfitter 
+sleep 5
+helm upgrade --install -f alloy.values.yaml alloy ../charts/alloy
+sleep 5
+helm upgrade --install --wait -f mongodb.values.yaml mongodb bitnami/mongodb
+sleep 5
+helm upgrade --install -f stackstorm-min.values.yaml stackstorm stackstorm/stackstorm-ha

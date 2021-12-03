@@ -3,6 +3,10 @@
 directory="$(dirname "${BASH_SOURCE[0]}")"
 cd $directory
 source $directory/scripts/utils
+
+#Dynamic variables
+BASE_IP=$(echo $DEFAULT_NETWORK |cut -d"." -f1-3)
+
 import_vars $directory/env
 replace_vars $directory/common '.*\.(json|conf|yaml|yml)'
 replace_vars $directory/crucible '.*\.(json|conf|yaml|yml|sql)'
