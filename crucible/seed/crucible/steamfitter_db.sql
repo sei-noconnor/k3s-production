@@ -17,15 +17,15 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
--- Name: steamfitter_api; Type: DATABASE; Schema: -; Owner: postgres
+-- Name: steamfitter_db; Type: DATABASE; Schema: -; Owner: postgres
 --
 
-CREATE DATABASE steamfitter_api WITH TEMPLATE = template0 ENCODING = 'UTF8' LOCALE = 'en_US.utf8';
+CREATE DATABASE steamfitter_db WITH TEMPLATE = template0 ENCODING = 'UTF8' LOCALE = 'en_US.utf8';
 
 
-ALTER DATABASE steamfitter_api OWNER TO postgres;
+ALTER DATABASE steamfitter_db OWNER TO postgres;
 
-\connect steamfitter_api
+\connect steamfitter_db
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;

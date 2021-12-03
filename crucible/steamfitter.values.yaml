@@ -248,5 +248,8 @@ steamfitter-ui:
           "automaticSilentRenew": true,
           "silent_redirect_uri": "https://$DOMAIN/steamfitter/auth-callback-silent"
       },
+      "AppTitle": "Steamfitter",
+      "AppTopBarHexColor": "#EF3A47",
+      "AppTopBarHexTextColor": "#FFFFFF",
       "UseLocalAuthStorage": true
     }

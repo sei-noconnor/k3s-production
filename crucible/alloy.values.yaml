@@ -236,7 +236,9 @@ alloy-ui:
       },
       "AppTitle": "Alloy",
       "AppTopBarText": "Alloy",
-      "AppTopBarHexColor": "#b00",
-      "PlayerUIAddress": "https://$DOMAIN/player",
+      "AppTopBarHexColor": "#719F94",
+      "AppTopBarHexTextColor": "#FFFFFF",
+      "PlayerUIAddress": "http://player.${DOMAIN}",
+      "PollingIntervalMS": "3500",
       "UseLocalAuthStorage": true
     }
