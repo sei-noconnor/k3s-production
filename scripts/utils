@@ -47,7 +47,7 @@ function kex_q() {
     exit
   fi
   
-  if [[ $ARGS[0] =~ bash|sh ]]; then
+  if [[ $ARGS[0] =~ "bash|sh" ]]; then
     sh=${ARGS[0]:-"bash"}
     ARGS=("${ARGS[@]:1}")
   else
@@ -137,6 +137,12 @@ function replace_vars() {
     find $FILE -type f -exec /bin/bash -c $'envsubst "$(env | cut -d= -f1 | sed -e \'s/^/$/\')" < $1 > $1.tmp && mv $1.tmp $1' -- {} \;
   fi
 } 
+
+function get_latest_github_release() {
+  curl --silent "https://api.github.com/repos/$1/releases/latest" | # Get latest release from GitHub api
+    grep '"tag_name":' |                                            # Get tag line
+    sed -E 's/.*"([^"]+)".*/\1/'                                    # Pluck JSON value
+}
 
 fetch_vsphere_cert() {
   cert_path=$1
