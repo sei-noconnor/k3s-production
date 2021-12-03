@@ -26,7 +26,7 @@ st2:
   password: $ADMIN_PASS
   config: |
     [api]
-    allow_origin = '*'
+    allow_origin = '$DOMAIN'
     [database]
     host = $STACKSTORM_MONGO_SERVER
     port = 27017
