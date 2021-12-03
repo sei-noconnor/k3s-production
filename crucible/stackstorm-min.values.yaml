@@ -71,6 +71,14 @@ ingress:
   enabled: true
   annotations:
     kubernetes.io/ingress.class: $INGRESS_CLASS
+    nginx.ingress.kubernetes.io/proxy-read-timeout: '86400'
+    nginx.ingress.kubernetes.io/proxy-send-timeout: '86400'
+    nginx.ingress.kubernetes.io/use-regex: "true"
+  hosts:
+    - host: $DOMAIN
+      paths:
+        - path: "/stackstorm(/|$)(.*)"
+          pathType: Prefix
   tls:
     - secretName: appliance-cert
       hosts:
@@ -98,7 +106,7 @@ st2web:
     # type can be one of "ClusterIP", "NodePort", "LoadBalancer" or "ExternalName"
     type: "NodePort"
     # The hostname associated with st2web service (externalName, added to external DNS, etc.)
-    hostname: "$DOMAIN/stackstorm"
+    hostname: $DOMAIN
     # For more information regarding annotations, see
     # https://kubernetes.io/docs/concepts/services-networking/service/#ssl-support-on-aws
     annotations: {}
