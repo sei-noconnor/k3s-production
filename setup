@@ -52,6 +52,6 @@ done
 if [[ $IMPORT_CONTENT = true ]]; then 
   # TODO
   $directory/crucible/import-content
-  sed -i "s/IMPORT_CONTENT=.*/IMPORT_CONTENT=false/" $directory/env
+  sed -i "s/IMPORT_CONTENT=.*/IMPORT_CONTENT=false/" env
 fi
 
