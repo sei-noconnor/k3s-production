@@ -53,4 +53,4 @@ helm upgrade --install -f alloy.values.yaml alloy ../charts/alloy
 sleep 5
 helm upgrade --install --wait -f mongodb.values.yaml mongodb bitnami/mongodb
 sleep 5
-helm upgrade --install -f stackstorm-min.values.yaml stackstorm stackstorm/stackstorm-ha
+helm upgrade --install --timeout 10m -f stackstorm-min.values.yaml stackstorm stackstorm/stackstorm-ha
