@@ -113,6 +113,8 @@ st2web:
     # For more information regarding annotations, see
     # https://kubernetes.io/docs/concepts/services-networking/service/#ssl-support-on-aws
     annotations: {}
+  nodeSelector:
+    kubernetes.io/hostname: $STACKSTORM_NODE
   config: |
     'use strict';
 
@@ -136,6 +138,8 @@ st2auth:
     requests:
       memory: "85Mi"
       cpu: "50m"
+  nodeSelector:
+    kubernetes.io/hostname: $STACKSTORM_NODE
 
 st2api:
   replicas: 1
@@ -143,6 +147,8 @@ st2api:
     requests:
       memory: "150Mi"
       cpu: "25m"
+  nodeSelector:
+    kubernetes.io/hostname: $STACKSTORM_NODE
 
 st2stream:
   replicas: 1
@@ -150,6 +156,8 @@ st2stream:
     requests:
       memory: "100Mi"
       cpu: "50m"
+  nodeSelector:
+    kubernetes.io/hostname: $STACKSTORM_NODE
 
 st2rulesengine:
   replicas: 1
@@ -157,12 +165,16 @@ st2rulesengine:
     requests:
       memory: "75Mi"
       cpu: "25m"
+  nodeSelector:
+    kubernetes.io/hostname: $STACKSTORM_NODE
 
 st2timersengine:
   resources:
     requests:
       memory: "75Mi"
       cpu: "10m"
+  nodeSelector:
+    kubernetes.io/hostname: $STACKSTORM_NODE
 
 st2workflowengine:
   replicas: 1
@@ -170,6 +182,8 @@ st2workflowengine:
     requests:
       memory: "200Mi"
       cpu: "100m"
+  nodeSelector:
+    kubernetes.io/hostname: $STACKSTORM_NODE
 
 st2scheduler:
   replicas: 1
@@ -177,6 +191,8 @@ st2scheduler:
     requests:
       memory: "75Mi"
       cpu: "50m"
+  nodeSelector:
+    kubernetes.io/hostname: $STACKSTORM_NODE
 
 st2notifier:
   replicas: 1
@@ -184,6 +200,8 @@ st2notifier:
     requests:
       memory: "75Mi"
       cpu: "50m"
+  nodeSelector:
+    kubernetes.io/hostname: $STACKSTORM_NODE
 
 st2actionrunner:
   replicas: 2
@@ -191,12 +209,16 @@ st2actionrunner:
     requests:
       memory: "200Mi"
       cpu: "75m"
+  nodeSelector:
+    kubernetes.io/hostname: $STACKSTORM_NODE
 
 st2sensorcontainer:
   resources:
     requests:
       memory: "100Mi"
       cpu: "50m"
+  nodeSelector:
+    kubernetes.io/hostname: $STACKSTORM_NODE
 
 st2client:
   # st2client config (~/.st2/config) template.
