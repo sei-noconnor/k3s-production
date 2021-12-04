@@ -18,4 +18,5 @@ cfssl gencert -ca int-ca.pem -ca-key int-ca-key.pem -config config.json \
 # Create pkcs12 host bundle for identity signing key
 openssl pkcs12 -export -out host.pfx -inkey host-key.pem -in host.pem \
                -passin pass:foundry -passout pass:foundry
-sed -ri "s|(signer:) \"\"|\1 $(base64 -w0 host.pfx)|" ../identity.values.yaml
+# TODO Fix this in nested script
+#sed -ri "s|(signer:) \"\"|\1 $(base64 -w0 host.pfx)|" ../identity.values.yaml
