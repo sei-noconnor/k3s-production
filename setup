@@ -5,7 +5,7 @@ cd $directory
 source $directory/scripts/utils
 
 #Dynamic variables
-BASE_IP=$(echo $DEFAULT_NETWORK |cut -d"." -f1-3)
+export BASE_IP=$(echo $DEFAULT_NETWORK |cut -d"." -f1-3)
 
 import_vars $directory/env
 replace_vars $directory/common '.*\.(json|conf|yaml|yml)'
@@ -19,7 +19,8 @@ replace_vars $directory/scripts/identity-seed.example.sh
 chmod +x $directory/scripts/identity-seed.example.sh
 replace_vars $directory/crucible/import-content
 chmod +x $directory/crucible/import-content
-
+echo "Pausing for 10 Seconds to cancel execution"
+sleep 10
 if [[ $GENERATE_CERTS = true ]]; then 
   $directory/common/certs/generate-certs.sh
   # reset, so we don't clobber
