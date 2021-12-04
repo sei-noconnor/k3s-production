@@ -23,12 +23,12 @@ sleep 10
 if [[ $GENERATE_CERTS = true ]]; then 
   $directory/common/certs/generate-certs.sh
   # reset, so we don't clobber
-  sed -i "s/GENERATE_CERTS=.*/GENERATE_CERTS=false/" env
+  sed -i '' -e "s/GENERATE_CERTS=.*/GENERATE_CERTS=false/" env
 fi
 
 if [[ $IMPORT_CERTS = true ]]; then 
   import_root_ca $directory/common/certs/root-ca.pem
-  sed -i "s/IMPORT_CERTS=.*/IMPORT_CERTS=false/" env
+  sed -i '' -e "s/IMPORT_CERTS=.*/IMPORT_CERTS=false/" env
 fi
 
 if [[ $RUN_TERRAFOM = true ]]; then
@@ -56,6 +56,6 @@ done
 if [[ $IMPORT_CONTENT = true ]]; then 
   # TODO
   $directory/crucible/import-content
-  sed -i "s/IMPORT_CONTENT=.*/IMPORT_CONTENT=false/" env
+  sed -i '' -e "s/IMPORT_CONTENT=.*/IMPORT_CONTENT=false/" env
 fi
 
