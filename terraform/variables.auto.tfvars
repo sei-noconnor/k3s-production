@@ -1,6 +1,6 @@
 vsphere_server = "$VSPHERE_SERVER"
 vsphere_user   = "$VSPHERE_USER"
-vsphere_pass   = "$VSPHERE_PASSWORD"
+vsphere_pass   = "$VSPHERE_PASS"
 datacenter     = "$VSPHERE_DATACENTER"
 # Cluster needs to match VSPHERE_CLUSTER Environment variable
 cluster           = "$VSPHERE_CLUSTER"
