@@ -73,21 +73,21 @@ If you are providing your own certificate be sure to place certificates in `comm
 
 Replace `crucible.io` with the `<DOMAIN>` environment URL if changed.
 
-| Application     | URL                                                    |
-| --------------- | ------------------------------------------------------ |
-| Alloy           | [crucible.io/alloy](https://crucible.io/alloy)         |
-| Alloy API       | [crucible.io/alloy/api](https://crucible.io/alloy/api) |
-| Caster          | [crucible.io](https://crucible.io/caster)              |
-| Caster API      | [crucible.io/api](https://crucible.io/caster/api)      |
-| Identity        | [crucible.io](https://crucible.io/identity)            |
-| Identity API    | [crucible.io/api](https://crucible.io/identity/api)    |
-| Player          | [crucible.io](https://crucible.io/player)              |
-| Player API      | [crucible.io/api](https://crucible.io/player/api)      |
-| Steamfitter     | [crucible.io](https://crucible.io/steamfitter)         |
-| Steamfitter API | [crucible.io/api](https://crucible.io/steamfitter/api) |
-| VM              | [cucible.io](https://crucible.io/vm)                   |
-| VM API          | [crucible.io/api](https://crucible.io/vm/api)          |
-| VM Console      | [crucible.io](https://crucible.io/console)             |
+| Application     | URL                                                                |
+| --------------- | ------------------------------------------------------------------ |
+| Alloy           | [crucible.io/alloy](https://crucible.io/alloy)                     |
+| Alloy API       | [crucible.io/alloy/api](https://crucible.io/alloy/api)             |
+| Caster          | [crucible.io/caster](https://crucible.io/caster)                   |
+| Caster API      | [crucible.io/caster/api](https://crucible.io/caster/api)           |
+| Identity        | [crucible.io/identity](https://crucible.io/identity)               |
+| Identity API    | [crucible.io/identity/api](https://crucible.io/identity/api)       |
+| Player          | [crucible.io/player](https://crucible.io/player)                   |
+| Player API      | [crucible.io/player/api](https://crucible.io/player/api)           |
+| Steamfitter     | [crucible.io/steamfitter](https://crucible.io/steamfitter)         |
+| Steamfitter API | [crucible.io/steamfitter/api](https://crucible.io/steamfitter/api) |
+| VM              | [cucible.io/vm](https://crucible.io/vm)                            |
+| VM API          | [crucible.io/vm/api](https://crucible.io/vm/api)                   |
+| VM Console      | [crucible.io/vm/console](https://crucible.io/console)              |
 
 ### **3rd Party URLs**
 
