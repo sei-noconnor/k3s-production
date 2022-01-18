@@ -30,26 +30,29 @@ The kubernetes cluster utilizes the kubernetes ingress nginx controller, with a 
 
 The `env` file is a set a variables for customizing the stack to your unique infrastructure. It is laid out like an ini file and similar in function to docker-compose env file. The `./setup` script will replace these values in the relevant files.
 
-## Deploying Kubernetes VMs
-
-This repo contains terraform to deploy VMs needed for kubernetes. it utilizes your existing ubuntu template. You may wish to modify the VMs configuration such as preocessors and RAM. edit the `terraform/variables.auto.tfvars` at the bottom you can modify the vm configuration.
-
-1. within the `terraform` directory run `terraform init`
-2. run `terraform plan` and verify that the correct resources will be created.
-3. run `terraform apply` again verify the resources and confirm you want to apply.
-4. your VMs will begin to be provisioned and will be accessable at their specified IPs when the terraform apply is complete.
-
-## Installing Kubernetes with Ansible.
-
-This repo contains an ansible playbook to install k3s master and worker nodes.
-
 ## Networking
 
-A standard network will need to be avaialble and a block of apporimatly 5 IPs is required.
+A standard network will need to be avaialble and a block of apporimatly 10 IPs is required 7 for kubernetes, 3 for various ingress adresses.
+
+Set the variables in the `[network]` section of the env file.
 
 ## DNS
 
 This stack uses an kubernetes ingress nginx. Hostnames must be used when accessing the applications. While most Crucible applications use path based routing to limit entires in DNS there are third party applications that need entires as well. If you are setting up an initial Proof of Concept a host file entry can be used.
+
+## Deploying Kubernetes VMs
+
+This repo contains terraform to deploy VMs needed for kubernetes. it utilizes your existing ubuntu template. You may wish to modify the VMs configuration such as preocessors and RAM, or last octect of IP. edit the `terraform/variables.auto.tfvars` at the bottom you can modify the vm configuration.
+
+1. within the `terraform` directory run `terraform init`
+2. run `terraform plan` and verify that the correct resources will be created.
+3. run `terraform apply` again verify the resources and confirm you want to apply.
+4. your VMs will begin to be provisioned and will be accessable at their specified IPs listed in the output of the terraform.
+
+## Installing Kubernetes with Ansible.
+
+This repo contains an ansible playbook to install k3s master, slave and worker nodes.
+modify `k3s-ansible/inventory/sample/hosts.ini` with the correct values based on the terraform output.
 
 ## Certificate
 
