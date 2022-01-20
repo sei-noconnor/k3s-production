@@ -8,6 +8,7 @@
 CFSSL=/usr/local/bin/cfssl
 CFSSLJSON=/usr/local/bin/cfssljson
 
+
 if [ ! -f "$CFSSL" ]; then
   sudo curl -L https://pkg.cfssl.org/R1.2/cfssl_linux-amd64 --output $CFSSL
 fi
@@ -18,6 +19,7 @@ fi
 sudo chmod +x $CFSSL $CFSSLJSON
 
 # Change to the current directory
+directory=$(echo $PWD)
 cd "$(dirname "${BASH_SOURCE[0]}")"
 
 # Generate root, intermediate and host certificates/keys
@@ -32,3 +34,4 @@ openssl pkcs12 -export -out host.pfx -inkey host-key.pem -in host.pem \
                -passin pass:foundry -passout pass:foundry
 # TODO Fix this in nested script
 #sed -ri "s|(signer:) \"\"|\1 $(base64 -w0 host.pfx)|" ../identity.values.yaml
+cd $directory

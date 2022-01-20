@@ -5,10 +5,23 @@ cd $directory
 source $directory/scripts/utils
 import_vars $directory/env
 
+# Replace variables in files
+replace_vars $directory/common '.*\.(json|conf|yaml|yml)'
+replace_vars $directory/crucible '.*\.(json|conf|yaml|yml|sql)'
+replace_vars $directory/k3s-ansible '.*\.(json|conf|yaml|yml)'
+replace_vars $directory/terraform '.*\.(json|conf|yaml|yml|auto.tfvars)'
+replace_vars $directory/values '.*\.(json|conf|yaml|yml)'
+replace_vars $directory/crucible/setup-gitlab
+chmod +x $directory/crucible/setup-gitlab
+replace_vars $directory/scripts/identity-seed.example.sh
+chmod +x $directory/scripts/identity-seed.example.sh
+replace_vars $directory/crucible/import-content
+chmod +x $directory/crucible/import-content
+
 if [[ $GENERATE_CERTS = true ]]; then 
   $directory/common/certs/generate-certs.sh
   # reset, so we don't clobber
-  sed -i '' -e "s/GENERATE_CERTS=.*/GENERATE_CERTS=false/" env
+  sed -i -e "s/GENERATE_CERTS=.*/GENERATE_CERTS=false/" env
 fi
 
 if [[ $IMPORT_CERTS = true ]]; then 
@@ -25,19 +38,6 @@ if [[ $RUN_ANSIBLE = true ]]; then
   # TODO
   echo "Future Automation"
 fi
-
-# Replace variables in files
-replace_vars $directory/common '.*\.(json|conf|yaml|yml)'
-replace_vars $directory/crucible '.*\.(json|conf|yaml|yml|sql)'
-replace_vars $directory/k3s-ansible '.*\.(json|conf|yaml|yml)'
-replace_vars $directory/terraform '.*\.(json|conf|yaml|yml|auto.tfvars)'
-replace_vars $directory/values '.*\.(json|conf|yaml|yml)'
-replace_vars $directory/crucible/setup-gitlab
-chmod +x $directory/crucible/setup-gitlab
-replace_vars $directory/scripts/identity-seed.example.sh
-chmod +x $directory/scripts/identity-seed.example.sh
-replace_vars $directory/crucible/import-content
-chmod +x $directory/crucible/import-content
 
 # Install infrastructure
 helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
