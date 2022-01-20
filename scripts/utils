@@ -132,9 +132,9 @@ function replace_vars() {
   FILE=$1
   REGEX=$2
   if [[ -n $REGEX ]]; then 
-    find -E $FILE -type f -regex $REGEX -exec /bin/bash -c $'envsubst "$(env | cut -d= -f1 | sed -e \'s/^/$/\')"  < $1 > $1.tmp && mv $1.tmp $1' -- {} \;
+    find $FILE -type f -regextype posix-extended -regex $REGEX -exec /bin/bash -c $'envsubst "$(env | cut -d= -f1 | sed -e \'s/^/$/\')"  < $1 > $1.tmp && mv -f $1.tmp $1' -- {} \;
   else
-    find $FILE -type f -exec /bin/bash -c $'envsubst "$(env | cut -d= -f1 | sed -e \'s/^/$/\')" < $1 > $1.tmp && mv $1.tmp $1' -- {} \;
+    find $FILE -type f -exec /bin/bash -c $'envsubst "$(env | cut -d= -f1 | sed -e \'s/^/$/\')" < $1 > $1.tmp && mv -f $1.tmp $1' -- {} \;
   fi
 } 
 
@@ -180,5 +180,34 @@ function import_root_ca() {
   else
     echo "OS NOT SUPPORTED"
   fi
+}
+
+# Installed the latest release of terraform
+function install_terraform() {
+  curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
+  sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
+  sudo apt-get update && sudo apt-get install terraform
+}
+
+# Installs the latest version of ansible
+function install_ansible {
+  sudo apt update
+  sudo apt install software-properties-common
+  sudo add-apt-repository --yes --update ppa:ansible/ansible
+  sudo apt install ansible -y
+}
+
+function install_kubectl() {
+  curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+  chmod +x kubectl
+  sudo mv kubectl /usr/local/bin/kubectl
+}
+
+function install_helm {
+  curl https://baltocdn.com/helm/signing.asc | sudo apt-key add -
+  sudo apt-get install apt-transport-https --yes
+  echo "deb https://baltocdn.com/helm/stable/debian/ all main" | sudo tee /etc/apt/sources.list.d/helm-stable-debian.list
+  sudo apt-get update
+  sudo apt-get install helm
 }
 

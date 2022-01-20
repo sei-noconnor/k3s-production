@@ -4,8 +4,28 @@ directory="$(dirname "${BASH_SOURCE[0]}")"
 cd $directory
 source $directory/scripts/utils
 import_vars $directory/env
-#Dynamic variables
-export BASE_IP=$(echo $DEFAULT_NETWORK |cut -d"." -f1-3)
+
+if [[ $GENERATE_CERTS = true ]]; then 
+  $directory/common/certs/generate-certs.sh
+  # reset, so we don't clobber
+  sed -i '' -e "s/GENERATE_CERTS=.*/GENERATE_CERTS=false/" env
+fi
+
+if [[ $IMPORT_CERTS = true ]]; then 
+  import_root_ca $directory/common/certs/root-ca.pem
+  sed -e "s/IMPORT_CERTS=.*/IMPORT_CERTS=false/" env
+fi
+
+if [[ $RUN_TERRAFORM = true ]]; then
+  # TODO
+  echo "Future Automation"
+fi
+
+if [[ $RUN_ANSIBLE = true ]]; then 
+  # TODO
+  echo "Future Automation"
+fi
+
 # Replace variables in files
 replace_vars $directory/common '.*\.(json|conf|yaml|yml)'
 replace_vars $directory/crucible '.*\.(json|conf|yaml|yml|sql)'
@@ -18,28 +38,14 @@ replace_vars $directory/scripts/identity-seed.example.sh
 chmod +x $directory/scripts/identity-seed.example.sh
 replace_vars $directory/crucible/import-content
 chmod +x $directory/crucible/import-content
-echo "Pausing for 10 Seconds to cancel execution"
-sleep 10
-if [[ $GENERATE_CERTS = true ]]; then 
-  $directory/common/certs/generate-certs.sh
-  # reset, so we don't clobber
-  sed -i '' -e "s/GENERATE_CERTS=.*/GENERATE_CERTS=false/" env
-fi
 
-if [[ $IMPORT_CERTS = true ]]; then 
-  import_root_ca $directory/common/certs/root-ca.pem
-  sed -i '' -e "s/IMPORT_CERTS=.*/IMPORT_CERTS=false/" env
-fi
-
-if [[ $RUN_TERRAFOM = true ]]; then
-  # TODO
-  echo "Future Automation"
-fi
-
-if [[ $RUN_ANSIBLE = true ]]; then 
-  # TODO
-  echo "Future Automation"
-fi
+# Install infrastructure
+helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+helm repo add longhorn https://charts.longhorn.io
+helm repo update
+helm upgrade --install -f $directory/values/longhorn/longhorn.values.yaml -n $LONGHORN_NAMESPACE longhorn longhorn/longhorn --create-namespace
+kubectl apply -n $METAL_NAMESPACE -f $directory/values/metalLB
+helm upgrade --install -f $directory/values/nginx/ingress-nginx.values.yaml -n $INGRESS_NAMESPACE ingress-nginx ingress-nginx/ingress-nginx --create-namespace
 
 # Always run common apps. 
 apps="common,$1"
