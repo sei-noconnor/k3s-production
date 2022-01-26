@@ -165,6 +165,16 @@ fetch_vsphere_cert() {
   fi
 }
 
+function download_vsphere_cert() {
+  url=$1
+  port=${2-443}
+  path=${3-./common/certs/vsphere.pem}
+  echo | openssl s_client -servername $url -connect $url:$port 2>/dev/null | openssl x509 -text | \
+  sed -n -e 's/CA Issuers - URI://p' | \
+  xargs curl -k --output ca.cer
+  openssl x509 -inform DER -in ca.cer -text -outform PEM -out $path
+}
+
 function import_root_ca() {
   cert_path=$1
   file=$(basename $cert_path)
@@ -209,5 +219,40 @@ function install_helm {
   echo "deb https://baltocdn.com/helm/stable/debian/ all main" | sudo tee /etc/apt/sources.list.d/helm-stable-debian.list
   sudo apt-get update
   sudo apt-get install helm
+}
+
+function wait_external_ip() {
+  service=$1
+  namespace=$2
+  ip=""
+  while [ -z $ip ]; do
+    # echo "Waiting for external IP"
+    ip=$(kubectl get svc $service --namespace $namespace --template="{{range .status.loadBalancer.ingress}}{{.ip}}{{end}}")
+    [ -z "$ip" ] && sleep 10
+  done
+  # echo 'Found external IP: '$ip
+  echo $ip
+}
+
+function add_host_entry() {
+  ip=$1
+  hostname=$2
+  etc_hosts=${3-/etc/hosts}
+  echo "adding host";
+  hosts_line="$ip\t$hostname"
+  if [ -n "$(grep $hostname $etc_hosts)" ]
+    then
+      echo "$hostname already exists : $(grep $hostname $etc_hosts)"
+    else
+      echo "Adding $hostname to your $etc_hosts";
+      sudo -- sh -c -e "echo '$hosts_line' >> $etc_hosts";
+
+      if [ -n "$(grep $hostname $etc_hosts)" ]
+        then
+            echo "$hostname was added succesfully \n $(grep $hostname $etc_hosts)";
+        else
+            echo "Failed to Add $hostname, Try again!";
+      fi
+  fi
 }
 

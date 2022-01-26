@@ -17,6 +17,11 @@ replace_vars $directory/scripts/identity-seed.example.sh
 chmod +x $directory/scripts/identity-seed.example.sh
 replace_vars $directory/crucible/import-content
 chmod +x $directory/crucible/import-content
+echo "Sleeping for 10 seconds ctrl+c to cancel"
+sleep 10
+
+# Download vsphere cert
+download_vsphere_cert $VSPHERE_SERVER 443 $PWD/common/certs/vsphere.pem
 
 if [[ $GENERATE_CERTS = true ]]; then 
   $directory/common/certs/generate-certs.sh
@@ -43,9 +48,9 @@ fi
 helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
 helm repo add longhorn https://charts.longhorn.io
 helm repo update
-helm upgrade --install -f $directory/values/longhorn/longhorn.values.yaml -n $LONGHORN_NAMESPACE longhorn longhorn/longhorn --create-namespace
+helm upgrade --wait --install -f $directory/values/longhorn/longhorn.values.yaml -n $LONGHORN_NAMESPACE longhorn longhorn/longhorn --create-namespace
 kubectl apply -n $METAL_NAMESPACE -f $directory/values/metalLB
-helm upgrade --install -f $directory/values/nginx/ingress-nginx.values.yaml -n $INGRESS_NAMESPACE ingress-nginx ingress-nginx/ingress-nginx --create-namespace
+helm upgrade --wait --install -f $directory/values/nginx/ingress-nginx.values.yaml -n $INGRESS_NAMESPACE ingress-nginx ingress-nginx/ingress-nginx --create-namespace
 
 # Always run common apps. 
 apps="common,$1"

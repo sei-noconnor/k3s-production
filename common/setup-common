@@ -28,12 +28,12 @@ kubectl create configmap appliance-root-ca --from-file=root-ca.crt=certs/root-ca
 # Install PostgreSQL and pgAdmin4
 helm repo add bitnami https://charts.bitnami.com/bitnami
 helm repo add runix https://helm.runix.net/
-helm upgrade --install -f postgresql.values.yaml postgresql bitnami/postgresql --version 9.8.11
+helm upgrade --wait --install -f postgresql.values.yaml postgresql bitnami/postgresql --version 9.8.11
 #helm install -f pgadmin4.values.yaml pgadmin4 runix/pgadmin4
 
 # Install code-server (browser-based VS Code)
 helm repo add nicholaswilde https://nicholaswilde.github.io/helm-charts/
-helm upgrade --install -f code-server.values.yaml code-server nicholaswilde/code-server
+helm upgrade --wait --install -f code-server.values.yaml code-server nicholaswilde/code-server
 
 # Kubernetes Dashboard
 # helm repo add kubernetes-dashboard https://kubernetes.github.io/dashboard/
@@ -45,7 +45,7 @@ helm upgrade --install -f code-server.values.yaml code-server nicholaswilde/code
 
 # Install NFS server
 helm repo add kvaps https://kvaps.github.io/charts
-helm upgrade --install -f nfs-server-provisioner.values.yaml nfs-server-provisioner kvaps/nfs-server-provisioner
+helm upgrade --wait --install -f nfs-server-provisioner.values.yaml nfs-server-provisioner kvaps/nfs-server-provisioner
 kubectl patch $INGRESS_KIND $INGRESS_CONTROLLER_NAME -n $INGRESS_NAMESPACE --type 'json' --patch \
   '[{"op": "add", "path": "/spec/template/spec/containers/0/ports/-", "value": {"name":"nfs-tcp","hostPort":2049,"containerPort":2049,"protocol":"TCP"}}]' || true
 kubectl patch $INGRESS_KIND $INGRESS_CONTROLLER_NAME -n $INGRESS_NAMESPACE --type 'json' --patch \
@@ -60,7 +60,7 @@ kubectl apply -f nfs-ingress.yaml --dry-run=client -o yaml | kubectl apply -f -
 
 # Install Common foundry apps
 helm repo add sei https://helm.cyberforce.site/charts
-helm upgrade --install -f identity.values.yaml identity ../charts/identity
+helm upgrade --wait --install -f identity.values.yaml identity ../charts/identity
 # replacing environment variables clobbers the seed.sh script so we need to update it
 kubectl create configmap identity-identity-api --from-file=seed.sh=../scripts/identity-seed.example.sh -o yaml --dry-run=client | kubectl apply -f -
 # helm upgrade --install -f staticweb.values.yaml staticweb sei/staticweb

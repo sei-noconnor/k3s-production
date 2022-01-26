@@ -30,7 +30,7 @@ alloy-api:
   identity:
     register: true
     identityMap: "identity-identity-api"
-    #initCommand: ['sh', '-c', 'sleep 10000']
+    # initCommand: ['sh', '-c', 'sleep 10000']
     client: |-
       [
         {
@@ -238,7 +238,7 @@ alloy-ui:
       "AppTopBarText": "Alloy",
       "AppTopBarHexColor": "#719F94",
       "AppTopBarHexTextColor": "#FFFFFF",
-      "PlayerUIAddress": "http://player.${DOMAIN}",
+      "PlayerUIAddress": "https://${DOMAIN}/player",
       "PollingIntervalMS": "3500",
       "UseLocalAuthStorage": true
     }

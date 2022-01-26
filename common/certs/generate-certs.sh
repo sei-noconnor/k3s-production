@@ -33,5 +33,6 @@ cfssl gencert -ca int-ca.pem -ca-key int-ca-key.pem -config config.json \
 openssl pkcs12 -export -out host.pfx -inkey host-key.pem -in host.pem \
                -passin pass:foundry -passout pass:foundry
 # TODO Fix this in nested script
+sudo chmod a+rw *.pem
 #sed -ri "s|(signer:) \"\"|\1 $(base64 -w0 host.pfx)|" ../identity.values.yaml
 cd $directory

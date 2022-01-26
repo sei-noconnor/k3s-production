@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -xe
 # Must be run as sudo
 #[ `whoami` = root ] || { sudo "$0" "$@"; exit $?; }
 directory=$(dirname "${BASH_SOURCE[0]}")
@@ -22,7 +22,7 @@ gitlab_password="foundry"
 api_url="${gitlab_host}/api/v4"
 
 # add gitlab to hosts file
-# echo "foundry" | sudo -S grep -qxF '127.0.0.1 localhost $domain gitlab.$domain' /etc/hosts || sudo echo '127.0.0.1 localhost $domain gitlab.$domain' | sudo tee -a /etc/hosts > /dev/null
+add_host_entry $(wait_external_ip $INGRESS_NAMESPACE-$INGRESS_CONTROLLER_NAME $INGRESS_NAMESPACE) $domain gitlab.$domain
 # add repo and update
 helm repo add gitlab https://charts.gitlab.io
 helm repo update
