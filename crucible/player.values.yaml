@@ -1,5 +1,5 @@
 player-api:
-
+  kind: "StatefulSet"
   # Docker image release version
   image: 
     repository: cmusei/player-api
@@ -41,95 +41,7 @@ player-api:
     size: ""
     mode: ReadWriteOnce
     class: ""
-  # identity - seed data for the identity server
-  identity:
-    register: true
-    identityMap: identity-identity-api
-    initCommand: ''
-    client: |-
-      [
-        {
-          "name": "player-api",
-          "displayName": "Player API",
-          "description": null,
-          "grants": "authorization_code client_credentials",
-          "scopes": "openid profile player-api",
-          "enabled": true,
-          "requirePkce": true,
-          "allowAccessTokensViaBrowser": false,
-          "requireConsent": false,
-          "consentLifetime": "30d",
-          "alwaysIncludeUserClaimsInIdToken": false,
-          "identityTokenLifetime": "5m",
-          "accessTokenLifetime": "1h",
-          "authorizationCodeLifetime": "5m",
-          "allowOfflineAccess": false,
-          "updateAccessTokenClaimsOnRefresh": false,
-          "useOneTimeRefreshTokens": false,
-          "slidingRefreshTokenLifetime": "15d",
-          "absoluteRefreshTokenLifetime": "30d",
-          "published": false,
-          "url": "https://$DOMAIN/player",
-          "logoUrl": null,
-          "frontChannelLogoutUrl": null,
-          "backChannelLogoutUrl": null,
-          "redirectUrls": [
-            { "value": "https://$DOMAIN/player/api/oauth2-redirect.html" }
-          ],
-          "postLogoutUrls": [{ "value": "https://$DOMAIN/player/api" }],
-          "corsUrls": [{ "value": "https://$DOMAIN" }],
-          "alwaysSendClientClaims": false,
-          "clientClaimsPrefix": "client_",
-          "claims": [],
-          "secrets": [],
-          "managers": []
-        },
-        {
-          "name": "player-admin",
-          "displayName": "Player Admin",
-          "description": null,
-          "grants": "password client_credentials",
-          "scopes": "player-api vm-api",
-          "enabled": true,
-          "requirePkce": true,
-          "allowAccessTokensViaBrowser": false,
-          "requireConsent": false,
-          "consentLifetime": "30d",
-          "alwaysIncludeUserClaimsInIdToken": false,
-          "identityTokenLifetime": "5m",
-          "accessTokenLifetime": "1h",
-          "authorizationCodeLifetime": "5m",
-          "allowOfflineAccess": false,
-          "updateAccessTokenClaimsOnRefresh": false,
-          "useOneTimeRefreshTokens": false,
-          "slidingRefreshTokenLifetime": "15d",
-          "absoluteRefreshTokenLifetime": "30d",
-          "published": false,
-          "url": "https://$DOMAIN/player",
-          "logoUrl": null,
-          "frontChannelLogoutUrl": null,
-          "backChannelLogoutUrl": null,
-          "corsUrls": [{ "value": "https://$DOMAIN" }],
-          "alwaysSendClientClaims": false,
-          "clientClaimsPrefix": "client_",
-          "claims": [],
-          "secrets": [],
-          "managers": []
-        }
-      ]
-      
-    resource: |-
-      {
-        "type": "api",
-        "name": "player-api",
-        "displayName": "Player Api",
-        "enabled": true,
-        "default": true,
-        "required": false,
-        "emphasize": false,
-        "showInDiscoveryDocument": true
-      }
-    
+  
   # Config app settings with environment vars.
   # Those most likely needing values are listed. For others,
   # see https://github.com/cmu-sei/crucible/blob/master/player.api/S3.Player.Api/appsettings.json
@@ -202,49 +114,7 @@ player-ui:
         hosts:
          - $DOMAIN
 
-  identity:
-    register: true
-    identityMap: identity-identity-api
-    initCommand: ''
-    client: |-
-      {
-        "name": "player-ui",
-        "displayName": "Player UI",
-        "description": null,
-        "grants": "authorization_code client_credentials",
-        "scopes": "openid profile player-api",
-        "enabled": true,
-        "requirePkce": true,
-        "allowAccessTokensViaBrowser": true,
-        "requireConsent": false,
-        "consentLifetime": "30d",
-        "alwaysIncludeUserClaimsInIdToken": false,
-        "identityTokenLifetime": "5m",
-        "accessTokenLifetime": "1h",
-        "authorizationCodeLifetime": "5m",
-        "allowOfflineAccess": false,
-        "updateAccessTokenClaimsOnRefresh": false,
-        "useOneTimeRefreshTokens": false,
-        "slidingRefreshTokenLifetime": "15d",
-        "absoluteRefreshTokenLifetime": "30d",
-        "published": true,
-        "url": "https://$DOMAIN/player",
-        "logoUrl": null,
-        "frontChannelLogoutUrl": null,
-        "backChannelLogoutUrl": null,
-        "redirectUrls": [
-          { "value": "https://$DOMAIN/player/auth-callback" },
-          { "value": "https://$DOMAIN/player/auth-callback-silent" }
-        ],
-        "postLogoutUrls": [{ "value": "https://$DOMAIN/player" }],
-        "corsUrls": [{ "value": "https://$DOMAIN" }],
-        "alwaysSendClientClaims": false,
-        "clientClaimsPrefix": "client_",
-        "claims": [],
-        "secrets": [],
-        "managers": []
-      }
-
+  
   env: 
     ## basehref is path to the app
     APP_BASEHREF: "/player"
@@ -349,60 +219,6 @@ vm-api:
 
   certificateMap: "appliance-root-ca"
 
-  identity:
-    register: true
-    identityMap: identity-identity-api
-    initCommand: ''
-    client: |-
-      {
-        "name": "vm-api",
-        "displayName": "VM API",
-        "description": null,
-        "grants": "authorization_code client_credentials",
-        "scopes": "openid profile vm-api player-api",
-        "enabled": true,
-        "requirePkce": true,
-        "allowAccessTokensViaBrowser": false,
-        "requireConsent": false,
-        "consentLifetime": "30d",
-        "alwaysIncludeUserClaimsInIdToken": false,
-        "identityTokenLifetime": "5m",
-        "accessTokenLifetime": "1h",
-        "authorizationCodeLifetime": "5m",
-        "allowOfflineAccess": false,
-        "updateAccessTokenClaimsOnRefresh": false,
-        "useOneTimeRefreshTokens": false,
-        "slidingRefreshTokenLifetime": "15d",
-        "absoluteRefreshTokenLifetime": "30d",
-        "published": false,
-        "url": "https://$DOMAIN/vm",
-        "logoUrl": null,
-        "frontChannelLogoutUrl": null,
-        "backChannelLogoutUrl": null,
-        "redirectUrls": [
-          { "value": "https://$DOMAIN/vm/api/oauth2-redirect.html" }
-        ],
-        "postLogoutUrls": [{ "value": "https://$DOMAIN/vm/api" }],
-        "corsUrls": [{ "value": "https://$DOMAIN" }],
-        "alwaysSendClientClaims": false,
-        "clientClaimsPrefix": "client_",
-        "claims": [],
-        "secrets": [],
-        "managers": []
-      }
-      
-    resource: |-
-      {
-        "type": "api",
-        "name": "vm-api",
-        "displayName": "VM Api",
-        "enabled": true,
-        "default": true,
-        "required": false,
-        "emphasize": false,
-        "showInDiscoveryDocument": true
-      }
-    
   # Config app settings with environment vars.
   # Those most likely needing values are listed. For others,
   # see https://github.com/cmu-sei/crucible/blob/master/vm.api/S3.VM.Api/appsettings.json
@@ -506,49 +322,7 @@ vm-ui:
         hosts:
          - $DOMAIN
 
-  identity:
-    register: true
-    identityMap: identity-identity-api
-    initCommand: ''
-    client: |-
-      {
-        "name": "vm-ui",
-        "displayName": "VM UI",
-        "description": null,
-        "grants": "authorization_code client_credentials",
-        "scopes": "openid profile vm-api player-api",
-        "enabled": true,
-        "requirePkce": true,
-        "allowAccessTokensViaBrowser": true,
-        "requireConsent": false,
-        "consentLifetime": "30d",
-        "alwaysIncludeUserClaimsInIdToken": false,
-        "identityTokenLifetime": "5m",
-        "accessTokenLifetime": "1h",
-        "authorizationCodeLifetime": "5m",
-        "allowOfflineAccess": false,
-        "updateAccessTokenClaimsOnRefresh": false,
-        "useOneTimeRefreshTokens": false,
-        "slidingRefreshTokenLifetime": "15d",
-        "absoluteRefreshTokenLifetime": "30d",
-        "published": false,
-        "url": "https://$DOMAIN/vm",
-        "logoUrl": null,
-        "frontChannelLogoutUrl": null,
-        "backChannelLogoutUrl": null,
-        "redirectUrls": [
-          { "value": "https://$DOMAIN/vm/auth-callback" },
-          { "value": "https://$DOMAIN/vm/auth-callback-silent" }
-        ],
-        "postLogoutUrls": [{ "value": "https://$DOMAIN/vm" }],
-        "corsUrls": [{ "value": "https://$DOMAIN" }],
-        "alwaysSendClientClaims": false,
-        "clientClaimsPrefix": "client_",
-        "claims": [],
-        "secrets": [],
-        "managers": []
-      }
-
+  
   env: 
     ## basehref is path to the app
     APP_BASEHREF: "vm"
@@ -604,47 +378,6 @@ console-ui:
         hosts:
          - $DOMAIN
   
-  identity:
-    register: true
-    identityMap: identity-identity-api
-    client: |-
-      {
-        "name": "vm-console-ui",
-        "displayName": "VM Console UI",
-        "description": null,
-        "grants": "authorization_code client_credentials",
-        "scopes": "openid profile vm-api player-api",
-        "enabled": true,
-        "requirePkce": true,
-        "allowAccessTokensViaBrowser": true,
-        "requireConsent": false,
-        "consentLifetime": "30d",
-        "alwaysIncludeUserClaimsInIdToken": false,
-        "identityTokenLifetime": "5m",
-        "accessTokenLifetime": "1h",
-        "authorizationCodeLifetime": "5m",
-        "allowOfflineAccess": false,
-        "updateAccessTokenClaimsOnRefresh": false,
-        "useOneTimeRefreshTokens": false,
-        "slidingRefreshTokenLifetime": "15d",
-        "absoluteRefreshTokenLifetime": "30d",
-        "published": false,
-        "url": "https://$DOMAIN/vm",
-        "logoUrl": null,
-        "frontChannelLogoutUrl": null,
-        "backChannelLogoutUrl": null,
-        "redirectUrls": [
-          { "value": "https://$DOMAIN/console/auth-callback" },
-          { "value": "https://$DOMAIN/console/auth-callback-silent" }
-        ],
-        "postLogoutUrls": [{ "value": "https://$DOMAIN/console" }],
-        "corsUrls": [{ "value": "https://$DOMAIN" }],
-        "alwaysSendClientClaims": false,
-        "clientClaimsPrefix": "client_",
-        "claims": [],
-        "secrets": [],
-        "managers": []
-      }
   env: 
     ## basehref is path to the app
     APP_BASEHREF: "/console"

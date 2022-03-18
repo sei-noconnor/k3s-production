@@ -32,24 +32,8 @@ vms = {
 
     }
   },
-  k3-02 = {
-    ip     = "$BASE_IP.102"
-    cpus   = 4
-    memory = 4096
-    extra_config = {
-
-    }
-  },
-  k3-03 = {
-    ip     = "$BASE_IP.103"
-    cpus   = 4
-    memory = 4096
-    extra_config = {
-
-    }
-  },
   worker-01 = {
-    ip     = "$BASE_IP.104"
+    ip     = "$BASE_IP.102"
     cpus   = 4
     memory = 8192
     extra_config = {
@@ -57,15 +41,7 @@ vms = {
     }
   },
   worker-02 = {
-    ip     = "$BASE_IP.105"
-    cpus   = 4
-    memory = 8192
-    extra_config = {
-
-    }
-  },
-  worker-03 = {
-    ip     = "$BASE_IP.106"
+    ip     = "$BASE_IP.103"
     cpus   = 4
     memory = 8192
     extra_config = {

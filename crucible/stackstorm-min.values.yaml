@@ -56,16 +56,20 @@ st2:
         user:
           username: '$AZURE_USER'
           password: '$AZURE_PASS'
+      vsphere.yaml: | 
+        ---
+        ssl_verify: false
+        vsphere:
+          default:
+            host: "$VSPHERE_SERVER"
+            port: 443
+            user: "$VSPHERE_USER"
+            passwd: "$VSPHERE_PASS"
     images:
       - repository: cmusei
         name: st2packs
         tag: 1.0.0
         pullPolicy: IfNotPresent
-
-    sensors: 
-      - name: stackstorm-sensor
-        serviceAccount:
-          attach: false
 
 ingress:
   enabled: true

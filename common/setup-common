@@ -24,7 +24,12 @@ kubectl rollout restart deployment/coredns -n kube-system
 kubectl create secret tls appliance-cert --key certs/host-key.pem --cert <( cat certs/host.pem certs/int-ca.pem ) --dry-run=client -o yaml | kubectl apply -f -
 # Add root ca
 kubectl create secret generic appliance-root-ca --from-file=appliance-root-ca=certs/root-ca.pem --dry-run=client -o yaml | kubectl apply -f -
-kubectl create configmap appliance-root-ca --from-file=root-ca.crt=certs/root-ca.pem --from-file=vsphere-ca.crt=certs/vsphere.pem --dry-run=client -o yaml | kubectl apply -f -
+# Add vsphere cert prevent failing if it doesen't exist
+if [[ -f certs/vsphere.pem ]]; then
+  kubectl create configmap appliance-root-ca --from-file=root-ca.crt=certs/root-ca.pem --from-file=vsphere-ca.crt=certs/vsphere.pem --dry-run=client -o yaml | kubectl apply -f -
+else
+  kubectl create configmap appliance-root-ca --from-file=root-ca.crt=certs/root-ca.pem --dry-run=client -o yaml | kubectl apply -f -
+fi
 # Install PostgreSQL and pgAdmin4
 helm repo add bitnami https://charts.bitnami.com/bitnami
 helm repo add runix https://helm.runix.net/
@@ -60,7 +65,5 @@ kubectl apply -f nfs-ingress.yaml --dry-run=client -o yaml | kubectl apply -f -
 
 # Install Common foundry apps
 helm repo add sei https://helm.cyberforce.site/charts
-helm upgrade --wait --install -f identity.values.yaml identity ../charts/identity
-# replacing environment variables clobbers the seed.sh script so we need to update it
-kubectl create configmap identity-identity-api --from-file=seed.sh=../scripts/identity-seed.example.sh -o yaml --dry-run=client | kubectl apply -f -
+helm_deploy -r ../env -u -v 0.2.0 -p ~/.helm -f identity.values.yaml sei/identity
 # helm upgrade --install -f staticweb.values.yaml staticweb sei/staticweb

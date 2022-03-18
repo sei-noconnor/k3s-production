@@ -14,11 +14,11 @@ helm repo add stackstorm https://helm.stackstorm.com/
 ./setup-gitlab
 # # Crucible Stack install
 if [[ ${IMPORT_CONTENT-$IMPORT_CONTENT} = false ]]; then 
-  helm upgrade --wait --install -f player.values.yaml player ../charts/player 
-  helm upgrade --wait --install -f caster.values.yaml caster ../charts/caster
-  helm upgrade --wait --install -f steamfitter.values.yaml steamfitter ../charts/steamfitter
-  helm upgrade --wait --install -f alloy.values.yaml alloy ../charts/alloy
-  helm upgrade --wait --install -f mongodb.values.yaml mongodb bitnami/mongodb
-  helm upgrade --wait --install --timeout 10m -f stackstorm-min.values.yaml stackstorm stackstorm/stackstorm-ha
+  helm_deploy -r ../env -p ../helm -u -v 1.4.1 -f player.values.yaml sei/player
+  helm_deploy -r ../env -p ../helm -u -v 1.4.1 -f caster.values.yaml sei/caster
+  helm_deploy -r ../env -p ../helm -u -v 1.4.0 -f alloy.values.yaml sei/alloy
+  helm_deploy -r ../env -p ../helm -u -v 1.4.0 -f steamfitter.values.yaml sei/steamfitter
+  helm_deploy -r ../env -p ../helm -u -f mongodb.values.yaml bitnami/mongodb
+  helm_deploy -r ../env -p ../helm -u -v 0.80.0 --wait --timeout 10m -f stackstorm-min.values.yaml stackstorm/stackstorm-ha
 fi
 
