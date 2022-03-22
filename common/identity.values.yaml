@@ -8,10 +8,13 @@ identity-api:
 
   ingress:
     enabled: true
-    annotations: {}
+    annotations:
+      nginx.ingress.kubernetes.io/use-regex: "true"
     hosts:
       - host: $DOMAIN
-        paths: [ "/identity" ]
+        paths:
+          - path: /identity
+            pathType: ImplementationSpecific
     tls:
       - secretName: appliance-cert
         hosts:
@@ -65,9 +68,9 @@ identity-api:
     # Headers__Cors__Origins__0: "https://$DOMAIN"
     # Headers__Cors__Origins__1: "http://localhost:4302"
     # Headers__Cors__Origins__2: "http://localhost"
-#    Headers__Cors__Methods__0: "*"
-#    Headers__Cors__Headers__0: "*"
-#    Headers__Cors__AllowCredentials: true
+    # Headers__Cors__Methods__0: "*"
+    # Headers__Cors__Headers__0: "*"
+    # Headers__Cors__AllowCredentials: true
     Headers__Forwarding__TargetHeaders: All
     Headers__Forwarding__KnownNetworks: "10.0.0.0/8 172.16.0.0/12 192.168.0.0/16 ::ffff:a00:0/104 ::ffff:ac10:0/108 ::ffff:c0a8:0/112"
 
@@ -355,10 +358,13 @@ identity-ui:
 
   ingress:
     enabled: true
-    annotations: {}
+    annotations:
+      nginx.ingress.kubernetes.io/use-regex: "true"
     hosts:
       - host: $DOMAIN
-        paths: [ "/identity/ui" ]
+        paths: 
+          - path: /identity/ui
+            pathType: ImplementationSpecific
     tls:
       - secretName: appliance-cert
         hosts:

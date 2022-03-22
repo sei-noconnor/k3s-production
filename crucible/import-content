@@ -43,14 +43,9 @@ for file in $files; do
   cat $exports_path/${file}.sql | sed 's/LOCALE/LC_COLLATE/' | PGPASSWORD=postgres psql -h localhost -p 5432 -U postgres ${file}
 done
 
-helm upgrade --install -f player.values.yaml player ../charts/player
-sleep 5
-helm upgrade --install -f caster.values.yaml caster ../charts/caster
-sleep 5
-helm upgrade --install -f steamfitter.values.yaml steamfitter ../charts/steamfitter 
-sleep 5
-helm upgrade --install -f alloy.values.yaml alloy ../charts/alloy
-sleep 5
-helm upgrade --install --wait -f mongodb.values.yaml mongodb bitnami/mongodb
-sleep 5
-helm upgrade --install --timeout 10m -f stackstorm-min.values.yaml stackstorm stackstorm/stackstorm-ha
+helm_deploy -r ../env -p ../helm -u -v 1.4.1 -f player.values.yaml sei/player
+helm_deploy -r ../env -p ../helm -u -v 1.4.1 -f caster.values.yaml sei/caster
+helm_deploy -r ../env -p ../helm -u -v 1.4.0 -f alloy.values.yaml sei/alloy
+helm_deploy -r ../env -p ../helm -u -v 1.4.0 -f steamfitter.values.yaml sei/steamfitter
+helm_deploy -r ../env -p ../helm -u -f mongodb.values.yaml bitnami/mongodb
+helm_deploy -r ../env -p ../helm -u -v 0.80.0 --wait --timeout 10m -f stackstorm-min.values.yaml stackstorm/stackstorm-ha

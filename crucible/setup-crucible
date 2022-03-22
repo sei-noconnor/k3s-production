@@ -10,6 +10,8 @@
 
 # Change to the current directory
 cd "$(dirname "${BASH_SOURCE[0]}")"
+source ../scripts/utils
+import_vars ../env
 helm repo add stackstorm https://helm.stackstorm.com/
 ./setup-gitlab
 # # Crucible Stack install

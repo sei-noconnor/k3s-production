@@ -4,9 +4,10 @@
 directory=$(dirname "${BASH_SOURCE[0]}")
 cd ${directory}
 source ../scripts/utils
+import_vars ../env
 exports_path="./seed/gitlab"
 timeout=0
-max_timeout=600
+max_timeout=1200
 domain="${domain:-$DOMAIN}"
 # set gitlab variables.
 gitlab_token=$(awk '/Terraform__GitlabToken/ {print $2}' caster.values.yaml | tr -d '"')
@@ -22,7 +23,7 @@ gitlab_password="foundry"
 api_url="${gitlab_host}/api/v4"
 
 # add gitlab to hosts file
-add_host_entry $(wait_external_ip $INGRESS_NAMESPACE-$INGRESS_CONTROLLER_NAME $INGRESS_NAMESPACE) $domain gitlab.$domain
+add_host_entry $(wait_external_ip $INGRESS_NAMESPACE-nginx-$INGRESS_CONTROLLER_NAME $INGRESS_NAMESPACE) $domain gitlab.$domain
 # add repo and update
 helm repo add gitlab https://charts.gitlab.io
 helm repo update
@@ -42,8 +43,8 @@ EOF
 done
 timeout=0
 kubectl exec postgresql-postgresql-0 -- psql 'postgresql://$POSTGRES_USER:$POSTGRES_PASS@localhost' -c "CREATE DATABASE gitlab_db;" || true
-kubectl apply -f gitlab.secrets.yaml 
-helm upgrade --install -f gitlab-min.values.yaml --version 4.4.1 gitlab gitlab/gitlab
+envsubst < gitlab.secrets.yaml | kubectl apply -f -
+helm_deploy -r ../env -p ../helm -u -v 4.4.1 -f gitlab-min.values.yaml gitlab/gitlab
 
 # Wait for gitllab to come up 
 cat << EOF 

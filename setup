@@ -6,19 +6,19 @@ source $directory/scripts/utils
 import_vars $directory/env
 
 # Replace variables in files
-replace_vars $directory/common '.*\.(json|conf|yaml|yml)'
-replace_vars $directory/crucible '.*\.(json|conf|yaml|yml|sql)'
-replace_vars $directory/k3s-ansible '.*\.(json|conf|yaml|yml)'
-replace_vars $directory/terraform '.*\.(json|conf|yaml|yml|auto.tfvars)'
-replace_vars $directory/values '.*\.(json|conf|yaml|yml)'
-replace_vars $directory/crucible/setup-gitlab
-chmod +x $directory/crucible/setup-gitlab
-replace_vars $directory/scripts/identity-seed.example.sh
-chmod +x $directory/scripts/identity-seed.example.sh
-replace_vars $directory/crucible/import-content
-chmod +x $directory/crucible/import-content
-echo "Sleeping for 10 seconds ctrl+c to cancel"
-sleep 10
+# replace_vars $directory/common '.*\.(json|conf|yaml|yml)'
+# replace_vars $directory/crucible '.*\.(json|conf|yaml|yml|sql)'
+# replace_vars $directory/k3s-ansible '.*\.(json|conf|yaml|yml)'
+# replace_vars $directory/terraform '.*\.(json|conf|yaml|yml|auto.tfvars)'
+# replace_vars $directory/values '.*\.(json|conf|yaml|yml)'
+# replace_vars $directory/crucible/setup-gitlab
+# chmod +x $directory/crucible/setup-gitlab
+# replace_vars $directory/scripts/identity-seed.example.sh
+# chmod +x $directory/scripts/identity-seed.example.sh
+# replace_vars $directory/crucible/import-content
+# chmod +x $directory/crucible/import-content
+# echo "Sleeping for 10 seconds ctrl+c to cancel"
+# sleep 10
 
 # Download vsphere cert
 download_vsphere_cert $VSPHERE_SERVER 443 $PWD/common/certs/vsphere.pem
@@ -48,9 +48,12 @@ fi
 helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
 helm repo add longhorn https://charts.longhorn.io
 helm repo update
-helm upgrade --wait --install -f $directory/values/longhorn/longhorn.values.yaml -n $LONGHORN_NAMESPACE longhorn longhorn/longhorn --create-namespace
-kubectl apply -n $METAL_NAMESPACE -f $directory/values/metalLB
-helm upgrade --wait --install -f $directory/values/nginx/ingress-nginx.values.yaml -n $INGRESS_NAMESPACE ingress-nginx ingress-nginx/ingress-nginx --create-namespace
+helm_deploy -r ./env -p helm -u --wait -f $directory/values/longhorn/longhorn.values.yaml longhorn/longhorn -n $LONGHORN_NAMESPACE --create-namespace
+envsubst < $directory/values/metalLB/01-namespace.yaml | kubectl apply -n $METAL_NAMESPACE -f -
+envsubst < $directory/values/metalLB/02-metallb.yaml | kubectl apply -n $METAL_NAMESPACE -f -
+envsubst < $directory/values/metalLB/03-metallb-config.yaml | kubectl apply -n $METAL_NAMESPACE -f -
+#kubectl apply -n $METAL_NAMESPACE -f $directory/values/metalLB
+helm_deploy -r ./env -p helm -u --wait -f $directory/values/nginx/ingress-nginx.values.yaml ingress-nginx/ingress-nginx -n $INGRESS_NAMESPACE --create-namespace
 
 # Always run common apps. 
 apps="common,$1"
