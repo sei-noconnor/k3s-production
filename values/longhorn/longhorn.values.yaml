@@ -55,7 +55,7 @@ persistence:
   defaultClass: true
   defaultFsType: ext4
   defaultClassReplicaCount: $LONGHORN_REPLICA
-  reclaimPolicy: Retain
+  reclaimPolicy: Delete
   recurringJobSelector:
     enable: false
     jobList: []

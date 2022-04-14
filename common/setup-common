@@ -1,4 +1,4 @@
-#!/bin/bash -xe
+#!/bin/bash -e
 # 
 # Copyright 2021 Carnegie Mellon University.
 # Released under a BSD (SEI)-style license, please see LICENSE.md in the
@@ -35,7 +35,7 @@ fi
 # Install PostgreSQL and pgAdmin4
 helm repo add bitnami https://charts.bitnami.com/bitnami
 helm repo add runix https://helm.runix.net/
-helm_deploy -r ../env -p ../helm -u -v 9.8.11 -f postgresql.values.yaml bitnami/postgresql
+helm_deploy -r ../env -p ../helm -u -f postgresql.values.yaml bitnami/postgresql
 #helm install -f pgadmin4.values.yaml pgadmin4 runix/pgadmin4
 
 # Install code-server (browser-based VS Code)
@@ -53,10 +53,10 @@ helm_deploy -r ../env -p ../helm -u -f code-server.values.yaml nicholaswilde/cod
 # Install NFS server
 helm repo add kvaps https://kvaps.github.io/charts
 helm_deploy -r ../env -p ../helm -u -f nfs-server-provisioner.values.yaml kvaps/nfs-server-provisioner
-kubectl patch $INGRESS_KIND $INGRESS_CONTROLLER_NAME -n $INGRESS_NAMESPACE --type 'json' --patch \
-  '[{"op": "add", "path": "/spec/template/spec/containers/0/ports/-", "value": {"name":"nfs-tcp","hostPort":2049,"containerPort":2049,"protocol":"TCP"}}]' || true
-kubectl patch $INGRESS_KIND $INGRESS_CONTROLLER_NAME -n $INGRESS_NAMESPACE --type 'json' --patch \
-  '[{"op": "add", "path": "/spec/template/spec/containers/0/ports/-", "value": {"name":"nfs-udp","hostPort":2049,"containerPort":2049,"protocol":"UDP"}}]' || true
+# kubectl patch $INGRESS_KIND $INGRESS_NAMESPACE-$INGRESS_CONTROLLER_NAME -n $INGRESS_NAMESPACE --type 'json' --patch \
+#   '[{"op": "add", "path": "/spec/template/spec/containers/0/ports/-", "value": {"name":"nfs-tcp","hostPort":2049,"containerPort":2049,"protocol":"TCP"}}]' || true
+# kubectl patch $INGRESS_KIND $INGRESS_NAMESPACE-$INGRESS_CONTROLLER_NAME -n $INGRESS_NAMESPACE --type 'json' --patch \
+#   '[{"op": "add", "path": "/spec/template/spec/containers/0/ports/-", "value": {"name":"nfs-udp","hostPort":2049,"containerPort":2049,"protocol":"UDP"}}]' || true
 envsubst < nfs-ingress.yaml | kubectl apply -f - --dry-run=client -o yaml | kubectl apply -f -
 
 # Install Gitea

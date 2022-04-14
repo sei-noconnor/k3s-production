@@ -4,7 +4,9 @@
 DIRECTORY=$(dirname "$BASH_SOURCE[0]")
 cd $DIRECTORY
 source ../scripts/utils 
+import_vars ../env
 helm delete gitlab || true
 echo "sleeping for 60 seconds"
 sleep 60
-kubectl exec postgresql-postgresql-0 -- psql 'postgresql://postgres:postgres@localhost' -c "DROP DATABASE IF EXISTS gitlab_db;" || true
+kubectl exec postgresql-0 -- psql "postgresql://$POSTGRES_USER:$POSTGRES_PASS@localhost" -c "DROP DATABASE IF EXISTS gitlab_db;" || true
+kubectl delete pvc repo-data-gitlab-gitaly-0

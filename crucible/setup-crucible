@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash -e
 # 
 # Copyright 2021 Carnegie Mellon University.
 # Released under a BSD (SEI)-style license, please see LICENSE.md in the
@@ -19,8 +19,17 @@ if [[ ${IMPORT_CONTENT-$IMPORT_CONTENT} = false ]]; then
   helm_deploy -r ../env -p ../helm -u -v 1.4.1 -f player.values.yaml sei/player
   helm_deploy -r ../env -p ../helm -u -v 1.4.1 -f caster.values.yaml sei/caster
   helm_deploy -r ../env -p ../helm -u -v 1.4.0 -f alloy.values.yaml sei/alloy
+
+  # get MOID for steamfitter
+  echo "Attempting to get vsphere cluster"
+  MOID=$(pwsh -c 'Connect-VIServer -server $env:VSPHERE_SERVER -user $env:VSPHERE_USER -password $env:VSPHERE_PASS | Out-Null; Get-Cluster -Name $env:VSPHERE_CLUSTER | select id | %{$arr = $_.id.split("-"); write-host ($arr[1..($arr.length)] -join "-")}')
+  echo "${MOID}"
+  if [[ -n ${MOID} ]]; then
+    sed -i "s/ VmTaskProcessing__ApiParameters__clusters:.*/ VmTaskProcessing__ApiParameters__clusters: ${MOID}/" "steamfitter.values.yaml"
+    echo "vsphere cluster set"
+  fi
+
   helm_deploy -r ../env -p ../helm -u -v 1.4.0 -f steamfitter.values.yaml sei/steamfitter
   helm_deploy -r ../env -p ../helm -u -f mongodb.values.yaml bitnami/mongodb
   helm_deploy -r ../env -p ../helm -u -v 0.80.0 --wait --timeout 10m -f stackstorm-min.values.yaml stackstorm/stackstorm-ha
 fi
-

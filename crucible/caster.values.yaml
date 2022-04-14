@@ -26,12 +26,18 @@ caster-api:
   gitconfig: '[url "https://git-access-token:wMa2RPQP_ZR3fxc5zQtv@gitlab-webservice:8080/"]
         insteadOf = https://gitlab.$DOMAIN/'
   
+  # Use a .terraformrc file to overwrite standard Terraform configuration
+  terraformrc:
+    enabled: true
+    value: |
+      plugin_cache_dir = "/terraform/plugin-cache"
+     
   certificateMap: "appliance-root-ca"
 
   # storage - either an existing pvc, the size for a new pvc, or emptyDir
   storage:
     existing: ""
-    size: "1G"
+    size: "2G"
     mode: ReadWriteOnce
     class: $STORAGE_CLASS
   
@@ -88,10 +94,11 @@ caster-api:
     # - GitlabApiUrl - URL to the deployed Gitlab instance
     Terraform__BinaryPath: /terraform/binaries
     Terraform__RootWorkingDirectory: /terraform/root
+    Terraform__PluginCache: /terraform/plugin-cache
     Terraform__DefaultVersion: "0.14.0"
     Terraform__GitlabApiUrl: "http://gitlab-webservice:8080/api/v4/"
     Terraform__GitlabToken: "wMa2RPQP_ZR3fxc5zQtv"
-    Terraform__GitlabGroupId: "2"
+    Terraform__GitlabGroupId: "4"
 
     # Configurable save lengths for Caster untagged versions
     FileVersions__DaysToSaveAllUntaggedVersions: 7

@@ -7,15 +7,21 @@
 
 # Minimal settings
 global:
+  image: 
+    pullPolicy: IfNotPresent
+  busybox:
+    image:
+      pullPolicy: IfNotPresent
+    
   ingress:
     configureCertmanager: false
-    class: "$INGRESS_CLASS"
+    class: $INGRESS_CLASS
     tls:
       enabled: true
       secretName: appliance-cert
   
   hosts:
-    domain: $DOMAIN
+    domain: foundry.local/gitlab
     externalIP: $INGRESS_IP
     gitlab:
       name: gitlab.$DOMAIN
@@ -32,7 +38,7 @@ global:
       useSecret: true
       secret: gitlab-secrets
       key: databasePassword
-    host: $POSTGRES_SERVER
+    host: postgresql
     port: 5432
     username: postgres
     database: gitlab_db
@@ -43,6 +49,16 @@ global:
       - secret: appliance-root-ca
       
   appConfig:
+    object_store:
+      enabled: false
+    lfs:
+      enabled: false
+    artifacts:
+      enabled: false
+    uploads:
+      enabled: false
+    packages:
+      enabled: false
     omniauth:
       enabled: true
       autoSignInWithProvider: identity
@@ -88,6 +104,8 @@ postgresql:
   install: false
 # Reduce replica counts, reducing CPU & memory requirements
 gitlab:
+  image:
+    pullPolicy: IfNotPresent
   webservice:
     minReplicas: 1
     maxReplicas: 1
@@ -103,6 +121,16 @@ gitlab:
       type: NodePort
       nodePort: 32022
   toolbox:
-    enabled: false
+    enabled: true
+    replicas: 1
+    antiAffinityLabels:
+      matchLabels:
+        app: 'gitaly'
+    backups: 
+      objectStorage: 
+        backend: 's3'
+        config:
+          secret: gitlab-secrets
+          key: backup
 registry:
   enabled: false

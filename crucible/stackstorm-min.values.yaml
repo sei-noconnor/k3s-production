@@ -84,7 +84,7 @@ ingress:
       paths:
         - path: "/stackstorm/(.*)"
           pathType: Prefix
-          serviceName: stackstorm-st2web
+          serviceName: stackstorm-ha-st2web
           servicePort: 80
   tls:
     - secretName: appliance-cert

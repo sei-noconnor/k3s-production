@@ -49,7 +49,7 @@ persistence:
   storageClassName: $STORAGE_CLASS
 
   accessMode: ReadWriteOnce
-  size: 1Gi
+  size: 10Gi
 
 ## For creating the StorageClass automatically:
 storageClass:

@@ -1,4 +1,4 @@
-#!/bin/bash -xe
+#!/bin/bash -e
 # Must be run as sudo
 #[ `whoami` = root ] || { sudo "$0" "$@"; exit $?; }
 directory=$(dirname "${BASH_SOURCE[0]}")
@@ -42,9 +42,9 @@ EOF
   fi
 done
 timeout=0
-kubectl exec postgresql-postgresql-0 -- psql 'postgresql://$POSTGRES_USER:$POSTGRES_PASS@localhost' -c "CREATE DATABASE gitlab_db;" || true
+kubectl exec postgresql-0 -- psql "postgresql://$POSTGRES_USER:$POSTGRES_PASS@localhost" -c "CREATE DATABASE gitlab_db;" || true
 envsubst < gitlab.secrets.yaml | kubectl apply -f -
-helm_deploy -r ../env -p ../helm -u -v 4.4.1 -f gitlab-min.values.yaml gitlab/gitlab
+helm_deploy -r ../env -p ../helm -u -v 5.7.1 -f gitlab-min.values.yaml gitlab/gitlab
 
 # Wait for gitllab to come up 
 cat << EOF 
@@ -68,8 +68,8 @@ EOF
   fi
 done
 
-kex_q gitlab-task-runner gitlab-rails runner -q"u = User.create_or_find_by(username: 'root', email: 'administrator@${domain}', name: 'Administrator' , password: '$ADMIN_PASS', password_confirmation: '$ADMIN_PASS', admin: true); u.skip_confirmation=true; u.save"
-kex_q gitlab-task-runner gitlab-rails runner -q"token = User.find_by_username('root').personal_access_tokens.create(scopes: [:api], name: 'root seed token'); token.set_token('${gitlab_token}'); token.save!"
+kex_q gitlab-toolbox gitlab-rails runner -q"u = User.create_or_find_by(username: 'root', email: 'administrator@${domain}', name: 'Administrator' , password: '$ADMIN_PASS', password_confirmation: '$ADMIN_PASS', admin: true); u.skip_confirmation=true; u.save"
+kex_q gitlab-toolbox gitlab-rails runner -q"token = User.find_by_username('root').personal_access_tokens.create(scopes: [:api], name: 'root seed token'); token.set_token('${gitlab_token}'); token.save!"
 
 echo "Personal Access Token is: ${gitlab_token}"
 h_auth="Private-Token: ${gitlab_token}"
@@ -123,7 +123,7 @@ cd ${exports_path}
 for file in ${files}; do
   # Gitlab has terrible support for repos exported with different versions of gitlab
   # We need to extract the repo 
-  mkdir -p "${file}" && tar -xzf ${file}.tar.gz -C $file
+  mkdir -p "${file}" && tar -xzf ${file}.tar.gz --overwrite -C $file
   
   git clone --mirror "${file}/project.bundle" "${file}/.git"
   git -C ${file} init

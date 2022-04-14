@@ -84,7 +84,7 @@ identity-api:
         "Users": [
           {
             "Username": "crucible-admin@$DOMAIN",
-            "Password": "foundry",
+            "Password": "$CRUCIBLE_ADMIN_PASS",
             "GlobalId": "32c11441-7eec-47eb-a915-607c4f2529f4"
           }
         ],
@@ -190,7 +190,7 @@ identity-api:
             "Name": "caster-ui",
             "DisplayName": "Caster",
             "Enabled": true,
-            "SeedFlags" : "Published, RequirePkce",
+            "SeedFlags" : "Published",
             "SeedGrant": "authorization_code",
             "SeedScopes": "openid profile email caster-api",
             "Urls": [
@@ -198,6 +198,20 @@ identity-api:
               { "Type": "RedirectUri", "Value": "https://$DOMAIN/caster/auth-callback" },
               { "Type": "RedirectUri", "Value": "https://$DOMAIN/caster/auth-callback-silent" },
               { "Type": "PostLogoutRedirectUri", "Value": "https://$DOMAIN/caster" }
+            ]
+          },
+          {
+            "Name": "gitlab",
+            "DisplayName": "Gitlab",
+            "Enabled": true,
+            "SeedFlags" : "Published",
+            "SeedGrant": "authorization_code",
+            "SeedScopes": "openid profile email",
+            "SeedSecret": "337bdcb1a23143a9b5a6aaa33c0e87d7",
+            "Urls": [
+              { "Type": "ClientUri", "Value": "https://gitlab.$DOMAIN" },
+              { "Type": "RedirectUri", "Value": "https://gitlab.$DOMAIN/users/auth/identity/callback" },
+              { "Type": "PostLogoutRedirectUri", "Value": "https://gitlab.$DOMAIN" }
             ]
           },
           {
@@ -290,6 +304,17 @@ identity-api:
               { "Type": "ClientUri", "Value": "https://$DOMAIN/alloy/api" },
               { "Type": "RedirectUri", "Value": "https://$DOMAIN/alloy/api/oauth2-redirect.html" },
               { "Type": "PostLogoutRedirectUri", "Value": "https://$DOMAIN/alloy/api" }
+            ]
+          },
+          {
+            "Name": "alloy-admin",
+            "DisplayName": "Alloy Admin",
+            "Enabled": true,
+            "SeedFlags" : "RequirePkce",
+            "SeedGrant": "password client_credentials",
+            "SeedScopes": "alloy-api player-api caster-api steamfitter-api vm-api",
+            "Urls": [
+              { "Type": "ClientUri", "Value": "https://$DOMAIN/alloy" }
             ]
           },
           {
