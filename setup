@@ -29,7 +29,9 @@ pwsh -c 'Set-PowerCLIConfiguration -Scope User -ParticipateInCEIP $false -Invali
 
 
 # Download vsphere cert
-download_vsphere_cert $VSPHERE_SERVER 443 $PWD/common/certs/vsphere.pem
+if [[ $VSPHERE_DOWNLOAD_CERT = true ]]; then 
+  download_vsphere_cert $VSPHERE_SERVER 443 $PWD/common/certs/vsphere.pem
+fi
 
 if [[ $GENERATE_CERTS = true ]]; then 
   $directory/common/certs/generate-certs -loglevel 3
