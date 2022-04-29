@@ -53,8 +53,8 @@ helm_deploy -r ../env -p ../helm -u -v 1.4.0 -f alloy.values.yaml sei/alloy
 
 # get MOID for steamfitter
 echo "Attempting to get vsphere cluster"
-MOID=$(pwsh -c 'Connect-VIServer -server $env:VSPHERE_SERVER -user $env:VSPHERE_USER -password $env:VSPHERE_PASS | Out-Null; Get-Cluster -Name $env:VSPHERE_CLUSTER | select id | %{$arr = $_.id.split("-"); write-host ($arr[1..($arr.length)] -join "-")}')
-echo "${MOID}"
+MOID=$(pwsh -c 'Connect-VIServer -server $env:VSPHERE_SERVER -user $env:VSPHERE_USER -password $env:VSPHERE_PASS | Out-Null; Get-Cluster -Name $env:VSPHERE_CLUSTER | select id')
+MOID=$(echo "${MOID}" | rev | cut -d '-' -f1 -f2 | rev)
 if [[ -n ${MOID} ]]; then
   sed -i "s/ VmTaskProcessing__ApiParameters__clusters:.*/ VmTaskProcessing__ApiParameters__clusters: ${MOID}/" "steamfitter.values.yaml"
   echo "vsphere cluster set"
