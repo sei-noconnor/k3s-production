@@ -71,6 +71,7 @@
     src: ~{{ ansible_user }}/.kube/config
     dest: ~/.kube/config
     flat: yes
+    mode: "u=rw,g=,o="
 
 - name: Create kubectl symlink
   file:
