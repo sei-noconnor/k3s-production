@@ -16,16 +16,34 @@ helm delete player || true
 helm delete steamfitter || true 
 helm delete stackstorm-ha || true
 helm delete staticweb || true
-echo "Sleeping for 60 seconds"
-sleep 60
+echo "Sleeping for 20 seconds"
+sleep 20
 helm delete postgresql || true 
 helm delete nfs-server-provisioner || true 
 helm delete ingress-nginx -n ingress || true
 helm delete longhorn -n longhorn-system || true
-echo "Sleeping for 30 seconds"
-sleep 30
+echo "Sleeping for 20 seconds"
+sleep 20
+kubectl config set-context --current --namespace=default
 kubectl delete jobs --all
 kubectl delete pvc --all
 kubectl delete pv --all
 kubectl delete configmap --all
 kubectl delete secret --all
+
+echo " Cleaning up volumes, configmaps, secrets and jobs from all namespaces"
+kubectl config set-context --current --namespace=ingress
+kubectl delete pvc --all
+kubectl delete configmap --all
+kubectl delete secret --all
+kubectl delete job --all
+
+kubectl config set-context --current --namespace=longhorn-system
+kubectl delete pvc --all
+kubectl delete configmap --all
+kubectl delete secret --all
+kubectl delete job --all
+kubectl config set-context --current --namespace=default
+
+# Remove Folders
+find crucible/seed/gitlab -mindepth 1 -maxdepth 1 -type d -exec rm -rf {} \;

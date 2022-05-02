@@ -4,21 +4,19 @@ directory="$(dirname "${BASH_SOURCE[0]}")"
 cd $directory
 source $directory/scripts/utils
 import_vars $directory/env
+export BASE_IP=$(echo $DEFAULT_NETWORK |cut -d"." -f1-3)
 
 # Replace variables in files
-replace_vars $directory/common '.*\.(json|conf|yaml|yml)'
-replace_vars $directory/crucible '.*\.(json|conf|yaml|yml|sql)'
+replace_vars $directory/common '.*\.(json|conf)'
+replace_vars $directory/crucible '.*\.(json|conf|sql)'
 replace_vars $directory/k3s-ansible '.*\.(json|conf|yaml|yml)'
 replace_vars $directory/terraform '.*\.(json|conf|yaml|yml|auto.tfvars)'
 replace_vars $directory/values '.*\.(json|conf|yaml|yml)'
-replace_vars $directory/crucible/setup-gitlab
 chmod +x $directory/crucible/setup-gitlab
-replace_vars $directory/scripts/identity-seed.example.sh
-chmod +x $directory/scripts/identity-seed.example.sh
-replace_vars $directory/crucible/import-content
 chmod +x $directory/crucible/import-content
-#echo "Sleeping for 10 seconds ctrl+c to cancel"
-#sleep 10
+
+echo "Sleeping for 10 seconds ctrl+c to cancel"
+sleep 10
 
 # Install Powershell and PowerCLI (vcenter, steamfitter)
 pwsh -c 'Set-PSRepository -Name PSGallery -InstallationPolicy Trusted; Install-Module -Name VMWare.PowerCLI -Confirm:$false'

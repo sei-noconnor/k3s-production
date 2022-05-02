@@ -12,6 +12,7 @@
 cd "$(dirname "${BASH_SOURCE[0]}")"
 source ../scripts/utils
 import_vars ../env
+kubectl config set-context --current --namespace=default
 
 # Forward coredns to host dnsmasq
 kubectl get configmap/coredns -n kube-system -o yaml | sed "s/\/etc\/resolv.conf/$DNS_01/" | kubectl replace -f -

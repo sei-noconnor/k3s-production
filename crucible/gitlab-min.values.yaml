@@ -24,7 +24,7 @@ global:
     domain: foundry.local/gitlab
     externalIP: $INGRESS_IP
     gitlab:
-      name: gitlab.$DOMAIN
+      name: $GITLAB_URL
       https: true
     
 

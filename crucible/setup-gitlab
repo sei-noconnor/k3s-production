@@ -1,4 +1,4 @@
-#!/bin/bash -e
+#!/bin/bash -xe
 # Must be run as sudo
 #[ `whoami` = root ] || { sudo "$0" "$@"; exit $?; }
 directory=$(dirname "${BASH_SOURCE[0]}")
@@ -8,7 +8,10 @@ import_vars ../env
 exports_path="./seed/gitlab"
 timeout=0
 max_timeout=1200
-domain="${domain:-$DOMAIN}"
+domain=${domain:-$DOMAIN}
+if [[ -z $GITLAB_URL ]]; then
+  export GITLAB_URL=gitlab.$domain
+fi
 # set gitlab variables.
 gitlab_token=$(awk '/Terraform__GitlabToken/ {print $2}' caster.values.yaml | tr -d '"')
 modules_group="caster-modules"
@@ -17,13 +20,18 @@ gitlab_group_id=$(awk '/Terraform__GitlabGroupId/ {print $2}' caster.values.yaml
 echo "GitlabToken: ${gitlab_token}"
 echo "GitlabGroupId: ${gitlab_group_id}"
 echo "AdminUid: ${admin_uid}" 
-gitlab_host="https://gitlab.${domain}"
+gitlab_host="https://${GITLAB_URL}"
 gitlab_user="administrator@${domain}"
 gitlab_password="foundry"
 api_url="${gitlab_host}/api/v4"
 
 # add gitlab to hosts file
-add_host_entry $(wait_external_ip $INGRESS_NAMESPACE-nginx-$INGRESS_CONTROLLER_NAME $INGRESS_NAMESPACE) $domain gitlab.$domain
+echo "$LOCAL_SUDO_PASS" | sudo -S bash -c "sed -i /$GITLAB_URL/d /etc/hosts" 
+external_ip=$(wait_external_ip $INGRESS_NAMESPACE-nginx-$INGRESS_CONTROLLER_NAME $INGRESS_NAMESPACE)
+echo "The External IP is $external_ip"
+echo "ADDING HOST ENTRY"
+add_host_entry $external_ip $GITLAB_URL
+
 # add repo and update
 helm repo add gitlab https://charts.gitlab.io
 helm repo update
@@ -147,8 +155,8 @@ EOF
   project_id=$(echo ${req} | jq '.id')
   if [[ -n "$project_id" ]]; then 
     git -C ${file} remote add origin "$gitlab_host/${modules_group}/${file}.git"
-    git -C ${file} push -u https://root:$ADMIN_PASS@gitlab.${domain}/${modules_group}/${file}.git --all
-    git -C ${file} push -u https://root:$ADMIN_PASS@gitlab.${domain}/${modules_group}/${file}.git --tags
+    git -C ${file} push -u https://root:$ADMIN_PASS@${GITLAB_URL}/${modules_group}/${file}.git --all
+    git -C ${file} push -u https://root:$ADMIN_PASS@${GITLAB_URL}/${modules_group}/${file}.git --tags
   fi
   # cleanup
   rm -rf ${file}
