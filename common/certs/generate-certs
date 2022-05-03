@@ -10,8 +10,8 @@ ARGS=$*
 
 # Change to the current directory
 cd "$(dirname "${BASH_SOURCE[0]}")"
-#source ../../scripts/utils
-#import_vars ../../env
+source ../../scripts/utils
+import_vars ../../env
 
 # Generate root, intermediate and host certificates/keys
 cfssl gencert $ARGS -initca root-ca.json | cfssljson -bare root-ca

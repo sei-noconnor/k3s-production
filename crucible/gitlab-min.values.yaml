@@ -21,7 +21,7 @@ global:
       secretName: appliance-cert
   
   hosts:
-    domain: foundry.local/gitlab
+    domain: $GITLAB_URL
     externalIP: $INGRESS_IP
     gitlab:
       name: $GITLAB_URL

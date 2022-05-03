@@ -39,7 +39,7 @@ fi
 
 if [[ $IMPORT_CERTS = true ]]; then 
   import_root_ca $directory/common/certs/root-ca.pem
-  sed -e "s/IMPORT_CERTS=.*/IMPORT_CERTS=false/" env
+  sed -i -e "s/IMPORT_CERTS=.*/IMPORT_CERTS=false/" env
 fi
 
 if [[ $RUN_TERRAFORM = true ]]; then
@@ -79,6 +79,6 @@ done
 if [[ $IMPORT_CONTENT = true ]]; then 
   # TODO
   $directory/crucible/import-content
-  sed -i '' -e "s/IMPORT_CONTENT=.*/IMPORT_CONTENT=false/" env
+  sed -i -e "s/IMPORT_CONTENT=.*/IMPORT_CONTENT=false/" env
 fi
 

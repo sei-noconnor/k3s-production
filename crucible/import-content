@@ -11,11 +11,12 @@ exports_path="seed/crucible"
 domain=${domain-crucible.io}
 directory=$(dirname "$BASH_SOURCE[0]")
 cd $directory
+echo "directory: $directory"
 source ../scripts/utils
 import_vars ../env
 
-replace foundry.local $domain $directory/$exports_path
-replace crucible.io $domain $directory/$exports_path
+#replace foundry.local $domain $directory/$exports_path
+#replace crucible.io $domain $directory/$exports_path
 
 helm delete alloy || true && sleep 5
 helm delete caster || true && sleep 5
