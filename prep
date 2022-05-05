@@ -10,7 +10,7 @@ export BASE_IP=$(echo $DEFAULT_NETWORK |cut -d"." -f1-3)
 # Install common packages 
 apt update
 apt install apt-transport-https ca-certificates curl software-properties-common \
-apache2-utils jq unzip rename python postgresql-client vim -y
+apache2-utils jq unzip rename python postgresql-client vim sshpass -y
 # Install terraform from utils script
 install_terraform
 # install ansible from utils script
