@@ -2,9 +2,9 @@
 
 Terraform, Ansible and kubernetes code to install a production instance of Crucible
 
-This stack utilizes Rancher k3s distrobution with a rancher front end for web role based access to the cluster.
+This stack utilizes Rancher k3s distribution with a rancher front end for web role based access to the cluster.
 
-The kubernetes cluster utilizes the kubernetes ingress nginx controller, with a longhorn persistant storage backend and MetalLB for IP allocation.
+The kubernetes cluster utilizes the kubernetes ingress nginx controller, with a longhorn persistent storage backend and MetalLB for IP allocation.
 
 ## Requirements
 
@@ -12,7 +12,7 @@ The kubernetes cluster utilizes the kubernetes ingress nginx controller, with a 
 - Ubuntu 20.04 template, with snapshot.
 - Ubuntu 20.04 Desktop Jump Box.
 
-## Ubuntu Jump Box
+## Ubuntu Jump Box & Quick Start
 
 1. Create an Ubuntu 20.04 Desktop VM as a jump box.
 
@@ -23,7 +23,7 @@ The kubernetes cluster utilizes the kubernetes ingress nginx controller, with a 
 
 2. Clone this repository: `git clone https://github.com/sei-noconnor/k3s-production.git`
 3. Navigate to: `cd k3s-production`.
-4. Rename `env.example` to `env` and set the variables in this file, many required defaults are intentionally missing, pay close attention to TOKEN and PASS values.
+4. Rename `env.example` to `env` and set the variables in this file, many required defaults are intentionally missing, pay close attention to TOKEN and PASS variables.
 5. Run `sudo ./prep`. This will install the binaries needed for the appliance, including terraform, ansible and the kubernetes binaries
 
 ## ENV File
@@ -32,22 +32,22 @@ The `env` file is a set a variables for customizing the stack to your unique inf
 
 ## Networking
 
-A standard network will need to be avaialble and a block of apporimatly 10 IPs is required 7 for kubernetes, 3 for various ingress adresses.
+A standard network will need to be available and a block of approximately 10 IPs is required 7 for kubernetes, 3 for various ingress addresses.
 
 Set the variables in the `[network]` section of the env file.
 
 ## DNS
 
-This stack uses an kubernetes ingress nginx. Hostnames must be used when accessing the applications. While most Crucible applications use path based routing to limit entires in DNS there are third party applications that need entires as well. If you are setting up an initial Proof of Concept a host file entry can be used.
+This stack uses an kubernetes ingress nginx. Hostname's must be used when accessing the applications. While most Crucible applications use path based routing to limit entires in DNS there are third party applications that need entires as well. If you are setting up an initial Proof of Concept a host file entry can be used.
 
 ## Deploying Kubernetes VMs
 
-This repo contains terraform to deploy VMs needed for kubernetes. it utilizes your existing ubuntu template. You may wish to modify the VMs configuration such as preocessors and RAM, or last octect of IP. edit the `terraform/variables.auto.tfvars` at the bottom you can modify the vm configuration.
+This repo contains terraform to deploy VMs needed for kubernetes. it utilizes your existing ubuntu template. You may wish to modify the VMs configuration such as processors and RAM, or last octet of IP. edit the `terraform/variables.auto.tfvars` at the bottom you can modify the vm configuration.
 
 1. within the `terraform` directory run `terraform init`
 2. run `terraform plan` and verify that the correct resources will be created.
 3. run `terraform apply` again verify the resources and confirm you want to apply.
-4. your VMs will begin to be provisioned and will be accessable at their specified IPs listed in the output of the terraform.
+4. your VMs will begin to be provisioned and will be accessible at their specified IPs listed in the output of the terraform.
 
 ## Installing Kubernetes with Ansible.
 
@@ -99,7 +99,7 @@ Replace `crucible.io` with the `<DOMAIN>` environment URL if changed.
 | Player API      | [crucible.io/player/api](https://crucible.io/player/api)           |
 | Steamfitter     | [crucible.io/steamfitter](https://crucible.io/steamfitter)         |
 | Steamfitter API | [crucible.io/steamfitter/api](https://crucible.io/steamfitter/api) |
-| VM              | [cucible.io/vm](https://crucible.io/vm)                            |
+| VM              | [crucible.io/vm](https://crucible.io/vm)                           |
 | VM API          | [crucible.io/vm/api](https://crucible.io/vm/api)                   |
 | VM Console      | [crucible.io/vm/console](https://crucible.io/console)              |
 
