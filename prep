@@ -1,4 +1,4 @@
-#!/bin/bash -xe
+#!/bin/bash -e
 # Must be run as sudo
 [ `whoami` = root ] || { sudo "$0" "$@"; exit $?; }
 # Change to the current directory
