@@ -273,7 +273,6 @@ function is_online() {
 }
 
 function helm_deploy() {
- #!/bin/bash -xe
   version=''
   helm_dir=''
   var_file=''

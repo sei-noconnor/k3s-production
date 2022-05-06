@@ -5,6 +5,7 @@ cd $directory
 source $directory/scripts/utils
 import_vars $directory/env
 export BASE_IP=$(echo $DEFAULT_NETWORK |cut -d"." -f1-3)
+MKDOCS_DIR=~/k3s-production/mkdocs
 
 # Replace variables in files
 replace_vars $directory/common '.*\.(json|conf)'
@@ -12,8 +13,21 @@ replace_vars $directory/crucible '.*\.(json|conf|sql)'
 replace_vars $directory/k3s-ansible '.*\.(json|conf|yaml|yml)'
 replace_vars $directory/terraform '.*\.(json|conf|yaml|yml|auto.tfvars)'
 replace_vars $directory/values '.*\.(json|conf|yaml|yml)'
+replace_vars $directory/mkdocs/docs '.*\.(md)'
 chmod +x $directory/crucible/setup-gitlab
 chmod +x $directory/crucible/import-content
+
+# Add Repos
+helm repo add bitnami https://charts.bitnami.com/bitnami
+helm repo add runix https://helm.runix.net/
+helm repo add nicholaswilde https://nicholaswilde.github.io/helm-charts/
+helm repo add kvaps https://kvaps.github.io/charts
+helm repo add gitea https://dl.gitea.io/charts/
+helm repo add sei https://helm.cyberforce.site/charts
+helm repo add stackstorm https://helm.stackstorm.com/
+helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+helm repo add longhorn https://charts.longhorn.io
+helm repo update
 
 echo "Sleeping for 10 seconds ctrl+c to cancel"
 sleep 10
@@ -52,10 +66,11 @@ if [[ $RUN_ANSIBLE = true ]]; then
   echo "Future Automation"
 fi
 
+#Remove mkdocs exceptions
+sed -i '/^!/d' $MKDOCS_DIR/.gitignore
+
 # Install infrastructure
-helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
-helm repo add longhorn https://charts.longhorn.io
-helm repo update
+
 
 envsubst < $directory/values/metalLB/01-namespace.yaml | kubectl apply -n $METAL_NAMESPACE -f -
 envsubst < $directory/values/metalLB/02-metallb.yaml | kubectl apply -n $METAL_NAMESPACE -f -
@@ -81,4 +96,13 @@ if [[ $IMPORT_CONTENT = true ]]; then
   $directory/crucible/import-content
   sed -i -e "s/IMPORT_CONTENT=.*/IMPORT_CONTENT=false/" env
 fi
+
+# Redeploy mkdocs to update
+echo "$PWD"
+ed -s common/mkdocs-material.values.yaml <<< $'/cacert:/s/\"\"/|-/\n/cacert:/r !sed "s/^/  /" ./common/certs/root-ca.pem\nw' || true
+cp ./common/certs/root-ca.pem $MKDOCS_DIR/docs/root-ca.crt
+git -C $MKDOCS_DIR add -A || true
+git -C $MKDOCS_DIR commit -m "Add Root CA" || true
+git -C $MKDOCS_DIR push -u https://administrator:$ADMIN_PASS@$DOMAIN/gitea/foundry/mkdocs.git --all || true
+helm_deploy -r env -u -p ~/.helm -f common/mkdocs-material.values.yaml sei/mkdocs-material -n default
 

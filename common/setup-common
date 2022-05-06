@@ -19,9 +19,9 @@ kubectl get configmap/coredns -n kube-system -o yaml | sed "s/\/etc\/resolv.conf
 kubectl rollout restart deployment/coredns -n kube-system
 
 # Disable HSTS
-# kubectl patch configmap $INGRESS_CONFIGMAP \
-#                         --patch "$(cat ingress-hsts-disable.yaml)" \
-#                         --namespace $INGRESS_NAMESPACE
+kubectl patch configmap $INGRESS_CONFIGMAP \
+                        --patch "$(cat ingress-hsts-disable.yaml)" \
+                        --namespace $INGRESS_NAMESPACE
 
 # Add host certificate
 kubectl create secret tls appliance-cert --key certs/host-key.pem --cert <( cat certs/host.pem certs/int-ca.pem ) --dry-run=client -o yaml | kubectl apply -f -
@@ -34,13 +34,10 @@ else
   kubectl create configmap appliance-root-ca --from-file=root-ca.crt=certs/root-ca.pem --dry-run=client -o yaml | kubectl apply -f -
 fi
 # Install PostgreSQL and pgAdmin4
-helm repo add bitnami https://charts.bitnami.com/bitnami
-helm repo add runix https://helm.runix.net/
-helm_deploy -r ../env -p ../helm -u -f postgresql.values.yaml bitnami/postgresql
+helm_deploy -r ../env -p ../helm -u --wait -f postgresql.values.yaml bitnami/postgresql
 #helm install -f pgadmin4.values.yaml pgadmin4 runix/pgadmin4
 
 # Install code-server (browser-based VS Code)
-helm repo add nicholaswilde https://nicholaswilde.github.io/helm-charts/
 helm_deploy -r ../env -p ../helm -u -f code-server.values.yaml nicholaswilde/code-server
 
 # Kubernetes Dashboard
@@ -52,21 +49,19 @@ helm_deploy -r ../env -p ../helm -u -f code-server.values.yaml nicholaswilde/cod
 # cp certs/root-ca.pem web/root-ca.crt
 
 # Install NFS server
-helm repo add kvaps https://kvaps.github.io/charts
 helm_deploy -r ../env -p ../helm -u -f nfs-server-provisioner.values.yaml kvaps/nfs-server-provisioner
-# kubectl patch $INGRESS_KIND $INGRESS_NAMESPACE-$INGRESS_CONTROLLER_NAME -n $INGRESS_NAMESPACE --type 'json' --patch \
-#   '[{"op": "add", "path": "/spec/template/spec/containers/0/ports/-", "value": {"name":"nfs-tcp","hostPort":2049,"containerPort":2049,"protocol":"TCP"}}]' || true
-# kubectl patch $INGRESS_KIND $INGRESS_NAMESPACE-$INGRESS_CONTROLLER_NAME -n $INGRESS_NAMESPACE --type 'json' --patch \
-#   '[{"op": "add", "path": "/spec/template/spec/containers/0/ports/-", "value": {"name":"nfs-udp","hostPort":2049,"containerPort":2049,"protocol":"UDP"}}]' || true
+kubectl patch $INGRESS_KIND $INGRESS_NAMESPACE-$INGRESS_CONTROLLER_NAME -n $INGRESS_NAMESPACE --type 'json' --patch \
+  '[{"op": "add", "path": "/spec/template/spec/containers/0/ports/-", "value": {"name":"nfs-tcp","hostPort":2049,"containerPort":2049,"protocol":"TCP"}}]' || true
+kubectl patch $INGRESS_KIND $INGRESS_NAMESPACE-$INGRESS_CONTROLLER_NAME -n $INGRESS_NAMESPACE --type 'json' --patch \
+  '[{"op": "add", "path": "/spec/template/spec/containers/0/ports/-", "value": {"name":"nfs-udp","hostPort":2049,"containerPort":2049,"protocol":"UDP"}}]' || true
 envsubst < nfs-ingress.yaml | kubectl apply -f - --dry-run=client -o yaml | kubectl apply -f -
 
 # Install Gitea
-# helm repo add gitea https://dl.gitea.io/charts/
-# helm upgrade --install -f gitea.values.yaml gitea gitea/gitea
-# timeout 5m bash -c 'while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' https://$DOMAIN/gitea)" != "200" ]]; do sleep 5; done' || false
-# ./setup-gitea
+git config --global init.defaultBranch main
+kubectl exec postgresql-0 -- psql 'postgresql://$POSTGRES_USER:$POSTGRES_PASS@localhost' -c 'CREATE DATABASE gitea;' || true
+helm_deploy -r ../env -p ../helm -u -f gitea.values.yaml gitea/gitea
+timeout 5m bash -c 'while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' https://$DOMAIN/gitea)" != "200" ]]; do sleep 5; done' || false
+./setup-gitea
 
 # Install Common foundry apps
-helm repo add sei https://helm.cyberforce.site/charts
 helm_deploy -r ../env -u -v 0.2.0 -p ~/.helm -f identity.values.yaml sei/identity
-# helm upgrade --install -f staticweb.values.yaml staticweb sei/staticweb

@@ -1,12 +1,16 @@
-#!/bin/bash -xe
+#!/bin/bash -e
 # 
 # Copyright 2021 Carnegie Mellon University.
 # Released under a BSD (SEI)-style license, please see LICENSE.md in the
 # project root or contact permission@sei.cmu.edu for full terms.
-
+MKDOCS_DIR=~/k3s-production/mkdocs
 CURL_OPTS=( --silent --header "accept: application/json" --header "Content-Type: application/json" )
+REQ=$( curl "${CURL_OPTS[@]}" \
+                --user administrator:$ADMIN_PASS \
+                --request DELETE "https://$DOMAIN/gitea/api/v1/users/administrator/tokens/appliance-setup"
+)
 USER_TOKEN=$( curl "${CURL_OPTS[@]}" \
-                --user administrator:foundry \
+                --user administrator:$ADMIN_PASS \
                 --request POST "https://$DOMAIN/gitea/api/v1/users/administrator/tokens" \
                 --data "{ \"name\": \"appliance-setup\"}" | jq -r '.sha1'
 )
@@ -15,7 +19,7 @@ USER_TOKEN=$( curl "${CURL_OPTS[@]}" \
 cd "$(dirname "${BASH_SOURCE[0]}")"
 
 # Set git user vars
-git config --global user.name "Foundry Administrator"
+git config --global user.name "Administrator"
 git config --global user.email "administrator@$DOMAIN"
 
 # Create foundry-docs organization
@@ -34,12 +38,13 @@ curl "${CURL_OPTS[@]}" \
     --request POST "https://$DOMAIN/gitea/api/v1/orgs/foundry/repos?access_token=$USER_TOKEN" \
     --data @- <<EOF
 {
-  "name": "web",
-  "private": false
+  "name": "mkdocs",
+  "private": false,
+  "default_branch": "main"
 }
 EOF
 
-git -C web init
-git -C web add -A
-git -C web commit -m "Initial commit" || true
-git -C web push -u https://administrator:foundry@$DOMAIN/gitea/foundry/web.git --all
+git -C $MKDOCS_DIR init
+git -C $MKDOCS_DIR add -A
+git -C $MKDOCS_DIR commit -m "Initial commit" || true
+git -C $MKDOCS_DIR push -u https://administrator:$ADMIN_PASS@$DOMAIN/gitea/foundry/mkdocs.git --all

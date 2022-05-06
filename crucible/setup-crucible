@@ -13,7 +13,8 @@ cd "$(dirname "${BASH_SOURCE[0]}")"
 source ../scripts/utils
 import_vars ../env
 kubectl config set-context --current --namespace=default
-helm repo add stackstorm https://helm.stackstorm.com/
+MKDOCS_DIR=~/k3s-production/mkdocs
+
 ./setup-gitlab
 # # Crucible Stack install
 if [[ ${IMPORT_CONTENT-$IMPORT_CONTENT} = false ]]; then 
@@ -34,3 +35,9 @@ if [[ ${IMPORT_CONTENT-$IMPORT_CONTENT} = false ]]; then
   helm_deploy -r ../env -p ../helm -u -v 10.30.9 --wait -f mongodb.values.yaml bitnami/mongodb
   helm_deploy -r ../env -p ../helm -u -v 0.80.0 --wait --timeout 10m -f stackstorm-min.values.yaml stackstorm/stackstorm-ha
 fi
+
+# Add crucible docs to mkdocs-material
+sed -i '/crucible.md/d' $MKDOCS_DIR/.gitignore
+git -C $MKDOCS_DIR add -A || true
+git -C $MKDOCS_DIR commit -m "Add Crucible Docs" || true
+git -C $MKDOCS_DIR push -u https://administrator:$ADMIN_PASS@$DOMAIN/gitea/foundry/mkdocs.git --all || true

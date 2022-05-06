@@ -1,4 +1,4 @@
-#!/bin/sh -xe
+#!/bin/sh -e
 # 
 # Copyright 2021 Carnegie Mellon University.
 # Released under a BSD (SEI)-style license, please see LICENSE.md in the
