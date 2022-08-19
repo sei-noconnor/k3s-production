@@ -42,6 +42,39 @@
     - net.bridge.bridge-nf-call-iptables
     - net.bridge.bridge-nf-call-ip6tables
 
+- name: Open flannel port
+  firewalld:
+    permanent: yes
+    immediate: yes
+    port: "{{item}}"
+    state: "enabled"
+  with_items:
+    - 6443/tcp
+    - 2379-2380/tcp
+    - 10250-10252/tcp
+    - 10255/tcp
+  when: ansible_distribution in ['CentOS', 'Red Hat Enterprise Linux']
+
+- name: Open API port
+  firewalld:
+    permanent: yes
+    immediate: yes
+    port: 8443/tcp
+    state: "enabled"
+  when: ansible_distribution in ['CentOS', 'Red Hat Enterprise Linux']
+
+- name: set source networks
+  firewalld:
+    permanent: yes
+    immediate: yes
+    zone: "{{item.zone}}"
+    state: "{{item.state}}"
+    source: "{{item.source}}"
+  with_items:
+    - {state: "enabled", zone: "trusted", source: "10.42.0.0/16"}
+    - {state: "enabled", zone: "trusted", source: "10.43.0.0/16"}
+  when: ansible_distribution in ['CentOS', 'Red Hat Enterprise Linux']
+
 - name: Add /usr/local/bin to sudo secure_path
   lineinfile:
     line: 'Defaults    secure_path = /sbin:/bin:/usr/sbin:/usr/bin:/usr/local/bin'

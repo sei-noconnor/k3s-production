@@ -1,4 +1,4 @@
-#!/bin/bash -e
+#!/bin/bash -xe
 # 
 # Copyright 2021 Carnegie Mellon University.
 # Released under a BSD (SEI)-style license, please see LICENSE.md in the
@@ -32,7 +32,7 @@ if [[ ${IMPORT_CONTENT-$IMPORT_CONTENT} = false ]]; then
   fi
 
   helm_deploy -r ../env -p ../helm -u -v 1.4.0 -f steamfitter.values.yaml sei/steamfitter
-  helm_deploy -r ../env -p ../helm -u -v 10.30.9 --wait -f mongodb.values.yaml bitnami/mongodb
+  helm_deploy -r ../env -p ../helm -u -v 13.0.0 --wait -f mongodb.values.yaml bitnami/mongodb
   helm_deploy -r ../env -p ../helm -u -v 0.80.0 --wait --timeout 10m -f stackstorm-min.values.yaml stackstorm/stackstorm-ha
 fi
 

@@ -182,7 +182,7 @@ ingress:
   ## Can replace the kubernetes.io/ingress.class annotation on v1.18+
   ingressClassName: nginx
 
-  host: crucible.ramrod.io
+  host: crucible.$DOMAIN
 
   ## Set this to true in order to enable TLS on the ingress record
   ## A side effect of this will be that the backend service will be connected at port 443
@@ -200,7 +200,7 @@ ingress:
   ##
   ## If tls is set to true, annotation ingress.kubernetes.io/secure-backends: "true" will automatically be set
   annotations:
-  kubernetes.io/ingress.class: nginx
+  #  kubernetes.io/ingress.class: nginx
   #  kubernetes.io/tls-acme: true
 
   secrets:
