@@ -91,7 +91,7 @@ data_json=$(echo ${req} | jq --arg admin_uid "${admin_uid}" '.[0] | .provider = 
 req=$(curl -k --location --request PUT "${api_url}/users/${user_id}" \
 --header "${h_json}" \
 --header "${h_auth}" \
---data-raw "${data_json}")
+--data "${data_json}")
 echo "UserId: ${user_id}"
 echo $req | jq .
 
@@ -120,7 +120,7 @@ EOF
     req=$(curl -ks --location --request POST "${api_url}/groups" \
     --header "${h_json}" \
     --header "${h_auth}" \
-    --data-raw "${data_json}")
+    --data "${data_json}")
     echo ${req} | jq .
     gitlab_group_id=$(echo ${req} | jq -j '.id')
    
@@ -152,7 +152,7 @@ EOF
   req=$(curl -k --location --request POST "${api_url}/projects" \
     --header "${h_json}" \
     --header "${h_auth}" \
-    --data-raw "${data_json}")
+    --data "${data_json}")
   project_id=$(echo ${req} | jq '.id')
   if [[ -n "$project_id" ]]; then 
     git -C ${file} remote add origin "$gitlab_host/${modules_group}/${file}.git"

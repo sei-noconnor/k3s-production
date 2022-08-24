@@ -16,13 +16,13 @@ helm delete player || true
 helm delete steamfitter || true 
 helm delete stackstorm-ha || true
 helm delete mkdocs-material || true
-echo "Sleeping for 20 seconds"
+echo "Sleeping for 40 seconds"
 sleep 20
 helm delete postgresql || true 
 helm delete nfs-server-provisioner || true 
 helm delete ingress-nginx -n ingress || true
 helm delete longhorn -n longhorn-system || true
-echo "Sleeping for 20 seconds"
+echo "Sleeping for 40 seconds"
 sleep 20
 kubectl config set-context --current --namespace=default
 kubectl delete jobs --all

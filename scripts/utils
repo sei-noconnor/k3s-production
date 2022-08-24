@@ -143,6 +143,27 @@ function get_latest_github_release() {
     sed -E 's/.*"([^"]+)".*/\1/'                                    # Pluck JSON value
 }
 
+function get_distro() {
+    if [[ -f /etc/os-release ]]
+    then
+        # On Linux systems
+        source /etc/os-release
+        echo $ID
+    else
+        # On systems other than Linux (e.g. Mac or FreeBSD)
+        uname
+    fi
+}
+
+function get_shell() {
+  basename $SHELL
+}
+
+function gen_random() {
+  length=${1:-32}
+  date +%s | sha256sum | base64 | head -c $length ; echo
+}
+
 fetch_vsphere_cert() {
   cert_path=$1
   echo "Downloading certs from $VSPHERE_SERVER"
@@ -179,32 +200,61 @@ function import_root_ca() {
   cert_path=$1
   file=$(basename $cert_path)
   base=$(echo "${file%.*}")
-  if [[ "$OSTYPE" == "linux-gnu"* ]]; then
-    # Linux
-    echo $LOCAL_SUDO_PASS | sudo -S cp $cert_path /usr/local/share/ca-certificates/$base.crt
-    echo $LOCAL_SUDO_PASS | sudo -S update-ca-certificates
-  elif [[ "$OSTYPE" == "darwin"* ]]; then
-    # Mac OSX
-    echo "$LOCAL_SUDO_PASS" | sudo -S security unlock-keychain -u -p "$LOCAL_SUDO_PASS" /Library/Keychains/System.keychain
-    echo "$LOCAL_SUDO_PASS" | sudo -S security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain $cert_path
-  else
-    echo "OS NOT SUPPORTED"
-  fi
+
+  case $(get_distro) in 
+    centos|fedora|redhat)
+      echo $LOCAL_SUDO_PASS | sudo -S cp $cert_path /etc/pki/ca-trust/source/anchors/$base.crt
+      echo $LOCAL_SUDO_PASS | sudo update-ca-trust
+      ;;
+    ubuntu|debian)
+      echo $LOCAL_SUDO_PASS | sudo -S cp $cert_path /usr/local/share/ca-certificates/$base.crt
+      echo $LOCAL_SUDO_PASS | sudo -S update-ca-certificates  
+      ;;
+    darwin)
+      echo "$LOCAL_SUDO_PASS" | sudo -S security unlock-keychain -u -p "$LOCAL_SUDO_PASS" /Library/Keychains/System.keychain
+      echo "$LOCAL_SUDO_PASS" | sudo -S security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain $cert_path  
+      ;;
+  esac
 }
 
 # Installed the latest release of terraform
 function install_terraform() {
-  curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
-  sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
-  sudo apt-get update && sudo apt-get install terraform
+case $(get_distro) in 
+  centos|fedora|redhat)
+    sudo yum install -y yum-utils
+    sudo yum-config-manager --add-repo https://rpm.releases.hashicorp.com/RHEL/hashicorp.repo
+    sudo yum -y install terraform
+    ;;
+  ubuntu|debian)
+    curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
+    sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
+    sudo apt-get update && sudo apt-get install terraform
+    ;;
+  darwin)
+    echo "MacOS is not supported by this script"
+    exit;
+esac
+
+
 }
 
 # Installs the latest version of ansible
 function install_ansible {
-  sudo apt update
-  sudo apt install software-properties-common
-  # sudo add-apt-repository --yes --update ppa:ansible/ansible
-  sudo apt install ansible -y
+  case $(get_distro) in 
+    centos|fedora|redhat)
+      sudo yum install -y ansible
+      ;;
+    ubuntu|debian)
+      sudo apt update
+      sudo apt install software-properties-common
+      # sudo add-apt-repository --yes --update ppa:ansible/ansible
+      sudo apt install ansible -y
+      ;;
+    darwin)
+      echo "MacOS is not supported by this script"
+      exit;
+  esac
+
 }
 
 function install_kubectl() {
@@ -214,11 +264,54 @@ function install_kubectl() {
 }
 
 function install_helm {
-  curl https://baltocdn.com/helm/signing.asc | sudo apt-key add -
-  sudo apt-get install apt-transport-https --yes
-  echo "deb https://baltocdn.com/helm/stable/debian/ all main" | sudo tee /etc/apt/sources.list.d/helm-stable-debian.list
-  sudo apt-get update
-  sudo apt-get install helm
+  curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+}
+
+function install_code() {
+  case $(get_distro) in
+    centos|fedora|redhat)
+      sudo rpm --import https://packages.microsoft.com/keys/microsoft.asc
+      sudo cat >/etc/yum.repos.d/vscode.repo  <<EOL
+      [code]
+      name=Visual Studio Code
+      baseurl=https://packages.microsoft.com/yumrepos/vscode
+      enabled=1
+      gpgcheck=1
+      gpgkey=https://packages.microsoft.com/keys/microsoft.asc
+EOL
+    sudo yum update
+    sudo yum install code -y    
+      ;;
+    ubuntu|debian)
+      curl -sSL https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
+      sudo add-apt-repository "deb [arch=amd64] https://packages.microsoft.com/repos/vscode stable main"
+      sudo apt update
+      sudo apt install code
+      ;;
+    darwin)
+      echo "MacOS is not supported by this script"
+      exit;
+  esac
+}
+
+function install_openlens() {
+  case $(get_distro) in 
+    centos)
+      echo "Open Lens is not supported in CentOS "
+      exit;
+      ;;
+    fedora|redhat)
+      wget https://github.com/MuhammedKalkan/OpenLens/releases/download/v6.0.1/OpenLens-6.0.1.rpm -O /tmp/OpenLens-6.0.1.rpm
+      sudo yum install /tmp/OpenLens-6.0.1.rpm
+      ;;
+    ubuntu|debian)
+      wget https://github.com/MuhammedKalkan/OpenLens/releases/download/v6.0.1/OpenLens-6.0.1.deb -O /tmp/OpenLens-6.0.1.deb
+      sudo apt install /tmp/OpenLens-6.0.1.deb
+      ;;
+    darwin)
+      echo "MacOS is not supported by this script"
+      exit;
+  esac
 }
 
 function wait_external_ip() {
@@ -263,6 +356,7 @@ function decrypt_string() {
   string=$1
   echo "$string" | openssl enc -aes-256-cbc -md sha512 -a -d -pbkdf2 -iter 100000 -salt -pass pass:'gP47LkDeJmnmgx2rbsUPegJB33bHhp3DQheBSJv4YfheNtXFAzUnYy4azQceFMrB'
 }
+
 function is_online() {
   wget -q --spider --timeout 3 http://google.com
   if [ $? -eq 0 ]; then

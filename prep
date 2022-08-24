@@ -1,6 +1,6 @@
-#!/bin/bash -e
+#!/bin/bash -E
 # Must be run as sudo
-[ `whoami` = root ] || { sudo "$0" "$@"; exit $?; }
+[ `whoami` = root ] || { sudo -E "$0" "$@"; exit $?; }
 # Change to the current directory
 directory="$(dirname "${BASH_SOURCE[0]}")"
 cd $directory
@@ -8,21 +8,44 @@ source $directory/scripts/utils
 import_vars $directory/env
 export BASE_IP=$(echo $DEFAULT_NETWORK |cut -d"." -f1-3)
 # Install common packages 
-apt update
-apt install apt-transport-https ca-certificates curl software-properties-common \
-apache2-utils jq unzip rename python postgresql-client vim sshpass -y
+case $(get_distro) in 
+  centos|fedora|redhat)
+    sudo yum update -y
+    sudo yum install -y ca-certificates curl software-properties-common apache2-utils jq unzip rename postgresql vim sshpass snapd wget nc
+    # symlink snap
+    sudo ln -s /var/lib/snapd/snap /snap
+    sudo systemctl restart snapd
+    # CentOS version of git is way out of date 
+    yum install -y \
+    https://repo.ius.io/ius-release-el7.rpm \
+    https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+
+    yum remove -y git
+    yum install -y git236
+    ;;
+  ubuntu|debian)
+    apt update
+    apt install apt-transport-https ca-certificates curl software-properties-common \
+    apache2-utils jq unzip rename python postgresql-client vim sshpass snapd  wget -y
+    ;;
+  darwin)
+    echo "MacOS is not supported by this script"
+    exit;
+esac
+
 # Install terraform from utils script
 install_terraform
 # install ansible from utils script
 install_ansible
 # Install kubectl
 install_kubectl
-echo "source <(kubectl completion bash)" >> ~/.bashrc
+echo "source <(kubectl completion $(get_shell))" >> ~/.$(get_shell)rc
 # Install Helm
 install_helm
 # Add kubectl and helm bash completion
-echo "source <(kubectl completion bash)" >> ~/.bashrc
-helm completion bash > /etc/bash_completion.d/helm
+echo "source <(kubectl completion $(get_shell))" >> ~/.$(get_shell)rc
+echo "source <(helm completion $(get_shell)" >> ~/.$(get_shell)rc
+
 
 # Install retry script
 sudo sh -c "curl https://raw.githubusercontent.com/kadwanev/retry/master/retry -o /usr/local/bin/retry && chmod +x /usr/local/bin/retry"

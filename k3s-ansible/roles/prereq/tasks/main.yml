@@ -73,6 +73,7 @@
   with_items:
     - {state: "enabled", zone: "trusted", source: "10.42.0.0/16"}
     - {state: "enabled", zone: "trusted", source: "10.43.0.0/16"}
+    - {state: "enabled", zone: "trusted", source: "192.168.1.0/24"}
   when: ansible_distribution in ['CentOS', 'Red Hat Enterprise Linux']
 
 - name: Add /usr/local/bin to sudo secure_path
