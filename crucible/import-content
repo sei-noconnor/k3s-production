@@ -42,7 +42,8 @@ files=$(find $exports_path -type f -iname "*.sql" | sed "s/.*\///; s/\.sql//")
 for file in $files; do
   kubectl exec postgresql-0 -- psql "postgresql://$POSTGRES_USER:$POSTGRES_PASS@localhost" -c "DROP DATABASE IF EXISTS $file;" || true
   kubectl exec postgresql-0 -- psql "postgresql://$POSTGRES_USER:$POSTGRES_PASS@localhost" -c "CREATE DATABASE $file;" || true
-  envsubst < $exports_path/${file}.sql | sed 's/LOCALE/LC_COLLATE/' | PGPASSWORD=$POSTGRES_PASS psql -h localhost -p 5432 -U postgres ${file}
+  envsubst < $exports_path/${file}.sql | sed 's/LOCALE/LC_COLLATE/' | kubectl exec postgresql-0 -- psql "postgresql://$POSTGRES_USER:$POSTGRES_PASS@localhost"
+  # envsubst < $exports_path/${file}.sql | sed 's/LOCALE/LC_COLLATE/' | PGPASSWORD=$POSTGRES_PASS psql -h localhost -p 5432 -U postgres ${file}
 done
 
 helm_deploy -r ../env -p ../helm -u -v 1.4.1 -f player.values.yaml sei/player
