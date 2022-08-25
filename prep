@@ -9,7 +9,7 @@ import_vars $directory/env
 export BASE_IP=$(echo $DEFAULT_NETWORK |cut -d"." -f1-3)
 # Install common packages 
 case $(get_distro) in 
-  centos|fedora|rhel)
+  centos|fedora)
     sudo yum update -y
     sudo yum install -y ca-certificates curl software-properties-common apache2-utils jq unzip rename postgresql vim sshpass snapd wget nc
     # symlink snap
@@ -19,9 +19,18 @@ case $(get_distro) in
     yum install -y \
     https://repo.ius.io/ius-release-el7.rpm \
     https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-
     yum remove -y git
     yum install -y git236
+    ;;
+  rhel)
+    sudo dnf install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
+    sudo dnf update -y 
+    sudo yum install -y ca-certificates curl software-properties-common apache2-utils jq unzip rename postgresql vim sshpass snapd wget nc
+    # enable snap
+    sudo systemctl enable --now snapd.socket
+    # symlink snap
+    sudo ln -s /var/lib/snapd/snap /snap
+    sudo systemctl restart snapd
     ;;
   ubuntu|debian)
     apt update
