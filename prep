@@ -7,6 +7,18 @@ cd $directory
 source $directory/scripts/utils
 import_vars $directory/env
 export BASE_IP=$(echo $DEFAULT_NETWORK |cut -d"." -f1-3)
+
+while [[ "$#" -gt 0 ]]; do
+  case "$1" in 
+    -r|--replace-vars)
+      shift 1
+      replace_vars $directory/k3s-ansible '.*\.(json|conf|yaml|yml)'
+      replace_vars $directory/terraform '.*\.(json|conf|yaml|yml|auto.tfvars)'
+      replace_vars $directory/values '.*\.(json|conf|yaml|yml)'
+      exit
+      ;;
+  esac
+done
 # Install common packages 
 case $(get_distro) in 
   centos|fedora)
@@ -23,9 +35,9 @@ case $(get_distro) in
     yum install -y git236
     ;;
   rhel)
-    sudo dnf install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
+    sudo dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
     sudo dnf update -y 
-    sudo yum install -y ca-certificates curl software-properties-common apache2-utils jq unzip rename postgresql vim sshpass snapd wget nc
+    sudo dnf install -y ca-certificates curl jq unzip postgresql vim sshpass snapd wget nc
     # enable snap
     sudo systemctl enable --now snapd.socket
     # symlink snap
@@ -66,18 +78,4 @@ chmod +x /usr/local/bin/cfssl*
 
 # Install Powershell and PowerCLI (vcenter, steamfitter)
 snap install powershell --classic
-
-
-# Replace variables in files
-#replace_vars $directory/common '.*\.(json|conf|yaml|yml)'
-#replace_vars $directory/crucible '.*\.(json|conf|yaml|yml|sql)'
-replace_vars $directory/k3s-ansible '.*\.(json|conf|yaml|yml)'
-replace_vars $directory/terraform '.*\.(json|conf|yaml|yml|auto.tfvars)'
-replace_vars $directory/values '.*\.(json|conf|yaml|yml)'
-# replace_vars $directory/crucible/setup-gitlab
-# chmod +x $directory/crucible/setup-gitlab
-# replace_vars $directory/scripts/identity-seed.example.sh
-# chmod +x $directory/scripts/identity-seed.example.sh
-# replace_vars $directory/crucible/import-content
-# chmod +x $directory/crucible/import-content
 echo "Finished Prep."

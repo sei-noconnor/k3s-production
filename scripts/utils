@@ -270,17 +270,8 @@ function install_helm {
 function install_code() {
   case $(get_distro) in
     centos|fedora|rhel)
-      sudo rpm --import https://packages.microsoft.com/keys/microsoft.asc
-      sudo cat >/etc/yum.repos.d/vscode.repo  <<EOL
-      [code]
-      name=Visual Studio Code
-      baseurl=https://packages.microsoft.com/yumrepos/vscode
-      enabled=1
-      gpgcheck=1
-      gpgkey=https://packages.microsoft.com/keys/microsoft.asc
-EOL
-    sudo yum update
-    sudo yum install code -y    
+      wget https://update.code.visualstudio.com/1.70.2/linux-rpm-x64/stable -O /tmp/vscode.rpm
+      yum install -y /tmp/vscode.rpm
       ;;
     ubuntu|debian)
       curl -sSL https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
