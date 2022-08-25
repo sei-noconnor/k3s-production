@@ -202,7 +202,7 @@ function import_root_ca() {
   base=$(echo "${file%.*}")
 
   case $(get_distro) in 
-    centos|fedora|redhat)
+    centos|fedora|rhel)
       echo $LOCAL_SUDO_PASS | sudo -S cp $cert_path /etc/pki/ca-trust/source/anchors/$base.crt
       echo $LOCAL_SUDO_PASS | sudo update-ca-trust
       ;;
@@ -220,7 +220,7 @@ function import_root_ca() {
 # Installed the latest release of terraform
 function install_terraform() {
 case $(get_distro) in 
-  centos|fedora|redhat)
+  centos|fedora|rhel)
     sudo yum install -y yum-utils
     sudo yum-config-manager --add-repo https://rpm.releases.hashicorp.com/RHEL/hashicorp.repo
     sudo yum -y install terraform
@@ -241,7 +241,7 @@ esac
 # Installs the latest version of ansible
 function install_ansible {
   case $(get_distro) in 
-    centos|fedora|redhat)
+    centos|fedora|rhel)
       sudo yum install -y ansible
       ;;
     ubuntu|debian)
@@ -269,7 +269,7 @@ function install_helm {
 
 function install_code() {
   case $(get_distro) in
-    centos|fedora|redhat)
+    centos|fedora|rhel)
       sudo rpm --import https://packages.microsoft.com/keys/microsoft.asc
       sudo cat >/etc/yum.repos.d/vscode.repo  <<EOL
       [code]
@@ -300,7 +300,7 @@ function install_openlens() {
       echo "Open Lens is not supported in CentOS "
       exit;
       ;;
-    fedora|redhat)
+    fedora|rhel)
       wget https://github.com/MuhammedKalkan/OpenLens/releases/download/v6.0.1/OpenLens-6.0.1.rpm -O /tmp/OpenLens-6.0.1.rpm
       sudo yum install /tmp/OpenLens-6.0.1.rpm
       ;;

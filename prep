@@ -9,7 +9,7 @@ import_vars $directory/env
 export BASE_IP=$(echo $DEFAULT_NETWORK |cut -d"." -f1-3)
 # Install common packages 
 case $(get_distro) in 
-  centos|fedora|redhat)
+  centos|fedora|rhel)
     sudo yum update -y
     sudo yum install -y ca-certificates curl software-properties-common apache2-utils jq unzip rename postgresql vim sshpass snapd wget nc
     # symlink snap
