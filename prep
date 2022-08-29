@@ -35,9 +35,9 @@ case $(get_distro) in
     yum install -y git236
     ;;
   rhel)
-    sudo dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
-    sudo dnf update -y 
-    sudo dnf install -y ca-certificates curl jq unzip postgresql vim sshpass snapd wget nc
+    sudo yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
+    sudo yum update -y 
+    sudo yum install -y ca-certificates curl jq unzip postgresql vim sshpass snapd wget nc
     # enable snap
     sudo systemctl enable --now snapd.socket
     # symlink snap
@@ -72,10 +72,15 @@ echo "source <(helm completion $(get_shell)" >> ~/.$(get_shell)rc
 sudo sh -c "curl https://raw.githubusercontent.com/kadwanev/retry/master/retry -o /usr/local/bin/retry && chmod +x /usr/local/bin/retry"
 
 # Install cfssl
-curl -sLo /usr/local/bin/cfssl https://github.com/cloudflare/cfssl/releases/download/v1.5.0/cfssl_1.5.0_linux_amd64
-curl -sLo /usr/local/bin/cfssljson https://github.com/cloudflare/cfssl/releases/download/v1.5.0/cfssljson_1.5.0_linux_amd64
-chmod +x /usr/local/bin/cfssl*
+echo "$SUDO_PASS" | sudo -S "curl_proxy -sLko /usr/local/bin/cfssl https://github.com/cloudflare/cfssl/releases/download/v1.5.0/cfssl_1.5.0_linux_amd64"
+echo "$SUDO_PASS" | sudo -S "curl_proxy -sLko /usr/local/bin/cfssljson https://github.com/cloudflare/cfssl/releases/download/v1.5.0/cfssljson_1.5.0_linux_amd64"
+echo "$SUDO_PASS" | sudo -S "chmod +x /usr/local/bin/cfssl*"
 
 # Install Powershell and PowerCLI (vcenter, steamfitter)
-snap install powershell --classic
+sudo snap install powershell --classic
+
+#replace vars
+replace_vars $directory/k3s-ansible '.*\.(json|conf|yaml|yml)'
+replace_vars $directory/terraform '.*\.(json|conf|yaml|yml|auto.tfvars)'
+replace_vars $directory/values '.*\.(json|conf|yaml|yml)'
 echo "Finished Prep."

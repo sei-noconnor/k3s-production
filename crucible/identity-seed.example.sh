@@ -27,7 +27,7 @@ PROTO="https"
 DOMAIN="${DOMAIN:-$DOMAIN}"
 
 # get access token
-ACCESS_TOKEN=$(curl --silent --insecure --request POST \
+ACCESS_TOKEN=$(curl_proxy --silent --insecure --request POST \
   --url "$PROTO://$DOMAIN/identity/connect/token" \
   --data grant_type=password \
   --data scope="identity-api identity-api-privileged" \
@@ -44,7 +44,7 @@ function exists() {
   NAME=$2
 
   URL="$PROTO://$DOMAIN/identity/api/${TYPE}s?term=$NAME"
-  EXISTS=$(curl --silent --insecure --request GET \
+  EXISTS=$(curl_proxy --silent --insecure --request GET \
     --url "$URL" \
     -H "Authorization: Bearer $ACCESS_TOKEN" \
     -H "Content-Type: application/json")
@@ -62,14 +62,14 @@ function update() {
   URL="$PROTO://$DOMAIN/identity/api/${TYPE}"
   
 
-  API_JSON=$(curl --silent --insecure --request GET \
+  API_JSON=$(curl_proxy --silent --insecure --request GET \
     --url "$URL/$ID" \
     -H "Authorization: Bearer $ACCESS_TOKEN" \
     -H "Content-Type: application/json" | jq '.')
   
   #Combine file and API json
   JSON=$(printf '%s' "$API_JSON $DATA" | jq -sr add)
-  UPDATED=$(curl --silent --insecure --request PUT \
+  UPDATED=$(curl_proxy --silent --insecure --request PUT \
   --url "$URL" \
   -H "Authorization: Bearer $ACCESS_TOKEN" \
   -H "Content-Type: application/json" \
@@ -145,7 +145,7 @@ function delete() {
   NAME=$2
   ID=$3
   URL="$PROTO://$DOMAIN/identity/api/${TYPE}"
-  EXISTS=$(curl --silent --insecure --request DELETE \
+  EXISTS=$(_proxy --silent --insecure --request DELETE \
     --url "$URL/$ID" \
     -H "Authorization: Bearer $ACCESS_TOKEN" \
     -H "Content-Type: application/json")

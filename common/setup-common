@@ -60,7 +60,7 @@ envsubst < nfs-ingress.yaml | kubectl apply -f - --dry-run=client -o yaml | kube
 git config --global init.defaultBranch main
 kubectl exec postgresql-0 -- psql 'postgresql://$POSTGRES_USER:$POSTGRES_PASS@localhost' -c 'CREATE DATABASE gitea;' || true
 helm_deploy -r ../env -p ../helm -u -f gitea.values.yaml gitea/gitea
-timeout 5m bash -c 'while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' https://$DOMAIN/gitea)" != "200" ]]; do sleep 5; done' || false
+timeout 5m bash -c 'while [[ "$(curl_proxy -s -o /dev/null -w ''%{http_code}'' https://$DOMAIN/gitea)" != "200" ]]; do sleep 5; done' || false
 ./setup-gitea
 
 # Install Common foundry apps

@@ -5,6 +5,8 @@ ansible_connection: ssh
 ansible_password: $ANSIBLE_USER_PASS
 systemd_dir: /etc/systemd/system
 master_ip: "{{ hostvars[groups['master'][0]]['ansible_host'] | default(groups['master'][0]) }}"
-extra_server_args: "--cluster-init --disable traefik --disable local-storage --disable servicelb --token $TOKEN_SECRET"
-slave_extra_server_args: "--token $TOKEN_SECRET --disable traefik --disable local-storage --disable servicelb --server https://{{master_ip}}:6443"
-extra_agent_args: "--token $TOKEN_SECRET --server https://{{master_ip}}:6443"
+extra_server_args: '--cluster-init --disable traefik --disable local-storage --disable servicelb --token $TOKEN_SECRET'
+slave_extra_server_args: '--token $TOKEN_SECRET --disable traefik --disable local-storage --disable servicelb --server https://{{master_ip}}:6443'
+extra_agent_args: '--token $TOKEN_SECRET --server https://{{master_ip}}:6443'
+proxy: '$PROXY'
+no_proxy: '$NO_PROXY'

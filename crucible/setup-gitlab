@@ -63,7 +63,7 @@ cat << EOF
   Timeout set to ${max_timeout} seconds
 EOF
 
-until $(curl --output /dev/null --silent --head --insecure --fail ${gitlab_host}/users/sign_in); do
+until $(curl_proxy --output /dev/null --silent --head --insecure --fail ${gitlab_host}/users/sign_in); do
   printf '.'
   sleep 5
   timeout=$((timeout+5))
@@ -85,10 +85,10 @@ h_auth="Private-Token: ${gitlab_token}"
 h_json="Content-Type: application/json"
 
 # Set root to admin@${domain}
-req=$(curl -ks --location --request GET "${api_url}/users?username=root")
+req=$(curl_proxy -ks --location --request GET "${api_url}/users?username=root")
 user_id=$(echo ${req} | jq -j '.[0] | .id')
 data_json=$(echo ${req} | jq --arg admin_uid "${admin_uid}" '.[0] | .provider = "identity" | .extern_uid = $admin_uid')
-req=$(curl -k --location --request PUT "${api_url}/users/${user_id}" \
+req=$(curl_proxy -k --location --request PUT "${api_url}/users/${user_id}" \
 --header "${h_json}" \
 --header "${h_auth}" \
 --data "${data_json}")
@@ -97,7 +97,7 @@ echo $req | jq .
 
 
 # Check if the group exists by name
-  req=$(curl -ks --location --request GET "${api_url}/groups?search=${modules_group}" \
+  req=$(curl_proxy -ks --location --request GET "${api_url}/groups?search=${modules_group}" \
   --header "${h_json}" \
   --header "${h_auth}")
   echo $req | jq .
@@ -117,7 +117,7 @@ echo $req | jq .
 EOF
     )
 
-    req=$(curl -ks --location --request POST "${api_url}/groups" \
+    req=$(curl_proxy -ks --location --request POST "${api_url}/groups" \
     --header "${h_json}" \
     --header "${h_auth}" \
     --data "${data_json}")
@@ -149,7 +149,7 @@ for file in ${files}; do
 EOF
     )
 
-  req=$(curl -k --location --request POST "${api_url}/projects" \
+  req=$(curl_proxy -k --location --request POST "${api_url}/projects" \
     --header "${h_json}" \
     --header "${h_auth}" \
     --data "${data_json}")

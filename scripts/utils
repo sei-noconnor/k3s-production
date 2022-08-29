@@ -138,7 +138,7 @@ function replace_vars() {
 } 
 
 function get_latest_github_release() {
-  curl --silent "https://api.github.com/repos/$1/releases/latest" | # Get latest release from GitHub api
+  curl_proxy --silent "https://api.github.com/repos/$1/releases/latest" | # Get latest release from GitHub api
     grep '"tag_name":' |                                            # Get tag line
     sed -E 's/.*"([^"]+)".*/\1/'                                    # Pluck JSON value
 }
@@ -191,7 +191,7 @@ function download_vsphere_cert() {
   out=${3-./common/certs/vsphere.pem}
   echo | openssl s_client -servername $url -connect $url:$port 2>/dev/null | openssl x509 -text | \
   sed -n -e 's/CA Issuers - URI://p' | \
-  xargs curl -k --output ca.cer
+  xargs curl_proxy -k --output ca.cer
   openssl x509 -inform DER -in ca.cer -text -outform PEM -out $out
   rm -rf ca.cer
 }
@@ -217,16 +217,28 @@ function import_root_ca() {
   esac
 }
 
+function curl_proxy() {
+  cmd="curl "
+  if [ -n $PROXY ]; then
+    echo "Proxy not empty setting to $PROXY"
+    cmd+="--proxy $PROXY $@"
+    "echo running command: $cmd"
+  fi
+  bash -c "$cmd"
+}
+
 # Installed the latest release of terraform
 function install_terraform() {
 case $(get_distro) in 
   centos|fedora|rhel)
     sudo yum install -y yum-utils
-    sudo yum-config-manager --add-repo https://rpm.releases.hashicorp.com/RHEL/hashicorp.repo
+    sudo curl_proxy -kSLo /etc/yum.conf.d/hashicorp.repo https://rpm.releases.hashicorp.com/RHEL/hashicorp.repo
+    # sudo yum-config-manager --add-repo https://rpm.releases.hashicorp.com/RHEL/hashicorp.repo
+    sudo yum update -y
     sudo yum -y install terraform
     ;;
   ubuntu|debian)
-    curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
+    curl_proxy -fksSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
     sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
     sudo apt-get update && sudo apt-get install terraform
     ;;
@@ -258,13 +270,13 @@ function install_ansible {
 }
 
 function install_kubectl() {
-  curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+  curl_proxy -LkO "https://dl.k8s.io/release/$(curl_proxy -Lk -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
   chmod +x kubectl
   sudo mv kubectl /usr/local/bin/kubectl
 }
 
 function install_helm {
-  curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+  curl_proxy https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
 }
 
 function install_code() {
@@ -274,7 +286,7 @@ function install_code() {
       yum install -y /tmp/vscode.rpm
       ;;
     ubuntu|debian)
-      curl -sSL https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
+      curl_proxy -sSL https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
       sudo add-apt-repository "deb [arch=amd64] https://packages.microsoft.com/repos/vscode stable main"
       sudo apt update
       sudo apt install code
@@ -293,11 +305,11 @@ function install_openlens() {
       ;;
     fedora|rhel)
       wget https://github.com/MuhammedKalkan/OpenLens/releases/download/v6.0.1/OpenLens-6.0.1.rpm -O /tmp/OpenLens-6.0.1.rpm
-      sudo yum install /tmp/OpenLens-6.0.1.rpm
+      sudo yum install -y /tmp/OpenLens-6.0.1.rpm
       ;;
     ubuntu|debian)
       wget https://github.com/MuhammedKalkan/OpenLens/releases/download/v6.0.1/OpenLens-6.0.1.deb -O /tmp/OpenLens-6.0.1.deb
-      sudo apt install /tmp/OpenLens-6.0.1.deb
+      sudo apt install -y /tmp/OpenLens-6.0.1.deb
       ;;
     darwin)
       echo "MacOS is not supported by this script"

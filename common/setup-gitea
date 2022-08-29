@@ -1,15 +1,15 @@
-#!/bin/bash -e
+#!/bin/bash -xe
 # 
 # Copyright 2021 Carnegie Mellon University.
 # Released under a BSD (SEI)-style license, please see LICENSE.md in the
 # project root or contact permission@sei.cmu.edu for full terms.
 MKDOCS_DIR=~/k3s-production/mkdocs
 CURL_OPTS=( --silent --header "accept: application/json" --header "Content-Type: application/json" )
-REQ=$( curl "${CURL_OPTS[@]}" \
+REQ=$( curl_proxy "${CURL_OPTS[@]}" \
                 --user administrator:$ADMIN_PASS \
                 --request DELETE "https://$DOMAIN/gitea/api/v1/users/administrator/tokens/appliance-setup"
 )
-USER_TOKEN=$( curl "${CURL_OPTS[@]}" \
+USER_TOKEN=$( curl_proxy "${CURL_OPTS[@]}" \
                 --user administrator:$ADMIN_PASS \
                 --request POST "https://$DOMAIN/gitea/api/v1/users/administrator/tokens" \
                 --data "{ \"name\": \"appliance-setup\"}" | jq -r '.sha1'
@@ -23,7 +23,7 @@ git config --global user.name "Administrator"
 git config --global user.email "administrator@$DOMAIN"
 
 # Create foundry-docs organization
-curl "${CURL_OPTS[@]}" \
+curl_proxy "${CURL_OPTS[@]}" \
   --request POST "https://$DOMAIN/gitea/api/v1/orgs?access_token=$USER_TOKEN" \
   --data @- <<EOF
 {
@@ -34,7 +34,7 @@ EOF
 
 # Create repo
 # for repo in $(find $DOCS_DIR -maxdepth 1 -mindepth 1 -type d -printf '%P\n'); do
-curl "${CURL_OPTS[@]}" \
+curl_proxy "${CURL_OPTS[@]}" \
     --request POST "https://$DOMAIN/gitea/api/v1/orgs/foundry/repos?access_token=$USER_TOKEN" \
     --data @- <<EOF
 {
