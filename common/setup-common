@@ -68,8 +68,8 @@ add_host_entry $external_ip $DOMAIN
 git config --global init.defaultBranch main
 kubectl exec postgresql-0 -- psql 'postgresql://$POSTGRES_USER:$POSTGRES_PASS@localhost' -c 'CREATE DATABASE gitea;' || true
 helm_deploy -r ../env -p ../helm -u -f gitea.values.yaml gitea/gitea
-timeout 5m bash -c 'while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' https://$DOMAIN/gitea)" != "200" ]]; do sleep 5; done' || false
-./setup-gitea
+timeout 5m bash -c 'while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' https://$DOMAIN/gitea)" != "200" ]]; do sleep 5; ./setup-gitea; done'
+
 
 # Install Common foundry apps
 if [[ $CAC_ENABLED = true ]]; then 

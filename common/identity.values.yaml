@@ -209,9 +209,9 @@ identity-api:
             "SeedScopes": "openid profile email",
             "SeedSecret": "337bdcb1a23143a9b5a6aaa33c0e87d7",
             "Urls": [
-              { "Type": "ClientUri", "Value": "https://gitlab.$DOMAIN" },
-              { "Type": "RedirectUri", "Value": "https://gitlab.$DOMAIN/users/auth/identity/callback" },
-              { "Type": "PostLogoutRedirectUri", "Value": "https://gitlab.$DOMAIN" }
+              { "Type": "ClientUri", "Value": "https://$GITLAB_URL" },
+              { "Type": "RedirectUri", "Value": "https://$GITLAB_URL/users/auth/identity/callback" },
+              { "Type": "PostLogoutRedirectUri", "Value": "https://$GITLAB_URL" }
             ]
           },
           {
