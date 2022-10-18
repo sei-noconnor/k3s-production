@@ -10,6 +10,9 @@ ExecStartPre=-/sbin/modprobe overlay
 ExecStart=/usr/local/bin/k3s agent --server https://{{ master_ip }}:6443 --token {{ hostvars[groups['master'][0]]['token'] }} {{ extra_agent_args | default("") }}
 KillMode=process
 Delegate=yes
+{% if proxy != "" %}
+Environment="HTTP_PROXY={{proxy}}" "HTTPS_PROXY={{proxy}}" "NO_PROXY={{no_proxy}}"
+{% endif %}
 # Having non-zero Limit*s causes performance problems due to accounting overhead
 # in the kernel. We recommend using cgroups to do container-local accounting.
 LimitNOFILE=1048576

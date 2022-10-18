@@ -16,6 +16,7 @@ helm delete player || true
 helm delete steamfitter || true 
 helm delete stackstorm-ha || true
 helm delete mkdocs-material || true
+helm delete pgadmin4 || true
 echo "Sleeping for 40 seconds"
 sleep 20
 helm delete postgresql || true 

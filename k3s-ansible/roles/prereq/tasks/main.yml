@@ -42,6 +42,20 @@
     - net.bridge.bridge-nf-call-iptables
     - net.bridge.bridge-nf-call-ip6tables
 
+- name: set proxy environment variables
+  lineinfile:
+    dest: /etc/environment
+    state: present
+    regexp: "^{{item.key}}="
+    line: "{{item.key}}={{item.value}}"
+  with_items: 
+    - { key: HTTP_PROXY, value: "{{proxy}}" }
+    - { key: HTTPS_PROXY, value: "{{proxy}}" }
+    - { key: NO_PROXY, value: "{{no_proxy}}" }
+    - { key: http_proxy, value: "{{proxy}}" }
+    - { key: https_proxy, value: "{{proxy}}" }
+    - { key: no_proxy, value: "{{no_proxy}}" }
+
 - name: Open flannel port
   firewalld:
     permanent: yes
@@ -73,7 +87,7 @@
   with_items:
     - {state: "enabled", zone: "trusted", source: "10.42.0.0/16"}
     - {state: "enabled", zone: "trusted", source: "10.43.0.0/16"}
-    - {state: "enabled", zone: "trusted", source: "192.168.1.0/24"}
+    - {state: "enabled", zone: "trusted", source: "10.64.149.0/24"}
   when: ansible_distribution in ['CentOS', 'Red Hat Enterprise Linux', 'RedHat']
 
 - name: Add /usr/local/bin to sudo secure_path

@@ -12,6 +12,9 @@ KillMode=process
 Delegate=yes
 # Having non-zero Limit*s causes performance problems due to accounting overhead
 # in the kernel. We recommend using cgroups to do container-local accounting.
+{% if proxy != "" %}
+Environment="HTTP_PROXY={{proxy}}" "HTTPS_PROXY={{proxy}}" "NO_PROXY={{no_proxy}}"
+{% endif %}
 LimitNOFILE=1048576
 LimitNPROC=infinity
 LimitCORE=infinity

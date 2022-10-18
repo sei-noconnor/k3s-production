@@ -87,7 +87,6 @@ player-api:
     SeedData__SystemAdminIds__0: dee684c5-2eaf-401a-915b-d3d4320fe5d5
     SeedData__SystemAdminIds__1: 32c11441-7eec-47eb-a915-607c4f2529f4
     
-
 player-ui:
   # Docker image release version
   image:
@@ -185,8 +184,7 @@ vm-api:
   #   connections will go directly from the UI to the vCenter hosts themselves
   # - The host value here corresponds to RewriteHost__RewriteHostUrl below
   consoleIngress:
-    deployConsoleProxy: false  
-    className: ""
+    deployConsoleProxy: true
     name: player-connect
     annotations: 
       kubernetes.io/ingress.class: $INGRESS_CLASS
@@ -205,13 +203,13 @@ vm-api:
     hosts:
       - host: $DOMAIN
         paths: 
-          - path: "/vm/connect(/|$)(.*)"
+          - path: "/connect/vm(/|$)(.*)"
             pathType: Prefix
 
     tls:
       - secretName: appliance-cert
         hosts:
-         - $DOMAIN
+        - $DOMAIN
 
   # If this deployment needs to trust non-public certificates,
   # create a configMap with the needed certifcates and specify
@@ -290,9 +288,10 @@ vm-api:
     
     # Rewrite Host settings
     # See "consoleIngress" section above for usage
-    RewriteHost__RewriteHost: false
-    RewriteHost__RewriteHostUrl: "$DOMAIN/vm/connect"
+    RewriteHost__RewriteHost: true
+    RewriteHost__RewriteHostUrl: "$DOMAIN/connect"
     RewriteHost__RewriteHostQueryParam: "vmhost"
+    ConsoleUrls__Vsphere__Url: "https://$DOMAIN/connect"
 
 vm-ui:
 
@@ -348,7 +347,6 @@ vm-ui:
       },
       "UseLocalAuthStorage": true
     }
-
 
 console-ui:
 

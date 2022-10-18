@@ -79,7 +79,7 @@ envsubst < $directory/values/metalLB/03-metallb-config.yaml | kubectl apply -n $
 helm_deploy -r ./env -p helm -u -f $directory/values/nginx/ingress-nginx.values.yaml ingress-nginx/ingress-nginx --wait -n $INGRESS_NAMESPACE --create-namespace
 
 helm_deploy -r ./env -p helm -v 1.3.1 -u -f $directory/values/longhorn/longhorn.values.yaml longhorn/longhorn --wait -n $LONGHORN_NAMESPACE --create-namespace
-kubectl create secret tls appliance-cert --key $directory/common/certs/host-key.pem --cert <( cat $directory/common/certs/host.pem $directory/common/certs/int-ca.pem ) --dry-run=client -o yaml | kubectl apply -f - -n $LONGHORN_NAMESPACE
+kubectl create secret tls appliance-cert --key $directory/common/certs/host-key.pem --cert <( cat $directory/common/certs/host.pem ) --dry-run=client -o yaml | kubectl apply -f - -n $LONGHORN_NAMESPACE
 # Always run common apps. 
 apps="common,$1"
 IFS=',' read -a stacks <<< $apps
@@ -101,7 +101,7 @@ fi
 # Redeploy mkdocs to update
 echo "$PWD"
 ed -s common/mkdocs-material.values.yaml <<< $'/cacert:/s/\"\"/|-/\n/cacert:/r !sed "s/^/  /" ./common/certs/root-ca.pem\nw' || true
-cp ./common/certs/root-ca.pem $MKDOCS_DIR/docs/root-ca.crt
+#cp ./common/certs/root-ca.pem $MKDOCS_DIR/docs/root-ca.crt
 git -C $MKDOCS_DIR add -A || true
 git -C $MKDOCS_DIR commit -m "Add Root CA" || true
 git -C $MKDOCS_DIR push -u https://administrator:$ADMIN_PASS@$DOMAIN/gitea/foundry/mkdocs.git --all || true
