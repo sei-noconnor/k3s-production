@@ -3,13 +3,17 @@
 # Copyright 2021 Carnegie Mellon University.
 # Released under a BSD (SEI)-style license, please see LICENSE.md in the
 # project root or contact permission@sei.cmu.edu for full terms.
+cd "$(dirname "${BASH_SOURCE[0]}")"
+source ../scripts/utils
+import_vars ../env
 MKDOCS_DIR=~/k3s-production/mkdocs
 CURL_OPTS=( --silent --header "accept: application/json" --header "Content-Type: application/json" )
 REQ=$( curl "${CURL_OPTS[@]}" \
                 --user administrator:$ADMIN_PASS \
                 --request DELETE "https://$DOMAIN/gitea/api/v1/users/administrator/tokens/appliance-setup"
-)
-USER_TOKEN=$( curl "${CURL_OPTS[@]}" \
+) || true
+
+USER_TOKEN=$(curl "${CURL_OPTS[@]}" \
                 --user administrator:$ADMIN_PASS \
                 --request POST "https://$DOMAIN/gitea/api/v1/users/administrator/tokens" \
                 --data "{ \"name\": \"appliance-setup\"}" | jq -r '.sha1'

@@ -118,26 +118,26 @@ function replace() {
 # ini style with variables being all UPPERCASE and each on a new line
 # e.g. VSPHERE_SERVER=vcsa.example.com
 function import_vars() {
-  # remove=false
-  # while getopts "u" OPTION; do
-  #   case $OPTION in
-  #     u)
-  #        remove=true ;;
-  #   esac
-  # done
-  # shift $((OPTIND -1))
-  # echo "$1"
-  # VARS_PATH=$1
-  # if [[ $remove = true ]]; then 
-  #   echo "UNSETTING VARS at $VARS_PATH"
-  #   unset $(cat $VARS_PATH | grep '^[A-Z]' | sed -e 's/ /\n/' -e 's/=.*//g' | tr "\n" " ")
-  # else
-  #   echo "IMPORTING VARS"
-  #   export $(cat $VARS_PATH | grep '^[A-Z]')
-  # fi
-  
+  remove=false
+  while getopts "u" OPTION; do
+    case $OPTION in
+      u)
+         remove=true ;;
+    esac
+  done
+  shift $((OPTIND -1))
+  echo "$1"
   VARS_PATH=$1
-  set -o allexport; source $VARS_PATH; set +o allexport
+  if [[ $remove = true ]]; then 
+    echo "UNSETTING VARS at $VARS_PATH"
+    unset $(cat $VARS_PATH | grep '^[A-Z]' | sed -e 's/ /\n/' -e 's/=.*//g' | tr "\n" " ")
+  else
+    echo "IMPORTING VARS"
+    export $(cat $VARS_PATH | grep '^[A-Z]')
+  fi
+  
+  # VARS_PATH=$1
+  # set -o allexport; source $VARS_PATH; set +o allexport
 }
 
 function replace_vars() {
