@@ -27,6 +27,7 @@ helm repo add sei https://helm.cyberforce.site/charts
 helm repo add stackstorm https://helm.stackstorm.com/
 helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
 helm repo add longhorn https://charts.longhorn.io
+helm repo add twuni https://helm.twun.io
 helm repo update
 
 echo "Sleeping for 10 seconds ctrl+c to cancel"
@@ -70,8 +71,6 @@ fi
 sed -i '/^!/d' $MKDOCS_DIR/.gitignore
 
 # Install infrastructure
-
-
 envsubst < $directory/values/metalLB/01-namespace.yaml | kubectl apply -n $METAL_NAMESPACE -f -
 envsubst < $directory/values/metalLB/02-metallb.yaml | kubectl apply -n $METAL_NAMESPACE -f -
 envsubst < $directory/values/metalLB/03-metallb-config.yaml | kubectl apply -n $METAL_NAMESPACE -f -
