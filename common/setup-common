@@ -34,8 +34,17 @@ fi
 if [[ -f certs/vsphere.pem ]] && [[ -f certs/root-ca.pem ]]; then
   kubectl create configmap appliance-root-ca --from-file=root-ca.crt=certs/root-ca.pem --from-file=vsphere-ca.crt=certs/vsphere.pem --dry-run=client -o yaml | kubectl apply -f - 
 fi
+# Install NFS server
+helm_deploy -r ../env -p ../helm -u -f nfs-server-provisioner.values.yaml kvaps/nfs-server-provisioner
+
+# Install local private registry
+helm_deploy -r ../env -p ../helm -u --wait -f docker-registry.values.yaml twuni/docker-registry
+envsubst < docker-cache.values.yaml | helm upgrade --install -f - docker-cache twuni/docker-registry
+#helm_deploy -r ../env -p ../helm -u --wait -f docker-cache.values.yaml twuni/docker-registry
+
 # Install PostgreSQL and pgAdmin4
 helm_deploy -r ../env -p ../helm -u --wait -f postgresql.values.yaml bitnami/postgresql
+
 # Install pgAdmin4
 kubectl create secret generic pgpassfile --from-literal=pgpassfile=postgresql:5432:\*:$POSTGRES_USER:$POSTGRES_PASS --dry-run=client -o yaml | kubectl apply -f -
 helm_deploy -r ../env -u -p ~/.helm -f pgadmin4.values.yaml runix/pgadmin4
@@ -50,14 +59,6 @@ helm_deploy -r ../env -p ../helm -u -f code-server.values.yaml nicholaswilde/cod
 # ed -s staticweb.values.yaml <<< $'/cacert:/s/\"\"/|-/\n/cacert:/r !sed "s/^/  /" certs/root-ca.pem\nw'
 
 # cp certs/root-ca.pem web/root-ca.crt
-
-# Install NFS server
-helm_deploy -r ../env -p ../helm -u -f nfs-server-provisioner.values.yaml kvaps/nfs-server-provisioner
-kubectl patch $INGRESS_KIND $INGRESS_NAMESPACE-$INGRESS_CONTROLLER_NAME -n $INGRESS_NAMESPACE --type 'json' --patch \
-  '[{"op": "add", "path": "/spec/template/spec/containers/0/ports/-", "value": {"name":"nfs-tcp","hostPort":2049,"containerPort":2049,"protocol":"TCP"}}]' || true
-kubectl patch $INGRESS_KIND $INGRESS_NAMESPACE-$INGRESS_CONTROLLER_NAME -n $INGRESS_NAMESPACE --type 'json' --patch \
-  '[{"op": "add", "path": "/spec/template/spec/containers/0/ports/-", "value": {"name":"nfs-udp","hostPort":2049,"containerPort":2049,"protocol":"UDP"}}]' || true
-envsubst < nfs-ingress.yaml | kubectl apply -f - --dry-run=client -o yaml | kubectl apply -f -
 
 # add host entry
 external_ip=$(wait_external_ip $INGRESS_NAMESPACE-nginx-$INGRESS_CONTROLLER_NAME $INGRESS_NAMESPACE)

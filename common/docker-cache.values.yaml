@@ -41,7 +41,7 @@ ingress:
   path: /
   # Used to create an Ingress record.
   hosts:
-    - $REGISTRY_URL
+    - CACHE_URL
   annotations: {}
     # kubernetes.io/ingress.class: nginx
     # kubernetes.io/tls-acme: "true"
@@ -50,7 +50,7 @@ ingress:
     # Secrets must be manually created in the namespace.
     - secretName: appliance-cert
       hosts:
-        - $REGISTRY_URL
+        - $CACHE_URL
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious
   # choice for the user. This also increases chances charts run on environments with little
@@ -68,7 +68,7 @@ persistence:
   enabled: true
   size: 5Gi
   storageClass: 'nfs'
-  # existingClaim: ""
+  existingClaim: "docker-registry"
 
 # set the type of filesystem to use: filesystem, s3
 storage: filesystem
@@ -152,8 +152,8 @@ configData:
       prometheus:
         enabled: false
         path: /metrics
-  # proxy:
-  #   remoteurl: https://registry-1.docker.io
+  proxy:
+    remoteurl: https://registry-1.docker.io
   
   health:
     storagedriver:

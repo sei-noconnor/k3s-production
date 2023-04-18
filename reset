@@ -18,6 +18,7 @@ helm delete stackstorm-ha || true
 helm delete mkdocs-material || true
 helm delete pgadmin4 || true
 helm delete docker-registry || true
+helm delete docker-cache || true
 echo "Sleeping for 40 seconds"
 sleep 20
 helm delete postgresql || true 
