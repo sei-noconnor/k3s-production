@@ -1,5 +1,12 @@
 ---
-
+- name: Copy registries file
+  template:
+    src: "registries.yaml.j2"
+    dest: "/etc/rancher/k3s/registries.yaml"
+    owner: root
+    group: root
+    mode: 0644
+    
 - name: Copy K3s service file
   register: k3s_service
   template:
