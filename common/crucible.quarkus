@@ -1,0 +1,11 @@
+quarkus.http.non-application-root-path=/
+# custom redirects
+quarkus.kc-routing.path-redirect./=/$OAUTH_PROVIDER/$OAUTH_AUTHORITY_URL/account
+quarkus.kc-routing.path-redirect./$OAUTH_PROVIDER=/$OAUTH_PROVIDER/$OAUTH_AUTHORITY_URL/account
+quarkus.kc-routing.path-redirect./$OAUTH_PROVIDER/register=/$OAUTH_PROVIDER/$OAUTH_AUTHORITY_URL/protocol/openid-connect/registrations?client_id=account&response_type=code
+quarkus.kc-routing.path-prefix./oauth/authorize=/$OAUTH_PROVIDER/$OAUTH_AUTHORITY_URL/protocol/openid-connect/auth
+quarkus.kc-routing.path-filter./api/v4/user=/$OAUTH_PROVIDER/$OAUTH_AUTHORITY_URL/protocol/openid-connect/userinfo
+quarkus.kc-routing.path-filter./oauth/token=/$OAUTH_PROVIDER/$OAUTH_AUTHORITY_URL/protocol/openid-connect/token
+# block metrics and health enpoints from being exposed through the istio ingress
+quarkus.kc-routing.path-recursive-block./$OAUTH_PROVIDER/metrics=8443
+quarkus.kc-routing.path-recursive-block./$OAUTH_PROVIDER/health=8443

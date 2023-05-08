@@ -105,7 +105,7 @@ auth:
   adminUser: admin
   ## @param auth.adminPassword Keycloak administrator password for the new user
   ##
-  adminPassword: "$ADMIN_PASS"
+  adminPassword: "YmFhMjMyZjVmYzhkYjk3ODc1"
   ## @param auth.existingSecret Existing secret containing Keycloak admin password
   ##
   existingSecret: ""
@@ -163,19 +163,19 @@ spi:
   ## 2) Run the command below where SECRET_NAME is the name of the secret you want to create:
   ##       kubectl create secret generic SECRET_NAME --from-file=./keycloak-spi.truststore.jks --from-file=./keycloak.keystore.jks
   ##
-  existingSecret: ""
+  existingSecret: "keycloak-truststore"
   ## @param spi.truststorePassword Password to access the truststore when it's password-protected
   ##
-  truststorePassword: ""
+  truststorePassword: "password"
   ## @param spi.truststoreFilename Truststore filename inside the existing secret
   ##
-  truststoreFilename: "keycloak-spi.truststore.jks"
+  truststoreFilename: "truststore.jks"
   ## @param spi.passwordsSecret Secret containing the SPI Truststore passwords.
   ##
   passwordsSecret: ""
   ## @param spi.hostnameVerificationPolicy Verify the hostname of the server’s certificate. Allowed values: "ANY", "WILDCARD", "STRICT".
   ##
-  hostnameVerificationPolicy: ""
+  hostnameVerificationPolicy: "ANY"
 
 ## @param production Run Keycloak in production mode. TLS configuration is required except when using proxy=edge.
 ##
@@ -208,7 +208,16 @@ configuration: ""
 existingConfigmap: ""
 ## @param extraStartupArgs Extra default startup args
 ##
-extraStartupArgs: ""
+extraStartupArgs: >
+  --spi-truststore-file-file=/opt/bitnami/keycloak/spi-certs/truststore.jks 
+  --spi-truststore-file-password=password 
+  --spi-truststore-file-hostname-verification-policy=ANY 
+  --spi-truststore-file-type=jks 
+  --spi-x509cert-lookup-provider=nginx 
+  --spi-x509cert-lookup-nginx-ssl-client-cert=ssl-client-cert
+  --spi-x509cert-lookup-nginx-trust-proxy-verification=true 
+  --import-realm
+
 ## @param initdbScripts Dictionary of initdb scripts
 ## Specify dictionary of scripts to be run at first boot
 ## ref: https://github.com/bitnami/containers/tree/main/bitnami/keycloak#initializing-a-new-instance
@@ -238,17 +247,17 @@ extraEnvVars:
   - name: KEYCLOAK_ADMIN
     value: "admin"
   - name: KEYCLOAK_ADMIN_PASSWORD
-    value: "$ADMIN_PASS"
+    value: "YmFhMjMyZjVmYzhkYjk3ODc1"
   - name: KC_HTTP_RELATIVE_PATH
-    value: "/keycloak"
+    value: "/keycloak/"
   - name: KC_DB
     value: "postgres"
   - name: KC_DB_USERNAME
-    value: "$POSTGRES_USER"
+    value: "postgres"
   - name: KC_DB_PASSWORD
-    value: "$POSTGRES_PASS"
+    value: "MTM2Yjc0ZjJhZjE0ZmZkMWNk"
   - name: KC_DB_URL_HOST
-    value: "$POSTGRES_SERVER"
+    value: "postgresql"
   - name: KC_DB__URL_PORT
     value: "5432"
   - name: KC_DB_URL_DATABASE
@@ -256,13 +265,31 @@ extraEnvVars:
   - name: KC_HOSTNAME
     value: $DOMAIN
   - name: KC_HOSTNAME_STRICT
-    value: "true"
+    value: "false"
   - name: KC_HOSTNAME_STRICT_HTTPS
-    value: "true"
+    value: "false"
   - name: KC_HTTPS_CLIENT_AUTH
     value: "request"
   - name: CUSTOM_REGISTRATION_CONFIG
-    value: /opt/keycloak/conf/customreg.yaml
+    value: /opt/bitnami/keycloak/conf/customreg.yaml
+  - name: PROXY_ADDRESS_FORWARDING
+    value: "true"
+  # - name: JAVA_OPTS_APPEND
+  #   value: "-Dcom.redhat.fips=false"
+  - name: KC_LOG_LEVEL
+    value: "org.keycloak.events:DEBUG,org.infinispan:INFO,org.jgroups:INFO"
+  - name: KC_CACHE
+    value: ispn
+  - name: KC_CACHE_STACK
+    value: kubernetes
+  - name: KC_METRICS_ENABLED
+    value: "true"
+  # - name: KC_HTTPS_TRUST_STORE_FILE
+  #   value: /opt/bitnami/keycloak/spi-certs/truststore.jks
+  # - name: KC_HTTPS_TRUST_STORE_PASSWORD
+  #   value: "password"
+
+
 
 
 ## @param extraEnvVarsCM Name of existing ConfigMap containing extra env vars
@@ -325,12 +352,15 @@ resources:
 ## @param livenessProbe.successThreshold Success threshold for livenessProbe
 ##
 livenessProbe:
-  enabled: true
+  enabled: false
   initialDelaySeconds: 300
   periodSeconds: 1
   timeoutSeconds: 5
   failureThreshold: 3
   successThreshold: 1
+  httpGet:
+    path: /keycloak/realms/master
+    port: http
 ## @param readinessProbe.enabled Enable readinessProbe on Keycloak containers
 ## @param readinessProbe.initialDelaySeconds Initial delay seconds for readinessProbe
 ## @param readinessProbe.periodSeconds Period seconds for readinessProbe
@@ -339,12 +369,15 @@ livenessProbe:
 ## @param readinessProbe.successThreshold Success threshold for readinessProbe
 ##
 readinessProbe:
-  enabled: true
+  enabled: false
   initialDelaySeconds: 30
   periodSeconds: 10
   timeoutSeconds: 1
   failureThreshold: 3
   successThreshold: 1
+  httpGet:
+    path: /keycloak
+    port: http
 ## When enabling this, make sure to set initialDelaySeconds to 0 for livenessProbe and readinessProbe
 ## @param startupProbe.enabled Enable startupProbe on Keycloak containers
 ## @param startupProbe.initialDelaySeconds Initial delay seconds for startupProbe
@@ -451,10 +484,56 @@ updateStrategy:
   rollingUpdate: {}
 ## @param extraVolumes Optionally specify extra list of additional volumes for Keycloak pods
 ##
-extraVolumes: []
+extraVolumes: |-
+  - name: customreg
+    secret:
+      secretName: keycloak-import
+      items:
+      - key: customreg.yaml
+        path: customreg.yaml
+  - name: realm
+    secret:
+      secretName: keycloak-import
+      items:
+      - key: realm.json
+        path: realm.json
+  # - name: truststore
+  #   secret:
+  #     secretName: keycloak-truststore
+  #     items:
+  #     - key: truststore.jks
+  #       path: truststore.jks
+  - name: plugin
+    emptyDir: {}
+  - name: quarkusproperties
+    secret:
+      secretName: keycloak-import
+      items:
+      - key: quarkus.properties
+        path: quarkus.properties
+      defaultMode: 0777
+  
 ## @param extraVolumeMounts Optionally specify extra list of additional volumeMounts for Keycloak container(s)
 ##
-extraVolumeMounts: []
+extraVolumeMounts: |-
+  - name: customreg
+    mountPath: /opt/bitnami/keycloak/conf/customreg.yaml
+    subPath: customreg.yaml
+    readOnly: true
+  - name: realm
+    mountPath: /opt/bitnami/keycloak/data/import/realm.json
+    subPath: realm.json
+  # - name: truststore
+  #   mountPath: /opt/bitnami/keycloak/spi-certs/truststore.jks
+  #   subPath: truststore.jks
+  - name: plugin
+    mountPath: /opt/bitnami/keycloak/providers/p1-keycloak-plugin.jar
+    subPath: p1-keycloak-plugin.jar
+  - name: quarkusproperties
+    mountPath: /opt/bitnami/keycloak/conf/quarkus.properties
+    subPath: quarkus.properties
+  
+
 ## @param initContainers Add additional init containers to the Keycloak pods
 ## Example:
 ## initContainers:
@@ -465,7 +544,20 @@ extraVolumeMounts: []
 ##       - name: portname
 ##         containerPort: 1234
 ##
-initContainers: []
+initContainers: 
+  - name: plugin
+    image: registry.covert-cloud.com/keycloak-p1-auth-plugin/init-container:3.2.0
+    imagePullPolicy: Always
+    command:
+    - sh
+    - -c
+    - |
+      cp /app/p1-keycloak-plugin.jar /init
+      ls -l /init
+    volumeMounts:
+    - name: plugin
+      mountPath: "/init"
+    
 ## @param sidecars Add additional sidecar containers to the Keycloak pods
 ## Example:
 ## sidecars:
@@ -567,7 +659,7 @@ ingress:
   ingressClassName: "nginx"
   ## @param ingress.pathType Ingress path type
   ##
-  pathType: ImplementationSpecific
+  pathType: Prefix
   ## @param ingress.apiVersion Force Ingress API version (automatically detected if not set)
   ##
   apiVersion: ""
@@ -576,7 +668,7 @@ ingress:
   hostname: $DOMAIN
   ## @param ingress.path Default path for the ingress record
   ##
-  path: /keycloak
+  path: "/(keycloak)(/|$)(.*)"
   ## @param ingress.servicePort Backend service port to use
   ## Default is http. Alternative is https.
   ##
@@ -589,7 +681,15 @@ ingress:
   ##   kubernetes.io/ingress.class: nginx
   ##   cert-manager.io/cluster-issuer: cluster-issuer-name
   ##
-  annotations: {}
+  annotations: 
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /$1$2$3
+    nginx.ingress.kubernetes.io/proxy-buffer-size: "256k"
+    nginx.ingress.kubernetes.io/auth-tls-verify-client: "optional"
+    nginx.ingress.kubernetes.io/auth-tls-secret: "ingress/dod-certs"
+    nginx.ingress.kubernetes.io/auth-tls-verify-depth: "2"
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      proxy_set_header ssl-client-cert $ssl_client_escaped_cert;
   ## @param ingress.tls Enable TLS configuration for the host defined at `ingress.hostname` parameter
   ## TLS certificates will be retrieved from a TLS secret with name: `{{- printf "%s-tls" (tpl .Values.ingress.hostname .) }}`
   ## You can:
@@ -1053,11 +1153,11 @@ postgresql:
 ## @param externalDatabase.existingSecretPasswordKey Name of an existing secret key containing the database credentials
 ##
 externalDatabase:
-  host: "$POSTGRES_SERVER"
+  host: "postgresql"
   port: 5432
-  user: $POSTGRES_USER
+  user: postgres
   database: keycloak
-  password: "$POSTGRES_PASS"
+  password: "MTM2Yjc0ZjJhZjE0ZmZkMWNk"
   existingSecret: ""
   existingSecretPasswordKey: ""
 
@@ -1084,5 +1184,5 @@ cache:
 ##
 logging:
   output: default
-  level: INFO
+  level: DEBUG
 
