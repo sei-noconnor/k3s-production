@@ -8,5 +8,5 @@ import_vars ../env
 helm delete gitlab || true
 echo "sleeping for 60 seconds"
 sleep 60
-kubectl exec postgresql-0 -- psql "postgresql://$POSTGRES_USER:$POSTGRES_PASS@localhost" -c "DROP DATABASE IF EXISTS gitlab_db;" || true
+kubectl exec postgresql-0 -- psql "postgresql://$POSTGRES_USER:$POSTGRES_PASS@localhost" -c "DROP DATABASE IF EXISTS gitlab_db WITH (FORCE);" || true
 kubectl delete pvc repo-data-gitlab-gitaly-0
