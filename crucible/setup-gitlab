@@ -1,4 +1,4 @@
-#!/bin/bash -e
+#!/bin/bash -xe
 # Must be run as sudo
 #[ `whoami` = root ] || { sudo "$0" "$@"; exit $?; }
 directory=$(dirname "${BASH_SOURCE[0]}")
@@ -11,12 +11,14 @@ max_timeout=1200
 domain=${domain:-$DOMAIN}
 if [[ -z $GITLAB_URL ]]; then
   export GITLAB_URL=gitlab.$domain
+
   sed -i -e "s/GITLAB_URL=.*/GITLAB_URL=gitlab.$domain/" ../env
 fi
 # set gitlab variables.
 gitlab_token=$(awk '/Terraform__GitlabToken/ {print $2}' caster.values.yaml | tr -d '"')
 modules_group="caster-modules"
-admin_uid=$(awk '/Account__AdminGuid/ {print $2}' ../common/identity.values.yaml | tr -d '"')
+admin_uid=$OAUTH_ADMIN_GUID
+oauth_provider=$OAUTH_PROVIDER
 gitlab_group_id=$(awk '/Terraform__GitlabGroupId/ {print $2}' caster.values.yaml | tr -d '"')
 echo "GitlabToken: ${gitlab_token}"
 echo "GitlabGroupId: ${gitlab_group_id}"
@@ -87,7 +89,7 @@ h_json="Content-Type: application/json"
 # Set root to admin@${domain}
 req=$(curl -ks --location --request GET "${api_url}/users?username=root")
 user_id=$(echo ${req} | jq -j '.[0] | .id')
-data_json=$(echo ${req} | jq --arg admin_uid "${admin_uid}" '.[0] | .provider = "identity" | .extern_uid = $admin_uid')
+data_json=$(echo ${req} | jq --arg admin_uid "${admin_uid}" --arg oauth_provider "${oauth_provider}" '.[0] | .provider = $oauth_provider | .extern_uid = $admin_uid')
 req=$(curl -k --location --request PUT "${api_url}/users/${user_id}" \
 --header "${h_json}" \
 --header "${h_auth}" \
