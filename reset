@@ -19,6 +19,7 @@ helm delete mkdocs-material || true
 helm delete pgadmin4 || true
 helm delete docker-registry || true
 helm delete docker-cache || true
+helm delete keycloak || true
 echo "Sleeping for 40 seconds"
 sleep 20
 helm delete postgresql || true 

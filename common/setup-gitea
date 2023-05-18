@@ -16,7 +16,7 @@ REQ=$( curl "${CURL_OPTS[@]}" \
 USER_TOKEN=$(curl "${CURL_OPTS[@]}" \
                 --user administrator:$ADMIN_PASS \
                 --request POST "https://$DOMAIN/gitea/api/v1/users/administrator/tokens" \
-                --data "{ \"name\": \"appliance-setup\"}" | jq -r '.sha1'
+                --data "{ \"name\": \"appliance-setup\", \"scopes\": [\"repo\",\"admin:org\",\"write:org\",\"read:org\"]}" | jq -r '.sha1'
 )
 
 # Change to the current directory

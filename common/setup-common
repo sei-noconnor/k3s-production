@@ -1,4 +1,4 @@
-#!/bin/bash -xe
+#!/bin/bash -e
 # 
 # Copyright 2021 Carnegie Mellon University.
 # Released under a BSD (SEI)-style license, please see LICENSE.md in the
@@ -74,12 +74,14 @@ timeout 5m bash -c 'while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' https:/
 
 # Install Common foundry apps
 if [ $OAUTH_PROVIDER = keycloak ]; then 
-  replace_vars crucible-realm.json
+  replace_vars baby-yoda.json
+  replace_vars crucible.quarkus
+
   kubectl create secret generic keycloak-truststore \
     --from-file=truststore.jks=./certs/truststore.jks \
     --dry-run=client -o yaml | kubectl apply -f -
   kubectl create secret generic keycloak-import \
-    --from-file=realm.json=crucible.json \
+    --from-file=realm.json=baby-yoda.json \
     --from-file=customreg.yaml=crucible.yaml \
     --from-file=quarkus.properties=crucible.quarkus \
     --dry-run=client -o yaml | kubectl apply -f -
@@ -91,7 +93,7 @@ elif [ $OAUTH_PROVIDER = identity ]; then
 fi
 
 
-if [[ $CAC_ENABLED = true ]]; then 
+if [ $OAUTH_PROVIDER = identity ]; then 
   kubectl create configmap dod-certs --from-file=issuers-dod-sei.crt=certs/issuers-dod-sei.crt -n ingress --dry-run=client -o yaml | kubectl apply -f -
   kubectl create secret generic dod-certs --from-file=ca.crt=certs/issuers-dod-sei.crt -n ingress --dry-run=client -o yaml | kubectl apply -f -
   replace_vars ./identity-cac.values.yaml
