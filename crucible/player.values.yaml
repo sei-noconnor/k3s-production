@@ -262,9 +262,9 @@ vm-api:
 
     # OAuth2 Identity Client /w Password
     IdentityClient__TokenUrl: https://$DOMAIN/$OAUTH_PROVIDER/$OAUTH_TOKEN_URL
-    IdentityClient__ClientId: ${OAUTH_ENV_NAME}_${OAUTH_GROUP_ID}_player-admin"
-    IdentityClient__Scope: "openid player-api vm-api"
-    IdentityClient__Username: "crucible-admin@$DOMAIN"
+    IdentityClient__ClientId: ${OAUTH_ENV_NAME}_${OAUTH_GROUP_ID}_player-admin
+    IdentityClient__Scope: "player-api vm-api"
+    IdentityClient__UserName: "crucible-admin@$DOMAIN"
     IdentityClient__Password: "$CRUCIBLE_ADMIN_PASS"
 
     # Crucible Player URL
