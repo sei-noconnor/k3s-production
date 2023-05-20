@@ -478,7 +478,7 @@ $OAUTH_CRUCIBLE_ADMIN_GUID	crucible-admin@$DOMAIN
 --
 
 COPY public.workspaces (id, name, state, directory_id, state_backup, last_synced, sync_errors, host_id, dynamic_host, terraform_version) FROM stdin;
-a1259e68-1c98-4899-8c7e-0517e43408ff	Example	\N	4f45e422-088e-42a0-bbfa-3b9dfc1cc98e	\N	\N	\N	\N	f	0.14.0
+a1259e68-1c98-4899-8c7e-0517e43408ff	Example	\N	4f45e422-088e-42a0-bbfa-3b9dfc1cc98e	\N	\N	\N	\N	f	1.4.6
 \.
 
 
