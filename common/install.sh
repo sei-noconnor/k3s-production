@@ -24,7 +24,7 @@ kubectl patch configmap $INGRESS_CONFIGMAP \
                         --namespace $INGRESS_NAMESPACE
 
 # Add host certificate
-kubectl create secret tls appliance-cert --key certs/host-key.pem --cert <( cat certs/host.pem ) --dry-run=client -o yaml | kubectl apply -f -
+kubectl create secret tls appliance-cert --key certs/host-key.pem --cert certs/host.pem --dry-run=client -o yaml | kubectl apply -f -
 # Add root ca
 if [[ -f certs/root-ca.pem ]]; then
   kubectl create secret generic appliance-root-ca --from-file=appliance-root-ca=certs/root-ca.pem --dry-run=client -o yaml | kubectl apply -f -  
@@ -46,7 +46,7 @@ envsubst < docker-cache.values.yaml | helm upgrade --install -f - docker-cache t
 helm_deploy -r ../env -p ../helm -u --wait -f postgresql.values.yaml bitnami/postgresql
 
 # Install pgAdmin4
-kubectl create secret generic pgpassfile --from-literal=pgpassfile=postgresql:5432:\*:postgres:MTM2Yjc0ZjJhZjE0ZmZkMWNk --dry-run=client -o yaml | kubectl apply -f -
+kubectl create secret generic pgpassfile --from-literal=pgpassfile=postgresql:5432:\*:$POSTGRES_USER:$POSTGRES_PASS --dry-run=client -o yaml | kubectl apply -f -
 helm_deploy -r ../env -u -p ~/.helm -f pgadmin4.values.yaml runix/pgadmin4
 
 # Install code-server (browser-based VS Code)
@@ -65,6 +65,7 @@ external_ip=$(wait_external_ip $INGRESS_NAMESPACE-nginx-$INGRESS_CONTROLLER_NAME
 echo "The External IP is $external_ip"
 echo "ADDING HOST ENTRY"
 add_host_entry $external_ip $DOMAIN
+
 # Install Gitea
 git config --global init.defaultBranch main
 kubectl exec postgresql-0 -- psql 'postgresql://$POSTGRES_USER:$POSTGRES_PASS@localhost' -c 'CREATE DATABASE gitea;' || true
@@ -76,7 +77,11 @@ timeout 5m bash -c 'while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' https:/
 if [ $OAUTH_PROVIDER = keycloak ]; then 
   replace_vars crucible.json
   replace_vars crucible.quarkus
-
+  kubectl create configmap dod-certs \
+    --from-file=issuers-dod-sei.crt=certs/issuers-dod-sei.crt \
+    -n $INGRESS_NAMESPACE --dry-run=client -o yaml | kubectl apply -f -
+  kubectl create secret generic dod-certs \
+    --from-file=ca.crt=certs/issuers-dod-sei.crt -n $INGRESS_NAMESPACE --dry-run=client -o yaml | kubectl apply -f -
   kubectl create secret generic keycloak-truststore \
     --from-file=truststore.jks=./certs/truststore.jks \
     --dry-run=client -o yaml | kubectl apply -f -
@@ -85,7 +90,7 @@ if [ $OAUTH_PROVIDER = keycloak ]; then
     --from-file=customreg.yaml=crucible.yaml \
     --from-file=quarkus.properties=crucible.quarkus \
     --dry-run=client -o yaml | kubectl apply -f -
-  kubectl exec postgresql-0 -- psql "postgresql://$POSTGRES_USER:$POSTGRES_PASS@localhost" -c 'CREATE DATABASE keycloak;' || true
+  kubectl exec postgresql-0 -- psql "postgresql://postgres:MTM2Yjc0ZjJhZjE0ZmZkMWNk@localhost" -c 'CREATE DATABASE keycloak;' || true
   replace_vars ./keycloak.values.yaml
   helm upgrade --install --version 14.4.0 -f keycloak.values.yaml keycloak bitnami/keycloak
 elif [ $OAUTH_PROVIDER = identity ]; then 
@@ -93,12 +98,12 @@ elif [ $OAUTH_PROVIDER = identity ]; then
 fi
 
 
-if [ $OAUTH_PROVIDER = identity ]; then 
-  kubectl create configmap dod-certs --from-file=issuers-dod-sei.crt=certs/issuers-dod-sei.crt -n ingress --dry-run=client -o yaml | kubectl apply -f -
-  kubectl create secret generic dod-certs --from-file=ca.crt=certs/issuers-dod-sei.crt -n ingress --dry-run=client -o yaml | kubectl apply -f -
-  replace_vars ./identity-cac.values.yaml
-  helm upgrade --install --wait --version 0.2.0 -f identity-cac.values.yaml identity sei/identity
-  #helm_deploy -r ../env -u -v 0.2.0 -p ~/.helm -f identity-cac.values.yaml sei/identity
-else
-  helm_deploy -r ../env -u -v 0.2.0 -p ~/.helm -f identity.values.yaml sei/identity
-fi
+# if [ keycloak = identity ]; then 
+#   kubectl create configmap dod-certs --from-file=issuers-dod-sei.crt=certs/issuers-dod-sei.crt -n ingress --dry-run=client -o yaml | kubectl apply -f -
+#   kubectl create secret generic dod-certs --from-file=ca.crt=certs/issuers-dod-sei.crt -n ingress --dry-run=client -o yaml | kubectl apply -f -
+#   replace_vars ./identity-cac.values.yaml
+#   helm upgrade --install --wait --version 0.2.0 -f identity-cac.values.yaml identity sei/identity
+#   #helm_deploy -r ../env -u -v 0.2.0 -p ~/.helm -f identity-cac.values.yaml sei/identity
+# else
+#   helm_deploy -r ../env -u -v 0.2.0 -p ~/.helm -f identity.values.yaml sei/identity
+# fi

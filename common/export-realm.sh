@@ -11,4 +11,4 @@ import_vars ../env
 realm=$1
 kubectl config set-context --current --namespace=default
 kubectl exec keycloak-0 -- /bin/bash -c "/opt/bitnami/keycloak/bin/kc.sh export --dir /tmp --realm $realm --users realm_file"
-kubectl cp default/keycloak-0:tmp/$realm-realm.json ./baby-yoda.json
+kubectl cp default/keycloak-0:tmp/$realm-realm.json ./$realm.json

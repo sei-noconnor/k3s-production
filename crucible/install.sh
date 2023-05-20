@@ -17,7 +17,7 @@ MKDOCS_DIR=~/k3s-production/mkdocs
 
 ./setup-gitlab
 # # Crucible Stack install
-if [[ ${IMPORT_CONTENT-$IMPORT_CONTENT} = false ]]; then 
+if [[ ${IMPORT_CONTENT-false} = false ]]; then 
   helm_deploy -r ../env -p ../helm -u -v 1.4.1 -f player.values.yaml sei/player
   helm_deploy -r ../env -p ../helm -u -v 1.4.1 -f caster.values.yaml sei/caster
   helm_deploy -r ../env -p ../helm -u -v 1.4.0 -f alloy.values.yaml sei/alloy
@@ -40,4 +40,4 @@ fi
 sed -i '/crucible.md/d' $MKDOCS_DIR/.gitignore
 git -C $MKDOCS_DIR add -A || true
 git -C $MKDOCS_DIR commit -m "Add Crucible Docs" || true
-git -C $MKDOCS_DIR push -u https://administrator:$ADMIN_PASS@$DOMAIN/gitea/foundry/mkdocs.git --all || true
+git -C $MKDOCS_DIR push -u https://administrator:YmFhMjMyZjVmYzhkYjk3ODc1@crucible.covert-cloud.com/gitea/foundry/mkdocs.git --all || true

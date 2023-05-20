@@ -77,17 +77,18 @@ envsubst < $directory/values/metalLB/03-metallb-config.yaml | kubectl apply -n $
 #kubectl apply -n $METAL_NAMESPACE -f $directory/values/metalLB
 helm_deploy -r ./env -p helm -v 4.6.1 -u -f $directory/values/nginx/ingress-nginx.values.yaml ingress-nginx/ingress-nginx --wait -n $INGRESS_NAMESPACE --create-namespace
 
+kubectl create secret tls appliance-cert --key $directory/common/certs/host-key.pem --cert $directory/common/certs/host.pem --dry-run=client -o yaml | kubectl apply -f - -n $LONGHORN_NAMESPACE
 helm_deploy -r ./env -p helm -v 1.3.1 -u -f $directory/values/longhorn/longhorn.values.yaml longhorn/longhorn --wait -n $LONGHORN_NAMESPACE --create-namespace
-kubectl create secret tls appliance-cert --key $directory/common/certs/host-key.pem --cert <( cat $directory/common/certs/host.pem ) --dry-run=client -o yaml | kubectl apply -f - -n $LONGHORN_NAMESPACE
+
 # Always run common apps. 
 apps="common,$1"
 IFS=',' read -a stacks <<< $apps
 echo "The following apps will be installed ${stacks[@]}"
 for stack in ${stacks[@]}; do
-  replace_vars $directory/$stack/setup-$stack
-  chmod +x $directory/$stack/setup-$stack
-  echo "Installing $stack with script located at $directory/$stack/setup-$stack"
-  $directory/$stack/setup-$stack
+  # replace_vars $directory/$stack/setup-$stack
+  chmod +x $directory/$stack/install.sh
+  echo "Installing $stack with script located at $directory/$stack/install.sh"
+  $directory/$stack/install.sh
   sleep 15
 done
 
