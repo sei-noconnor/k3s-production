@@ -24,11 +24,11 @@ The kubernetes cluster utilizes the kubernetes ingress nginx controller, with a 
 2. Clone this repository: `git clone https://github.com/sei-noconnor/k3s-production.git`
 3. Navigate to: `cd k3s-production`.
 4. Rename `env.example` to `env` and set the variables in this file, many required defaults are intentionally missing, pay close attention to TOKEN and PASS variables.
-5. Run `sudo ./prep`. This will install the binaries needed for the appliance, including terraform, ansible and the kubernetes binaries
+5. Run `sudo ./prep.sh`. This will install the binaries needed for the appliance, including terraform, ansible and the kubernetes binaries
 
 ## ENV File
 
-The `env` file is a set a variables for customizing the stack to your unique infrastructure. It is laid out like an ini file and similar in function to docker-compose env file. The `./setup` script will replace these values in the relevant files.
+The `env` file is a set a variables for customizing the stack to your unique infrastructure. It is laid out like an ini file and similar in function to docker-compose env file. The `./setup.sh` script will replace these values in the relevant files.
 
 ## Networking
 
@@ -77,7 +77,7 @@ If you are providing your own certificate be sure to place certificates in `comm
 
 You should now have a kubernetes cluster deployed with Terraform and configured with Ansible. Verify your `env` file has all the values needed.
 
-from the root of the `k3s-production` directory run `./setup`
+from the root of the `k3s-production` directory run `./setup.sh`
 
 Once complete you should have a working Crucible stack. Navigate to any of the URLs and login.
 
