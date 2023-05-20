@@ -1,0 +1,36 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: player-connect
+  annotations:
+    kubernetes.io/ingress.class: $INGRESS_CLASS
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "86400"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "86400"
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/server-snippet: |
+      location ~ /connect/ticket/(.+) {
+          #resolver 127.0.0.11 ipv6=off valid=60;
+          proxy_pass https://$arg_vmhost/ticket/$1;
+          proxy_http_version 1.1;
+          proxy_request_buffering off;
+          proxy_buffering off;
+          proxy_set_header Upgrade $http_upgrade;
+          proxy_set_header Connection "upgrade";
+          proxy_ssl_session_reuse on;
+      }
+spec:
+  tls:
+    - hosts: 
+        - $DOMAIN
+      secretName: appliance-cert
+  rules:
+    - host: $DOMAIN
+      http:
+        paths:
+          - path:  "/console/ticket(/|$)(.*)"
+            pathType: Prefix
+            backend:
+              service:
+                name: player-console
+                port:
+                  number: 80
