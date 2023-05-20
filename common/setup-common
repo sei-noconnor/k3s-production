@@ -46,7 +46,7 @@ envsubst < docker-cache.values.yaml | helm upgrade --install -f - docker-cache t
 helm_deploy -r ../env -p ../helm -u --wait -f postgresql.values.yaml bitnami/postgresql
 
 # Install pgAdmin4
-kubectl create secret generic pgpassfile --from-literal=pgpassfile=postgresql:5432:\*:$POSTGRES_USER:$POSTGRES_PASS --dry-run=client -o yaml | kubectl apply -f -
+kubectl create secret generic pgpassfile --from-literal=pgpassfile=postgresql:5432:\*:postgres:MTM2Yjc0ZjJhZjE0ZmZkMWNk --dry-run=client -o yaml | kubectl apply -f -
 helm_deploy -r ../env -u -p ~/.helm -f pgadmin4.values.yaml runix/pgadmin4
 
 # Install code-server (browser-based VS Code)
@@ -74,14 +74,14 @@ timeout 5m bash -c 'while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' https:/
 
 # Install Common foundry apps
 if [ $OAUTH_PROVIDER = keycloak ]; then 
-  replace_vars baby-yoda.json
+  replace_vars crucible.json
   replace_vars crucible.quarkus
 
   kubectl create secret generic keycloak-truststore \
     --from-file=truststore.jks=./certs/truststore.jks \
     --dry-run=client -o yaml | kubectl apply -f -
   kubectl create secret generic keycloak-import \
-    --from-file=realm.json=baby-yoda.json \
+    --from-file=realm.json=crucible.json \
     --from-file=customreg.yaml=crucible.yaml \
     --from-file=quarkus.properties=crucible.quarkus \
     --dry-run=client -o yaml | kubectl apply -f -

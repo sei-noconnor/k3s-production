@@ -209,6 +209,7 @@ existingConfigmap: ""
 ## @param extraStartupArgs Extra default startup args
 ##
 extraStartupArgs: >
+  --spi-theme-welcome-theme=crucible
   --spi-truststore-file-file=/opt/bitnami/keycloak/spi-certs/truststore.jks 
   --spi-truststore-file-password=password 
   --spi-truststore-file-hostname-verification-policy=ANY 
@@ -278,12 +279,14 @@ extraEnvVars:
   #   value: "-Dcom.redhat.fips=false"
   - name: KC_LOG_LEVEL
     value: "org.keycloak.events:DEBUG,org.infinispan:INFO,org.jgroups:INFO"
-  - name: KC_CACHE
-    value: ispn
-  - name: KC_CACHE_STACK
-    value: kubernetes
+  # - name: KC_CACHE
+  #   value: ispn
+  # - name: KC_CACHE_STACK
+  #   value: kubernetes
   - name: KC_METRICS_ENABLED
     value: "true"
+  - name: DOMAIN
+    value: $DOMAIN"
   # - name: KC_HTTPS_TRUST_STORE_FILE
   #   value: /opt/bitnami/keycloak/spi-certs/truststore.jks
   # - name: KC_HTTPS_TRUST_STORE_PASSWORD
@@ -546,7 +549,7 @@ extraVolumeMounts: |-
 ##
 initContainers: 
   - name: plugin
-    image: registry.covert-cloud.com/keycloak-p1-auth-plugin/init-container:3.2.0
+    image: cmusei/keycloak-auth-plugin:development
     imagePullPolicy: Always
     command:
     - sh
@@ -1171,7 +1174,7 @@ externalDatabase:
 ## @param cache.stackFile Set infinispan cache stack filename to use
 ##
 cache:
-  enabled: true
+  enabled: false
   stackName: kubernetes
   stackFile: ""
 
