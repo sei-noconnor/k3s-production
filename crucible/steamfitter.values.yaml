@@ -37,16 +37,16 @@ steamfitter-api:
     Logging__Console__LogLevel__System: "$CRUCIBLE_LOG_LEVEL"
     Logging__Console__LogLevel__Microsoft: "$CRUCIBLE_LOG_LEVEL"
     # OAuth2 Identity Client for Application
-    Authorization__Authority: https://$DOMAIN/identity
-    Authorization__AuthorizationUrl: https://$DOMAIN/identity/connect/authorize
-    Authorization__TokenUrl: https://$DOMAIN/identity/connect/token
+    Authorization__Authority: https://$DOMAIN/$OAUTH_PROVIDER/$OAUTH_AUTHORITY_URL
+    Authorization__AuthorizationUrl: https://$DOMAIN/$OAUTH_PROVIDER/$OAUTH_AUTHORIZATION_URL
+    Authorization__TokenUrl: https://$DOMAIN/$OAUTH_PROVIDER/$OAUTH_TOKEN_URL
     Authorization__AuthorizationScope: "steamfitter-api vm-api"
-    Authorization__ClientId: steamfitter-api
+    Authorization__ClientId: ${OAUTH_ENV_NAME}_${OAUTH_GROUP_ID}_steamfitter-api
     Authorization__ClientName: "Steamfitter API"
 
     # OAuth2 Identity Client /w Password
-    ResourceOwnerAuthorization__Authority: https://$DOMAIN/identity
-    ResourceOwnerAuthorization__ClientId: steamfitter-admin
+    ResourceOwnerAuthorization__Authority: https://$DOMAIN/$OAUTH_PROVIDER/$OAUTH_AUTHORITY_URL
+    ResourceOwnerAuthorization__ClientId: ${OAUTH_ENV_NAME}_${OAUTH_GROUP_ID}_steamfitter-admin
     ResourceOwnerAuthorization__UserName: crucible-admin@$DOMAIN #TODO
     ResourceOwnerAuthorization__Password: $CRUCIBLE_ADMIN_PASS #TODO
     ResourceOwnerAuthorization__Scope: "vm-api"
@@ -64,15 +64,15 @@ steamfitter-api:
 
     # Basic seed data to jumpstart deployement
     # TODO - Document Seed data
-    SeedData__Users__0__id: "dee684c5-2eaf-401a-915b-d3d4320fe5d5"
+    SeedData__Users__0__id: "$OAUTH_ADMIN_GUID"
     SeedData__Users__0__name:  "administrator@$DOMAIN"
-    SeedData__Users__1__id: "32c11441-7eec-47eb-a915-607c4f2529f4"
+    SeedData__Users__1__id: "$OAUTH_CRUCIBLE_ADMIN_GUID"
     SeedData__Users__1__name:  "crucible-admin@$DOMAIN"
     
 
-    SeedData__UserPermissions__0__UserId: "dee684c5-2eaf-401a-915b-d3d4320fe5d5"
+    SeedData__UserPermissions__0__UserId: "$OAUTH_ADMIN_GUID"
     SeedData__UserPermissions__0__PermissionId: "00000000-0000-0000-0000-000000000001"
-    SeedData__UserPermissions__1__UserId: "32c11441-7eec-47eb-a915-607c4f2529f4"
+    SeedData__UserPermissions__1__UserId: "$OAUTH_CRUCIBLE_ADMIN_GUID"
     SeedData__UserPermissions__1__PermissionId: "00000000-0000-0000-0000-000000000001"
 
 steamfitter-ui:
@@ -110,7 +110,7 @@ steamfitter-ui:
       "VmApiUrl": "https://$DOMAIN/vm",
       "ApiPlayerUrl": "https://$DOMAIN/player",
       "OIDCSettings": {
-          "authority": "https://$DOMAIN/identity",
+          "authority": "https://$DOMAIN/$OAUTH_PROVIDER/$OAUTH_AUTHORITY_URL",
           "client_id": "steamfitter-ui",
           "redirect_uri": "https://$DOMAIN/steamfitter/auth-callback",
           "post_logout_redirect_uri": "https://$DOMAIN/steamfitter",
