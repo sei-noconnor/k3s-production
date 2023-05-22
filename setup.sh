@@ -9,7 +9,7 @@ MKDOCS_DIR=~/k3s-production/mkdocs
 
 # Replace variables in files
 replace_vars $directory/common '.*\.(json|conf)'
-replace_vars $directory/crucible '.*\.(json|conf|sql)'
+replace_vars $directory/crucible '.*\.(json|conf)'
 replace_vars $directory/k3s-ansible '.*\.(json|conf|yaml|yml)'
 replace_vars $directory/terraform '.*\.(json|conf|yaml|yml|auto.tfvars)'
 replace_vars $directory/values '.*\.(json|conf|yaml|yml)'

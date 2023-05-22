@@ -18,6 +18,8 @@ MKDOCS_DIR=~/k3s-production/mkdocs
 ./setup-gitlab
 # # Crucible Stack install
 if [[ ${IMPORT_CONTENT-false} = false ]]; then 
+  replace_vars player-console-ingress.yaml
+  kubectl apply -f player-console-ingress.yaml
   helm_deploy -r ../env -p ../helm -u -v 1.4.1 -f player.values.yaml sei/player
   helm_deploy -r ../env -p ../helm -u -v 1.4.1 -f caster.values.yaml sei/caster
   helm_deploy -r ../env -p ../helm -u -v 1.4.0 -f alloy.values.yaml sei/alloy
