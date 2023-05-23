@@ -1,12 +1,4 @@
 ---
-- name: Copy registries file
-  template:
-    src: "registries.yaml.j2"
-    dest: "/etc/rancher/k3s/registries.yaml"
-    owner: root
-    group: root
-    mode: 0644
-    
 - name: Copy K3s service file
   template:
     src: "k3s.service.j2"
@@ -14,6 +6,20 @@
     owner: root
     group: root
     mode: 0755
+
+- name: Create a directory if it does not exist
+  ansible.builtin.file:
+    path: /etc/rancher/k3s
+    state: directory
+    mode: '0755'
+
+- name: Copy registries file
+  template:
+    src: "registries.yaml.j2"
+    dest: "/etc/rancher/k3s/registries.yaml"
+    owner: root
+    group: root
+    mode: 0644
 
 - name: Enable and check K3s service
   systemd:
