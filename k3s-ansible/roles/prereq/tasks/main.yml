@@ -42,6 +42,23 @@
     - net.bridge.bridge-nf-call-iptables
     - net.bridge.bridge-nf-call-ip6tables
 
+- name: Add NFS Packages DNF
+  ansible.builtin.dnf:
+    name: 
+    - nfs-utils
+    - iscsi-initiator-utils
+    state: present
+  when: ansible_distribution in ['CentOS', 'Red Hat Enterprise Linux', 'RedHat']
+
+- name: Add NFS Packages APT
+  ansible.builtin.apt:
+    name: 
+    - nfs-common
+    - open-iscsi
+    state: present
+    update_cache: yes
+  when: ansible_distribution in ['Ubuntu', 'Debian']
+
 - name: set proxy environment variables
   lineinfile:
     dest: /etc/environment
@@ -63,8 +80,15 @@
     port: "{{item}}"
     state: "enabled"
   with_items:
-    - 6443/tcp
+    # - 80/tcp
+    # - 443/tcp
+    # - 2049/tcp
     - 2379-2380/tcp
+    # - 6443/tcp
+    # - 8000/tcp
+    # - 8002/tcp
+    # - 8500-8501/tcp
+    # - 9500/tcp
     - 10250-10252/tcp
     - 10255/tcp
   when: ansible_distribution in ['CentOS', 'Red Hat Enterprise Linux', 'RedHat']
@@ -87,7 +111,7 @@
   with_items:
     - {state: "enabled", zone: "trusted", source: "10.42.0.0/16"}
     - {state: "enabled", zone: "trusted", source: "10.43.0.0/16"}
-    - {state: "enabled", zone: "trusted", source: "10.64.149.0/24"}
+    - {state: "enabled", zone: "trusted", source: "{{default_network}}/24"}
   when: ansible_distribution in ['CentOS', 'Red Hat Enterprise Linux', 'RedHat']
 
 - name: Add /usr/local/bin to sudo secure_path
