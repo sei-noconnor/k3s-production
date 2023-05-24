@@ -23,7 +23,7 @@ done
 case $(get_distro) in 
   centos|fedora)
     sudo yum update -y
-    sudo yum install -y ca-certificates curl software-properties-common apache2-utils jq unzip rename postgresql vim sshpass snapd wget nc
+    sudo yum install -y ca-certificates curl software-properties-common apache2-utils jq unzip rename postgresql vim sshpass snapd wget nc nfs-utils
     # symlink snap
     sudo ln -s /var/lib/snapd/snap /snap
     sudo systemctl restart snapd
@@ -37,7 +37,7 @@ case $(get_distro) in
   rhel)
     sudo yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
     sudo yum update -y 
-    sudo yum install -y ca-certificates curl jq unzip postgresql vim sshpass snapd wget nc
+    sudo yum install -y ca-certificates curl jq unzip postgresql vim sshpass snapd wget nc nfs-utils
     # enable snap
     sudo systemctl enable --now snapd.socket
     # symlink snap
@@ -51,7 +51,7 @@ case $(get_distro) in
   ubuntu|debian)
     apt update
     apt install apt-transport-https ca-certificates curl software-properties-common \
-    apache2-utils jq unzip rename python postgresql-client vim sshpass snapd  wget -y
+    apache2-utils jq unzip rename python postgresql-client vim sshpass snapd  wget nfs-common -y
     ;;
   darwin)
     echo "MacOS is not supported by this script"
